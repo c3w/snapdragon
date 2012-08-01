@@ -1,0 +1,183 @@
+-- *****************************************************************
+-- CISCO-BERT-CAPABILITY
+--
+-- AGENT-CAPABILITIES mib for CISCO-BERT-MIB for CISCO Products
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- June 2002, Wayne W. Cai
+-- 
+-- *****************************************************************
+
+CISCO-BERT-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;
+
+ciscoBertCapability MODULE-IDENTITY
+        LAST-UPDATED    "200206110000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-wanatm@cisco.com"
+DESCRIPTION
+    "The Agent Capabilities for CISCO-BERT-MIB for
+     Cisco Products Series.
+
+     - ciscoBertAxsmeCapabilityV3R00 is for
+       Enhanced ATM Switch Service Module(AXSM-E), and
+       Enhanced Processor Switch Module 1(PXM1E) uplink."
+           
+REVISION    "200206110000Z"
+DESCRIPTION
+    "Initial version of this MIB module."
+
+::= { ciscoAgentCapability  9999 }
+
+
+ciscoBertAxsmeCapabilityV3R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 3.0"
+STATUS          current
+DESCRIPTION     "CISCO-BERT-MIB Capabilities."
+
+SUPPORTS        CISCO-BERT-MIB
+INCLUDES        { ciscoBertConfigGroup, ciscoBertStatsGroup }
+
+VARIATION       cbTestPattern
+DESCRIPTION     "Supported with limitation.
+                 The agent supports following enums:
+                     allZeros(1),
+                     allOnes(2),
+                     altOneZero(3),
+                     doubleAltOnesZeros(4),
+                     oneIn4(5),
+                     oneIn8(6),
+                     oneIn16(7),
+                     threeIn24(8),
+                     inbandLoopBackActivate(9),
+                     inbandLoopBackDeactivate(10),
+                     twoE3MinusOne(11),
+                     twoE4MinusOne(12),
+                     twoE5MinusOne(13),
+                     twoE6MinusOne(14),
+                     twoE7MinusOne(15),
+                     twoE7MinusOneFT1Loopup(16),
+                     twoE9MinusOne(18),
+                     twoE10MinusOne(19),
+                     twoE11MinusOne(20),
+                     twoE15MinusOne(21),
+                     twoE17MinusOne(22),
+                     twoE18MinusOne(23),
+                     twoE20MinusOne(24),
+                     twoE20MinusOneQRSS(25),
+                     twoE21MinusOne(26),
+                     twoE22MinusOne(27),
+                     twoE23MinusOne(28),
+                     twoE25MinusOne(29),
+                     twoE28MinusOne(30),
+                     twoE29MinusOne(31),
+                     twoE31MinusOne(32)
+                 
+                 The agent does not support
+                     twoE7MinusOneFT1Loopdown(17),
+                     dds1pattern (33),
+                     dds2pattern (34),
+                     dds3pattern (35),
+                     dds4pattern (36),
+                     dds5pattern (37),
+                     userPattern(38)."
+
+VARIATION       cbUserPattern
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbLoopback
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbLoopbackCode
+SYNTAX          INTEGER {lineLoopbackESF(13)}
+DESCRIPTION     "Supported with limitation.
+                 lineLoopbackESF(13) only."
+
+VARIATION       cbErrorInsertionRate
+SYNTAX          INTEGER {
+                    noError(1),
+                    oneInHundred(3),
+                    oneInThousand(4),
+                    oneInTenThousand(5),
+                    oneInHundredThousand(6),
+                    oneInMillion(7),
+                    oneInTenMillion(8)
+                    }
+DESCRIPTION     "The agent does not support oneInTen(2)."
+
+VARIATION       cbDuration
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbDS0DPCodeIteration
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbTxBitCountLower
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbTxBitCountUpper
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbHCTxBitCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbHCRxBitCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbHCRxBitErrCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbSyncLossCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbPatternLossCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbFrameLossCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbESsCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbSESsCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       cbEFSsCounts
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+    ::= { ciscoBertCapability 1 }
+
+END

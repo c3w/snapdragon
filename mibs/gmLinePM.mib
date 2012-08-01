@@ -1,0 +1,370 @@
+--
+-- Sorrento Networks Enterprise MIB for SONET Line/SDH Multiplex Section (Line)
+-- Layer Performance Monitoring.
+--
+-- Definitions of Managed Objects in this MIB are similar to the definitions defined in
+-- RFC2558 - "Definitions of Managed Objects for the SONET/SDH Interface Type."
+-- dated March 1999.
+--
+-- Revision 1.0   07/01/2002  mjagtap
+--
+-- This MIB file is implemented by various GigaMux Circuit packs supporting
+-- SONET Line/SDH Multiplex Section layer Performance Monitoring.
+--
+-- Copyright 2002, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+	GMux-SONETLinePM-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, TimeTicks, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies			OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest				OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxSONETLine			OBJECT IDENTIFIER ::= { gigaNest 27 }
+		sonetLineCurrent    		OBJECT IDENTIFIER ::= { gigaMuxSONETLine 1 }
+		sonetLine15minHistory    	OBJECT IDENTIFIER ::= { gigaMuxSONETLine 2 }
+		sonetLineDailyHistory    	OBJECT IDENTIFIER ::= { gigaMuxSONETLine 3 }
+
+-- The Line Current Table
+-- The Line current table contains various statistics
+-- being collected for the current 15 minute interval.
+
+sonetLineCurrentTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF SonetLineCurrentEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+       "The Line Current table."
+     ::= { sonetLineCurrent 1 }
+
+sonetLineCurrentEntry OBJECT-TYPE
+    SYNTAX  SonetLineCurrentEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+       "An entry in the Line Current table."
+    INDEX   { sonetLinePortIndex }
+     ::= { sonetLineCurrentTable 1 }
+
+SonetLineCurrentEntry ::=
+    SEQUENCE {
+        sonetLinePortIndex       INTEGER,
+        sonetLineCurrentStatus   INTEGER,
+        sonetLineCurrentESs      INTEGER,
+        sonetLineCurrentSESs     INTEGER,
+        sonetLineCurrentUASs     INTEGER,
+        sonetLineCurrentCVs      INTEGER
+    }
+
+sonetLinePortIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Port Index"
+		::= { sonetLineCurrentEntry 1 }
+
+sonetLineCurrentStatus OBJECT-TYPE
+    SYNTAX  INTEGER (1..30)
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "This variable indicates the
+       status of the interface.
+       The sonetLineCurrentStatus
+       is a bit map represented
+       as a sum, therefore,
+       it can represent multiple defects
+       simultaneously.
+       The sonetLineNoDefect should be
+       set if and only if
+       no other flag is set.
+
+       The various bit positions are:
+             1   sonetLineNoDefect
+             2   sonetLineAIS
+             4   sonetLineRDI
+             8   sonetLineSD
+            16   sonetLineSF"
+     ::= { sonetLineCurrentEntry 2 }
+
+sonetLineCurrentESs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of Errored
+       Seconds encountered by a
+       Line in the current 15 minute interval."
+     ::= { sonetLineCurrentEntry 3 }
+
+sonetLineCurrentSESs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Severely Errored Seconds
+       encountered by a Line in the current 15
+       minute interval."
+     ::= { sonetLineCurrentEntry 4 }
+
+sonetLineCurrentUASs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Severely Errored Framing Seconds
+       encountered by a Line in the current
+       15 minute interval."
+    ::= { sonetLineCurrentEntry 5 }
+
+sonetLineCurrentCVs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of Coding
+       Violations encountered by a Line in
+       the current 15 minute interval."
+     ::= { sonetLineCurrentEntry 6 }
+
+--
+-- The Line 15 minute History Table
+-- The Line 15 minute History Table
+-- contains various statistics
+-- collected by each system over a maximum
+-- of the previous 8 hours of
+-- operation.  The past 8 hours may be broken into 32
+-- completed 15 minute intervals.
+--
+
+sonetLine15minHistoryTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF SonetLine15minHistoryEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+       "The Line Interval table."
+     ::= { sonetLine15minHistory 1 }
+
+sonetLine15minHistoryEntry OBJECT-TYPE
+    SYNTAX  SonetLine15minHistoryEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+       "An entry in the Line Interval table."
+    INDEX   { portIndex, sonetLineIntervalNumber }
+     ::= { sonetLine15minHistoryTable 1 }
+
+SonetLine15minHistoryEntry ::=
+    SEQUENCE {
+         sonetLineIntervalNumber  INTEGER,
+         sonetLineIntervalESs     INTEGER,
+         sonetLineIntervalSESs    INTEGER,
+         sonetLineIntervalUASs   INTEGER,
+         sonetLineIntervalCVs     INTEGER,
+         sonetLineIntervalValidData  INTEGER
+    }
+
+sonetLineIntervalNumber OBJECT-TYPE
+    SYNTAX  INTEGER (1..32)
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+      "A number between 1 and 32, which identifies the
+      interval for which the set of statistics is available.
+      The interval identified by 1 is the most recently
+      completed 15 minute interval, and the interval identified
+      by N is the interval immediately preceding the
+      one identified
+      by N-1."
+     ::= { sonetLine15minHistoryEntry 1 }
+
+sonetLineIntervalESs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Errored Seconds encountered
+       by a Line in a
+       particular 15-minute interval
+       in the past 8 hours."
+     ::= { sonetLine15minHistoryEntry 2 }
+
+sonetLineIntervalSESs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Severely Errored Seconds
+       encountered by a Line in a
+       particular 15-minute interval
+       in the past 8 hours."
+    ::= { sonetLine15minHistoryEntry 3 }
+
+sonetLineIntervalUASs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Severely Errored Framing Seconds
+       encountered by a Line in a
+       particular 15-minute interval
+       in the past 8 hours."
+    ::= { sonetLine15minHistoryEntry 4 }
+
+sonetLineIntervalCVs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of Coding
+       Violations encountered by a
+       Line in a particular 15-minute interval
+       in the past 8 hours."
+    ::= { sonetLine15minHistoryEntry 5 }
+
+sonetLineIntervalValidData OBJECT-TYPE
+    SYNTAX  INTEGER
+	{
+		valid(1),
+		invalid(2)
+	}
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "This variable indicates if the data for this
+        interval is valid."
+    ::= { sonetLine15minHistoryEntry 6 }
+
+--
+-- The Line Daily Table
+-- The Line Daily Table
+-- contains various statistics collected
+-- by each system over a maximum
+-- of the current day and previous 1 day of operation.
+
+sonetLineDailyHistoryTable OBJECT-TYPE
+    SYNTAX  SEQUENCE OF SonetLineDailyHistoryEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+       "The Line Daily table."
+     ::= { sonetLineDailyHistory 1 }
+
+sonetLineDailyHistoryEntry OBJECT-TYPE
+    SYNTAX  SonetLineDailyHistoryEntry
+    ACCESS  not-accessible
+    STATUS  mandatory
+    DESCRIPTION
+       "An entry in the Line Daily table."
+    INDEX   { portIndex, sonetLineDayIndex }
+     ::= { sonetLineDailyHistoryTable 1 }
+
+SonetLineDailyHistoryEntry ::=
+    SEQUENCE {
+         sonetLineDayIndex     INTEGER,
+         sonetLineDailyESs     INTEGER,
+         sonetLineDailySESs    INTEGER,
+         sonetLineDailyUASs   INTEGER,
+         sonetLineDailyCVs     INTEGER,
+         sonetLineDailyValidData  INTEGER
+    }
+
+sonetLineDayIndex OBJECT-TYPE
+    SYNTAX  INTEGER (1..2)
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+      "A number which identifies the Day for which the 
+       set of statistics is available.
+		1 - Current Day
+		2 - Previous Day"
+     ::= { sonetLineDailyHistoryEntry 1 }
+
+sonetLineDailyESs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Errored Seconds encountered
+       by a Line in a
+       particular Day."
+     ::= { sonetLineDailyHistoryEntry 2 }
+
+sonetLineDailySESs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Severely Errored Seconds
+       encountered by a Line in a
+       particular Day."
+    ::= { sonetLineDailyHistoryEntry 3 }
+
+sonetLineDailyUASs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of
+       Severely Errored Framing Seconds
+       encountered by a Line in a
+       particular Day."
+    ::= { sonetLineDailyHistoryEntry 4 }
+
+sonetLineDailyCVs OBJECT-TYPE
+    SYNTAX  INTEGER
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "The counter associated with the number of Coding
+       Violations encountered by a
+       Line in a
+       particular Day."
+    ::= { sonetLineDailyHistoryEntry 5 }
+
+sonetLineDailyValidData OBJECT-TYPE
+    SYNTAX  INTEGER
+	{
+		valid(1),
+		invalid(2)
+	}
+    ACCESS  read-only
+    STATUS  mandatory
+    DESCRIPTION
+       "This variable indicates if the data for this
+        Daily is valid."
+    ::= { sonetLineDailyHistoryEntry 6 }
+
+END
+

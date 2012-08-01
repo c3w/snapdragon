@@ -1,0 +1,250 @@
+-- *****************************************************************
+-- ciscoWanRsrcpartCapabilities MIB
+--
+-- AGENT-CAPABILITIES mib for CISCO-WAN-RSRC-PART-MIB 
+--
+-- March 2002, Subra Hegde
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- *****************************************************************
+
+CISCO-WAN-RSRC-PART-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        Unsigned32
+                FROM CISCO-TC
+        ciscoAgentCapability
+                FROM CISCO-SMI;   
+
+ciscoWanRsrcPartCapability MODULE-IDENTITY
+        LAST-UPDATED    "200203130000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-wanatm@cisco.com"
+        DESCRIPTION
+            "The Agent Capabilities for CISCO-WAN-RSRC-PART-MIB."
+
+        REVISION "200203130000Z"
+        DESCRIPTION
+            "Initial version of this MIB module."
+        ::= { ciscoAgentCapability 99999 }
+
+cwRsrcPartCapabilityV2R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 2.0.00
+                          and Release 2.1.00"
+    STATUS               current
+    DESCRIPTION          "CISCO-WAN-RSRC-PART-MIB Capabilities for
+                         ATM Switch Service Module(AXSM) and 
+                         Enhanced AXSM(AXSM-E)."
+
+    SUPPORTS CISCO-WAN-RSRC-PART-MIB
+        INCLUDES { cwRsrcPartMIBGroup, 
+                   cwRsrcPartIlmiMIBGroup}
+
+        VARIATION   cwRsrcPartID
+        SYNTAX      Unsigned32(1..20)
+        DESCRIPTION "Maximum value supported is 20."
+
+        VARIATION   cwRsrcPartController
+        SYNTAX      Unsigned32(1..20)
+        DESCRIPTION "Maximum value supported is 20."
+
+        VARIATION   cwRsrcPartRowStatus
+        SYNTAX      INTEGER { 
+                        active(1), notInService(2),createAndGo(4),destroy(6)
+                    }
+        DESCRIPTION "Does not support createAndWait(5)."
+    ::= { ciscoWanRsrcPartCapability 1 }
+
+cwRsrcPartCapabilityRpmV2R0160 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 2.1.60"
+    STATUS               current
+    DESCRIPTION          "Agent Capabilities for CISCO-WAN-RSRC-PART-MIB
+                          for RPM-PR Module."
+
+    SUPPORTS CISCO-WAN-RSRC-PART-MIB
+
+        INCLUDES { cwRsrcPartMIBGroup }
+
+
+        VARIATION   cwRsrcPartID
+        SYNTAX      Unsigned32 (1..10)
+        DESCRIPTION "Only limited range is supported.
+                     The Value 1 is reserved for PNNI Controller."
+
+        VARIATION   cwRsrcPartController
+        DESCRIPTION "Value 2 is assumed to be for PNNI Controller."
+        
+        VARIATION cwRsrcPartEgrGuarPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartEgrMaxPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartIngGuarPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartIngMaxPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartVpiLo
+        SYNTAX Unsigned32 (0..255)
+        DESCRIPTION
+            "Restricted range is supported.
+
+             For VCC partition, only value zero
+             is supported.
+
+             For VPC partition, 1-255."
+
+        VARIATION cwRsrcPartVpiHigh
+        SYNTAX Unsigned32 (0..255)
+        DESCRIPTION
+            "Restricted range is supported.
+
+             For VCC partition, only value zero
+             is supported.
+
+             For VPC partition, 1-255."
+
+        VARIATION cwRsrcPartVciLo
+        SYNTAX Unsigned32 (1..65535)
+        DESCRIPTION
+            "Restricted range is supported.
+             For VCC partiton, the valid range is 1-3808.
+             For VPC partiton, the valid range is 0-65535."
+
+        VARIATION cwRsrcPartVciHigh
+        SYNTAX Unsigned32 (1..65535)
+        DESCRIPTION
+            "Restricted range is supported.
+             For VCC partiton, the valid range is 1-3808.
+             For VPC partiton, the valid range is 0-65535."
+
+        VARIATION cwRsrcPartGuarCon
+        ACCESS    read-only
+        DESCRIPTION
+            "Write operation is not supported."
+
+        VARIATION cwRsrcPartMaxCon
+        ACCESS    read-only
+        DESCRIPTION
+            "Write operation is not supported."
+
+        VARIATION   cwRsrcPartRowStatus
+        SYNTAX      INTEGER {
+                        active(1),
+                        createAndGo(4),
+                        destroy(6)
+                    }
+        DESCRIPTION "Does not support notInService(2),
+                     notReady(3) and createAndWait(5)."
+        
+    ::= { ciscoWanRsrcPartCapability 2 }
+
+cwRsrcPartCapabilityRpmxfV12R02 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "IOS Release 12.2.
+                          MGX8850 Release 3.0.00."
+    STATUS               current
+    DESCRIPTION          "Agent Capabilities for CISCO-WAN-RSRC-PART-MIB
+                          for RPM-XF Module."
+
+    SUPPORTS CISCO-WAN-RSRC-PART-MIB
+
+        INCLUDES { cwRsrcPartMIBGroup }
+
+
+        VARIATION   cwRsrcPartID
+        SYNTAX      Unsigned32 (1..10)
+        DESCRIPTION "Only limited range is supported.
+                     The Value 1 is reserved for PNNI Controller."
+
+        VARIATION   cwRsrcPartController
+        DESCRIPTION "Value 2 is assumed to be for PNNI Controller.
+                     Value 3 is assumed to be for LSC Controller."
+        
+        VARIATION cwRsrcPartEgrGuarPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartEgrMaxPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartIngGuarPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartIngMaxPctBwConf
+        DESCRIPTION
+            "Only whole percentage is supported. For example
+             1%, 10% etc."
+
+        VARIATION cwRsrcPartVpiLo
+        SYNTAX Unsigned32 (0..240)
+        DESCRIPTION
+            "Restricted range is supported."
+
+        VARIATION cwRsrcPartVpiHigh
+        SYNTAX Unsigned32 (0..240)
+        DESCRIPTION
+            "Restricted range is supported."
+
+        VARIATION cwRsrcPartVciLo
+        SYNTAX Unsigned32 (32..65535)
+        DESCRIPTION
+            "Restricted range is supported."
+
+        VARIATION cwRsrcPartVciHigh
+        SYNTAX Unsigned32 (32..65535)
+        DESCRIPTION
+            "Restricted range is supported."
+
+        VARIATION cwRsrcPartGuarCon
+        SYNTAX Unsigned32(0..15744)
+        DESCRIPTION
+            "Restricted range is supported."
+
+        VARIATION cwRsrcPartMaxCon
+        SYNTAX Unsigned32(0..15744)
+        DESCRIPTION
+            "Restricted range is supported."
+
+        VARIATION   cwRsrcPartRowStatus
+        SYNTAX      INTEGER {
+                        active(1),
+                        createAndGo(4),
+                        destroy(6)
+                    }
+        DESCRIPTION "Does not support notInService(2),
+                     notReady(3) and createAndWait(5)."
+        
+    ::= { ciscoWanRsrcPartCapability 3 }
+
+END
+

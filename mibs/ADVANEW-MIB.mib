@@ -1,0 +1,1759 @@
+ADVANEW-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    DisplayString,TestAndIncr,TimeStamp,RowStatus,DateAndTime
+      FROM  SNMPv2-TC
+    MODULE-COMPLIANCE,NOTIFICATION-GROUP,OBJECT-GROUP
+      FROM  SNMPv2-CONF
+    Counter32,MODULE-IDENTITY,NOTIFICATION-TYPE,OBJECT-TYPE,TimeTicks,mib-2,snmpModules,enterprises,Unsigned32
+      FROM  SNMPv2-SMI
+    entPhysicalIndex
+      FROM  ENTITY-MIB
+    SnmpAdminString
+      FROM  SNMP-FRAMEWORK-MIB
+    advaMIB,config,TrapAlarmSeverity,ServiceImpairment,neEventLogTimeStamp,neEventLogIdentityTranslation,EnableState,OnOff
+      FROM  ADVA-MIB;
+
+
+advaNewMIB MODULE-IDENTITY
+    LAST-UPDATED "200606140000Z"
+    ORGANIZATION "
+          ADVA AG Optical Networking
+        "
+    CONTACT-INFO "
+          ADVA AG Optical Networking
+          Justus-von-Liebig-Str. 7
+          12489 Berlin, Germany
+
+          Support Europe:
+          Phone:  +49 89 89 0665 848
+          Fax:    +49 89 89 0665 22848
+          e-mail: support@advaoptical.com
+
+          Support USA:
+          Phone:  +1 201 995 0080
+          Fax:    +1 201 995 0081
+          e-mail: support-usa@advaoptical.com
+
+          Support Asia:
+          Phone:  +81 3 5408 5891
+          Fax:    +81 3 5408 5899
+          e-mail: support-asia@advaoptical.com
+        "
+    DESCRIPTION
+        "
+         New part of ADVAMib
+        "
+    REVISION "200606140000Z"
+    DESCRIPTION
+        "
+         The Release 7.0.6 ADVANEW-MIB.
+        "
+    REVISION "200605040000Z"
+    DESCRIPTION
+        "
+         The Release 7.0.2 ADVANEW-MIB.
+        "
+    ::= { advaMIB 9999 }
+
+transportStandards   OBJECT IDENTIFIER ::= { config 4 }
+sonet   OBJECT IDENTIFIER ::= { transportStandards 1 }
+otn   OBJECT IDENTIFIER ::= { transportStandards 2 }
+inventoryMib   OBJECT IDENTIFIER ::= { config 5 }
+sonetConfig   OBJECT IDENTIFIER ::= { sonet 1 }
+otuConfig   OBJECT IDENTIFIER ::= { otn 1 }
+oduConfig   OBJECT IDENTIFIER ::= { otn 2 }
+updateBackupRestoreMib   OBJECT IDENTIFIER ::= { config 6 }
+swAdmin   OBJECT IDENTIFIER ::= { updateBackupRestoreMib 1 }
+dbAdmin   OBJECT IDENTIFIER ::= { updateBackupRestoreMib 2 }
+
+ApsDirection ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Bi-Directional | Unidirectional"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  bidirectional(1)
+                }
+
+ApsHoldoffTime ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Soak period before switching on trigger."
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  none(1),
+                  e20ms(2),
+                  e100ms(3),
+                  e200ms(4),
+                  e300ms(5),
+                  e400ms(6),
+                  e500ms(7),
+                  e600ms(8),
+                  e700ms(9),
+                  e800ms(10),
+                  e900ms(11),
+                  e1000ms(12),
+                  e1100ms(13),
+                  e1200ms(14),
+                  e1300ms(15),
+                  e1400ms(16),
+                  e1500ms(17),
+                  e1600ms(18),
+                  e1700ms(19),
+                  e1800ms(20),
+                  e1900ms(21),
+                  e2000ms(22),
+                  e2100ms(23),
+                  e2200ms(24),
+                  e2300ms(25),
+                  e2400ms(26),
+                  e2500ms(27),
+                  e2600ms(28),
+                  e2700ms(29),
+                  e2800ms(30),
+                  e2900ms(31),
+                  e3000ms(32),
+                  e3100ms(33),
+                  e3200ms(34),
+                  e3300ms(35),
+                  e3400ms(36),
+                  e3500ms(37),
+                  e3600ms(38),
+                  e3700ms(39),
+                  e3800ms(40),
+                  e3900ms(41),
+                  e4000ms(42),
+                  e4100ms(43),
+                  e4200ms(44),
+                  e4300ms(45),
+                  e4400ms(46),
+                  e4500ms(47),
+                  e4600ms(48),
+                  e4700ms(49),
+                  e4800ms(50),
+                  e4900ms(51),
+                  e5000ms(52),
+                  e5100ms(53),
+                  e5200ms(54),
+                  e5300ms(55),
+                  e5400ms(56),
+                  e5500ms(57),
+                  e5600ms(58),
+                  e5700ms(59),
+                  e5800ms(60),
+                  e5900ms(61),
+                  e6000ms(62),
+                  e6100ms(63),
+                  e6200ms(64),
+                  e6300ms(65),
+                  e6400ms(66),
+                  e6500ms(67),
+                  e6600ms(68),
+                  e6700ms(69),
+                  e6800ms(70),
+                  e6900ms(71),
+                  e7000ms(72),
+                  e7100ms(73),
+                  e7200ms(74),
+                  e7300ms(75),
+                  e7400ms(76),
+                  e7500ms(77),
+                  e7600ms(78),
+                  e7700ms(79),
+                  e7800ms(80),
+                  e7900ms(81),
+                  e8000ms(82),
+                  e8100ms(83),
+                  e8200ms(84),
+                  e8300ms(85),
+                  e8400ms(86),
+                  e8500ms(87),
+                  e8600ms(88),
+                  e8700ms(89),
+                  e8800ms(90),
+                  e8900ms(91),
+                  e9000ms(92),
+                  e9100ms(93),
+                  e9200ms(94),
+                  e9300ms(95),
+                  e9400ms(96),
+                  e9500ms(97),
+                  e9600ms(98),
+                  e9700ms(99),
+                  e9800ms(100),
+                  e9900ms(101),
+                  e10000ms(102)
+                }
+
+ApsHoldoffTimeCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Soak period before switching on trigger."
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capNone(1),
+                  capE20ms(2),
+                  capE100ms(3),
+                  capE200ms(4),
+                  capE300ms(5),
+                  capE400ms(6),
+                  capE500ms(7),
+                  capE600ms(8),
+                  capE700ms(9),
+                  capE800ms(10),
+                  capE900ms(11),
+                  capE1000ms(12),
+                  capE1100ms(13),
+                  capE1200ms(14),
+                  capE1300ms(15),
+                  capE1400ms(16),
+                  capE1500ms(17),
+                  capE1600ms(18),
+                  capE1700ms(19),
+                  capE1800ms(20),
+                  capE1900ms(21),
+                  capE2000ms(22),
+                  capE2100ms(23),
+                  capE2200ms(24),
+                  capE2300ms(25),
+                  capE2400ms(26),
+                  capE2500ms(27),
+                  capE2600ms(28),
+                  capE2700ms(29),
+                  capE2800ms(30),
+                  capE2900ms(31),
+                  capE3000ms(32),
+                  capE3100ms(33),
+                  capE3200ms(34),
+                  capE3300ms(35),
+                  capE3400ms(36),
+                  capE3500ms(37),
+                  capE3600ms(38),
+                  capE3700ms(39),
+                  capE3800ms(40),
+                  capE3900ms(41),
+                  capE4000ms(42),
+                  capE4100ms(43),
+                  capE4200ms(44),
+                  capE4300ms(45),
+                  capE4400ms(46),
+                  capE4500ms(47),
+                  capE4600ms(48),
+                  capE4700ms(49),
+                  capE4800ms(50),
+                  capE4900ms(51),
+                  capE5000ms(52),
+                  capE5100ms(53),
+                  capE5200ms(54),
+                  capE5300ms(55),
+                  capE5400ms(56),
+                  capE5500ms(57),
+                  capE5600ms(58),
+                  capE5700ms(59),
+                  capE5800ms(60),
+                  capE5900ms(61),
+                  capE6000ms(62),
+                  capE6100ms(63),
+                  capE6200ms(64),
+                  capE6300ms(65),
+                  capE6400ms(66),
+                  capE6500ms(67),
+                  capE6600ms(68),
+                  capE6700ms(69),
+                  capE6800ms(70),
+                  capE6900ms(71),
+                  capE7000ms(72),
+                  capE7100ms(73),
+                  capE7200ms(74),
+                  capE7300ms(75),
+                  capE7400ms(76),
+                  capE7500ms(77),
+                  capE7600ms(78),
+                  capE7700ms(79),
+                  capE7800ms(80),
+                  capE7900ms(81),
+                  capE8000ms(82),
+                  capE8100ms(83),
+                  capE8200ms(84),
+                  capE8300ms(85),
+                  capE8400ms(86),
+                  capE8500ms(87),
+                  capE8600ms(88),
+                  capE8700ms(89),
+                  capE8800ms(90),
+                  capE8900ms(91),
+                  capE9000ms(92),
+                  capE9100ms(93),
+                  capE9200ms(94),
+                  capE9300ms(95),
+                  capE9400ms(96),
+                  capE9500ms(97),
+                  capE9600ms(98),
+                  capE9700ms(99),
+                  capE9800ms(100),
+                  capE9900ms(101),
+                  capE10000ms(102)
+                }
+
+ApsRevertMode ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Revertive Protection Switching"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  nonrevertive(1)
+                }
+
+ApsRevertModeCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Revertive Protection Switching"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capNonrevertive(1)
+                }
+
+ApsType ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Triggered by Standing Conditions"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  line(2),
+                  sncN(3),
+                  sncI(4),
+                  sncS(5),
+                  eth(6),
+                  phys(7),
+                  sncNPM(8),
+                  sncNTCM(9),
+                  sncISM(10)
+                }
+
+AssignmentState ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         ""
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  assigned(1),
+                  unassigned(2),
+                  notassignable(3)
+                }
+
+ClockDataRate ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "A common enumeration for supported data rates in the system."
+  SYNTAX        INTEGER
+                {
+                  transparent(1),
+                  mb10(2),
+                  mb125(3),
+                  mb192(4),
+                  mb155(5),
+                  mb200(6),
+                  mb266(7),
+                  mb270(8),
+                  mb326(9),
+                  mb576(10),
+                  mb622(11),
+                  mb1062(12),
+                  mb1244(13),
+                  mb1250(14),
+                  mb2125(15),
+                  mb2488(16),
+                  mb2500(17),
+                  mb4250(18),
+                  mb9953(19),
+                  mb10312(20),
+                  mb1062cl(21),
+                  mb2125cl(22),
+                  mb155als2(23),
+                  mb622als2(24),
+                  mb2488als2(25),
+                  adaptive3R(26),
+                  adaptive3ROddRates(27),
+                  mb10518(28),
+                  mb10709(29),
+                  mb11095(30),
+                  mb9953als2(31),
+                  mb11317(32)
+                }
+
+EnableStateCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Usage of 3rd Party Plugs"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capStateEnabled(1),
+                  capStateDisabled(2)
+                }
+
+EntityClass ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Entity Class"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  other(1),
+                  unknown(2),
+                  chassis(3),
+                  backplane(4),
+                  container(5),
+                  powerSupply(6),
+                  fan(7),
+                  sensor(8),
+                  module(9),
+                  plug(10),
+                  stack(11),
+                  group(12),
+                  clientPort(13),
+                  networkPort(14),
+                  virtualChannel(15),
+                  connection(16),
+                  vc4Container(17),
+                  vc3sts1Container(18),
+                  vc12vt15Container(19),
+                  dcnChannel(20),
+                  routerConfig(21),
+                  environmentPort(22),
+                  internalPort(23),
+                  upgradePort(24),
+                  midstagePort(25),
+                  serialPort(26),
+                  pppIpInterface(27)
+                }
+
+EntityIndex ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "The index of an entity. EntityIndex is used to index the following:
+         Entities which are provisioned but unequipped (existing in the database but
+         not physically present),
+         Entities which are equipped but non-provisioned (physically present but not in
+         the database),
+         Entities which are both provisioned and equipped (existing in the database and
+         physically present),
+         Entities which are non-provisioned and unequipped (not existing in the database
+         and not physically present).
+         These will have an entry in the entityTable, but their EntityType will
+         be undefined.
+         The EntityIndex is used similarly to how the entPhysicalIndex in
+         RFC2737 (Entity MIB) is used to address entities and containers of entities."
+  SYNTAX        Integer32
+
+EntityType ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Identifies the entity type. Each NE may have their own use of
+         this INTEGER value, which will defined in the conformance document
+         for each individual NE MIB."
+  SYNTAX        Integer32
+
+EquipmentState ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         ""
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  equipped(1),
+                  unequipped(2)
+                }
+
+EthDuplexMode ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Duplex Mode Provision."
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  ethHalfDuplex(1),
+                  ethFullDuplex(2)
+                }
+
+EthDuplexModeCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Duplex Mode Provision."
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capEthHalfDuplex(1),
+                  capEthFullDuplex(2)
+                }
+
+FileArea ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Type of Area"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  activeArea(1),
+                  standbyArea(2),
+                  rDisk(3)
+                }
+
+FileType ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Type of File"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  pgm(1),
+                  dbs(2),
+                  unknown(3)
+                }
+
+Grade ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Used to distinguish between NCU capabilities (range of supported services or applications)"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  gradeA(1),
+                  gradeB(2),
+                  gradeGdps(3),
+                  gradeC(4)
+                }
+
+LoopConfig ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "External or Facility Loopback"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  noLoop(1),
+                  lineLoop(2),
+                  inwardLoop(3)
+                }
+
+LoopConfigCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "External or Facility Loopback"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capNoLoop(1),
+                  capLineLoop(2),
+                  capInwardLoop(3)
+                }
+
+OhTerminationLevel ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Signal Tremination Level of Intrusive Access to Header Information.
+         Not used in 7.0, monitoring is one layer higher than TERM level,
+         if applicable. All conditions detected on monitoring layer will not
+         be reported (severity degradated to NR)."
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  phys(1),
+                  otnOtu(2),
+                  otnOdu(3),
+                  otnOpu(4),
+                  sonetSection(5),
+                  sonetLine(6),
+                  sonetPath(7)
+                }
+
+OhTerminationLevelCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Signal Tremination Level of Intrusive Access to Header Information.
+         Not used in 7.0, monitoring is one layer higher than TERM level,
+         if applicable. All conditions detected on monitoring layer will not
+         be reported (severity degradated to NR)."
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capPhys(1),
+                  capOtnOtu(2),
+                  capOtnOdu(3),
+                  capOtnOpu(4),
+                  capSonetSection(5),
+                  capSonetLine(6),
+                  capSonetPath(7)
+                }
+
+OtnPayloadType ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "The PAYLOAD defines the transport service type of the payload,
+         which may be transparent at this layer or with protocol-dependent
+         behaviour. (Only relevant where TYPE = OTU#)."
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  ifType10GbE(3),
+                  ifTypeOc192(4),
+                  ifTypeOc48(5),
+                  ifTypeStm16(6),
+                  ifTypeStm64(7),
+                  ifType10GFC(8),
+                  ifTypeF9953(15),
+                  ifTypeF10312(16),
+                  ifTypeF10518(17),
+                  ifTypeF2488(18)
+                }
+
+OtnPayloadTypeCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "The PAYLOAD defines the transport service type of the payload,
+         which may be transparent at this layer or with protocol-dependent
+         behaviour. (Only relevant where TYPE = OTU#)."
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capIfType10GbE(3),
+                  capIfTypeOc192(4),
+                  capIfTypeOc48(5),
+                  capIfTypeStm16(6),
+                  capIfTypeStm64(7),
+                  capIfType10GFC(8),
+                  capIfTypeF9953(15),
+                  capIfTypeF10312(16),
+                  capIfTypeF10518(17),
+                  capIfTypeF2488(18)
+                }
+
+OtnTcmLevel ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Activation of Tandem Connection Monitoring Instance A"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  tcm1(1),
+                  tcm2(2),
+                  tcm3(3),
+                  tcm4(4),
+                  tcm5(5),
+                  tcm6(6),
+                  disabled(7)
+                }
+
+OtnTcmLevelCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Activation of Tandem Connection Monitoring Instance A"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capTcm1(1),
+                  capTcm2(2),
+                  capTcm3(3),
+                  capTcm4(4),
+                  capTcm5(5),
+                  capTcm6(6),
+                  capDisabled(7)
+                }
+
+ProtectionMech ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Port Based refers to HST Cards and Switches: Card Based refers to additional equipment protection"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  pathProtection(1),
+                  channelCardProtection(2),
+                  channelProtection(3),
+                  versatileSwitchedProtection(4)
+                }
+
+ProtectionMechCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Port Based refers to HST Cards and Switches: Card Based refers to additional equipment protection"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capPathProtection(1),
+                  capChannelCardProtection(2),
+                  capChannelProtection(3),
+                  capVersatileSwitchedProtection(4)
+                }
+
+RestoreActivation ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Shows whether the last activation was(will be) a database restore or a new software activation"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  notRestore(1),
+                  restoreFromStdBy(2),
+                  restoreToFactory(3),
+                  restoreFromEqpt(4)
+                }
+
+SonetSectSigDegThres ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "The SONET signal degrade threshold as a bit error rate."
+  SYNTAX        INTEGER
+                {
+                  ber10exp5(1),
+                  ber10exp6(2),
+                  ber10exp7(3),
+                  ber10exp8(4),
+                  ber10exp9(5)
+                }
+
+SonetSectSigDegThresCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "The SONET signal degrade threshold as a bit error rate."
+  SYNTAX        INTEGER
+                {
+                  capBer10exp5(1),
+                  capBer10exp6(2),
+                  capBer10exp7(3),
+                  capBer10exp8(4),
+                  capBer10exp9(5)
+                }
+
+SonetTimingSource ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Interface Timing Source Selection"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  loopTiming(1),
+                  internal(2)
+                }
+
+SonetTimingSourceCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Interface Timing Source Selection"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capLoopTiming(1),
+                  capInternal(2)
+                }
+
+SonetVcBundleAllocation ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "
+         Each byte represents one sequence position in
+         the VC bundle, always assigned consecutively.
+         The sequence identifies the
+         order in which the individual VCs are combined within the
+         VC-4-Xv/VC-3-Xv. Each VC has a fixed unique sequence number in the
+         range of 0 to (X-1):
+         byte 0: VC4/VC3 transporting the first container
+         of the VC-4-Xv/VC-3-Xv is assigned sequence number 0,
+         byte 1: VC4/VC3 transporting the second container
+         of the VC-4-Xv/VC-3-Xv is assigned sequence number 1, etc.
+         byte (X-1): VC4/VC3 transporting container X
+         of the VC-4-Xv/VC-3-Xv is assigned sequence number (X-1)."
+  SYNTAX        OCTET STRING (SIZE(1..48))
+
+SonetVcBundleAllocationCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "
+         Each bit set in the bitmask represents the number
+         of a free VC. Bit 0 = VC #1, and so on."
+  SYNTAX        BITS
+                {
+                  vc1(0),
+                  vc2(1),
+                  vc3(2),
+                  vc4(3),
+                  vc5(4),
+                  vc6(5),
+                  vc7(6),
+                  vc8(7),
+                  vc9(8),
+                  vc10(9),
+                  vc11(10),
+                  vc12(11),
+                  vc13(12),
+                  vc14(13),
+                  vc15(14),
+                  vc16(15),
+                  vc17(16),
+                  vc18(17),
+                  vc19(18),
+                  vc20(19),
+                  vc21(20),
+                  vc22(21),
+                  vc23(22),
+                  vc24(23),
+                  vc25(24),
+                  vc26(25),
+                  vc27(26),
+                  vc28(27),
+                  vc29(28),
+                  vc30(29),
+                  vc31(30),
+                  vc32(31),
+                  vc33(32),
+                  vc34(33),
+                  vc35(34),
+                  vc36(35),
+                  vc37(36),
+                  vc38(37),
+                  vc39(38),
+                  vc40(39),
+                  vc41(40),
+                  vc42(41),
+                  vc43(42),
+                  vc44(43),
+                  vc45(44),
+                  vc46(45),
+                  vc47(46),
+                  vc48(47)
+                }
+
+SonetVcType ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Virtual Container Group Type"
+  SYNTAX        INTEGER
+                {
+                  undefined(0),
+                  vc4Type(1),
+                  vc3Au4Type(2),
+                  sts1(3)
+                }
+
+SonetVcTypeCaps ::= TEXTUAL-CONVENTION
+  STATUS        current
+  DESCRIPTION
+         "Virtual Container Group Type"
+  SYNTAX        BITS
+                {
+                  capUndefined(0),
+                  capVc4Type(1),
+                  capVc3Au4Type(2),
+                  capSts1(3)
+                }
+
+
+
+inventoryTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF InventoryEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table lists all physically present (equipped) equipment in the NE"
+    ::=  { inventoryMib 1 }
+
+inventoryEntry OBJECT-TYPE
+    SYNTAX      InventoryEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX       { entityIndex }
+    ::=  { inventoryTable  1  }
+
+InventoryEntry ::=  SEQUENCE
+  { inventoryUnitName SnmpAdminString,
+    inventoryFirmwarePackageRev SnmpAdminString,
+    inventoryHardwareRev SnmpAdminString,
+    inventorySoftwareRev SnmpAdminString,
+    inventoryFpgaRev SnmpAdminString,
+    inventorySerialNum SnmpAdminString,
+    inventoryPartnumber SnmpAdminString,
+    inventoryCleiCode SnmpAdminString,
+    inventoryVendorId SnmpAdminString,
+    inventoryType EntityType }
+
+
+
+inventoryUnitName OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "ADVA Official Equipment Name"
+    ::=  { inventoryEntry 1 }
+
+inventoryFirmwarePackageRev OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Firmware Package Revision Number"
+    ::=  { inventoryEntry 2 }
+
+inventoryHardwareRev OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Equipment Revision Number"
+    ::=  { inventoryEntry 3 }
+
+inventorySoftwareRev OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The active Application software version on the
+         unit/module."
+    ::=  { inventoryEntry 4 }
+
+inventoryFpgaRev OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The active FPGA version on the
+         unit/module."
+    ::=  { inventoryEntry 5 }
+
+inventorySerialNum OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Equipment Serial Number"
+    ::=  { inventoryEntry 6 }
+
+inventoryPartnumber OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "ADVA Part Number"
+    ::=  { inventoryEntry 7 }
+
+inventoryCleiCode OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Common Language Equipment Identifier"
+    ::=  { inventoryEntry 8 }
+
+inventoryVendorId OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "OEM Vendor Code"
+    ::=  { inventoryEntry 9 }
+
+inventoryType OBJECT-TYPE
+    SYNTAX      EntityType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Type of a physical entity: shelf/module/plug"
+    ::=  { inventoryEntry 10 }
+
+entityTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF EntityEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Table for all existing addresses. Entities in this table are either
+         provisioned, equipped, both of these or neither of these. Containers
+         are always present in the table as long as their supporting entity
+         is provisioned or equipped."
+    ::=  { inventoryMib 2 }
+
+entityEntry OBJECT-TYPE
+    SYNTAX      EntityEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entry for all existing addresses."
+    INDEX       { entityIndex }
+    ::=  { entityTable  1  }
+
+EntityEntry ::=  SEQUENCE
+  { entityIndex EntityIndex,
+    entityContainedIn EntityIndex,
+    entityClass EntityClass,
+    entityClassInstanceNumber Integer32,
+    entityIndexAid SnmpAdminString,
+    entityType EntityType,
+    entityAssignmentState AssignmentState,
+    entityEquipmentState EquipmentState }
+
+
+
+entityIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "existing adress index"
+    ::=  { entityEntry 1 }
+
+entityContainedIn OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Contained In"
+    ::=  { entityEntry 2 }
+
+entityClass OBJECT-TYPE
+    SYNTAX      EntityClass
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "See EntityClass"
+    ::=  { entityEntry 3 }
+
+entityClassInstanceNumber OBJECT-TYPE
+    SYNTAX      Integer32 (1..2000)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The class instance number of this entity within the module(card)"
+    ::=  { entityEntry 4 }
+
+entityIndexAid OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Name"
+    ::=  { entityEntry 5 }
+
+entityType OBJECT-TYPE
+    SYNTAX      EntityType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The type of FspR7 entity.  Please refer to EntityType for further details"
+    ::=  { entityEntry 6 }
+
+entityAssignmentState OBJECT-TYPE
+    SYNTAX      AssignmentState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "See AssignmentState."
+    ::=  { entityEntry 7 }
+
+entityEquipmentState OBJECT-TYPE
+    SYNTAX      EquipmentState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "See EquipmentState."
+    ::=  { entityEntry 8 }
+
+containsTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ContainsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Table for all existing addresses. Gives the index of the subtending
+         entity in the containment."
+    ::=  { inventoryMib 3 }
+
+containsEntry OBJECT-TYPE
+    SYNTAX      ContainsEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX       { entityIndex,containsIndex }
+    ::=  { containsTable  1  }
+
+ContainsEntry ::=  SEQUENCE
+  { containsIndex EntityIndex }
+
+
+
+containsIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        ""
+    ::=  { containsEntry 1 }
+
+sonetSectionConfigTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SonetSectionConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Contains entries for the configuration of SONET interfaces. In the naming of
+         parameters, only sonet (and not sdh) is used for simplification.
+         This table extends the entries in
+         the ifTable (RFC 2863)."
+    ::=  { sonetConfig 1 }
+
+sonetSectionConfigEntry OBJECT-TYPE
+    SYNTAX      SonetSectionConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "SDH/SONET interfaces will have an entry
+         in this table."
+    INDEX       { entityIndex }
+    ::=  { sonetSectionConfigTable  1  }
+
+SonetSectionConfigEntry ::=  SEQUENCE
+  { sonetSectionConfigTimingSource SonetTimingSource,
+    sonetSectionConfigSignalDegradeThreshhold Unsigned32,
+    sonetSectionConfigSignalDegradePeriod Unsigned32 }
+
+
+
+sonetSectionConfigTimingSource OBJECT-TYPE
+    SYNTAX      SonetTimingSource
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The SDH/SONET timing source for this interface.
+         - internal: used in stand-alone, point-to-point topologies
+         stand-alone (dedicated fiber operation)
+         - loopTiming: used in point-to-point via SDH network and
+         feeder topologies.
+         The default is internal(1)."
+    ::=  { sonetSectionConfigEntry 1 }
+
+sonetSectionConfigSignalDegradeThreshhold OBJECT-TYPE
+    SYNTAX      Unsigned32 (1..100)
+    UNITS       "%"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Block-Error-Based Degradation Definition for SDH (standard integration period).
+         Defined as percentage Background Block Errors (30% default) evaluated
+         over a defined period (SDPER-RS)."
+    ::=  { sonetSectionConfigEntry 2 }
+
+sonetSectionConfigSignalDegradePeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (2..10)
+    UNITS       "s"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "�The measurement period in seconds used together with
+         the sonetSectionConfigSignalDegradeThreshold based on the
+         block error counting method.
+         The valid range is 2..10,
+         The default being 7."
+    ::=  { sonetSectionConfigEntry 3 }
+
+otuSectionConfigTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OtuSectionConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Contains entries for the configuration of OTU interfaces.
+         This table extends the entries in
+         the ifTable (RFC 2863)."
+    ::=  { otuConfig 1 }
+
+otuSectionConfigEntry OBJECT-TYPE
+    SYNTAX      OtuSectionConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "OTU interfaces will have an entry
+         in this table."
+    INDEX       { entityIndex }
+    ::=  { otuSectionConfigTable  1  }
+
+OtuSectionConfigEntry ::=  SEQUENCE
+  { otuSectionConfigSignalDegradeThreshold Integer32,
+    otuSectionConfigSignalDegradePeriod Unsigned32,
+    otuSectionConfigPayload OtnPayloadType,
+    otuSectionConfigStuffing EnableState }
+
+
+
+otuSectionConfigSignalDegradeThreshold OBJECT-TYPE
+    SYNTAX      Integer32 (1..100)
+    UNITS       "1 %"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Threshold for OTU SM-SD alarm (threshold level 0..100%, default value 15 %.
+         Ref. table 24/G.7710."
+    ::=  { otuSectionConfigEntry 1 }
+
+otuSectionConfigSignalDegradePeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (2..10)
+    UNITS       "s"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Measuring period for OTU SM-SD alarm: 2..10 sec) (bursty)
+         Ref. table 24/G.7710. Default value: 7."
+    ::=  { otuSectionConfigEntry 2 }
+
+otuSectionConfigPayload OBJECT-TYPE
+    SYNTAX      OtnPayloadType
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The payload of the interface (inside a transport overhead).
+         Relevant e. g. for OTN cards which wrap a payload into an OTU1/2 wrapper."
+    ::=  { otuSectionConfigEntry 3 }
+
+otuSectionConfigStuffing OBJECT-TYPE
+    SYNTAX      EnableState
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Indicates if bit/byte stuffing is used in the transport signal."
+    ::=  { otuSectionConfigEntry 4 }
+
+otuSectionDataTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OtuSectionDataEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Contains entries for the status of OTU interfaces.
+         This table extends the entries in
+         the ifTable (RFC 2863)."
+    ::=  { otuConfig 2 }
+
+otuSectionDataEntry OBJECT-TYPE
+    SYNTAX      OtuSectionDataEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "OTU interfaces will have an entry
+         in this table."
+    INDEX       { entityIndex }
+    ::=  { otuSectionDataTable  1  }
+
+OtuSectionDataEntry ::=  SEQUENCE
+  { otuSectionDataResultingTotalBitrate Unsigned32 }
+
+
+
+otuSectionDataResultingTotalBitrate OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "Mbit/s"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This interface bitrate is dependent on the type and the payload of the interface.
+         Relevant e. g. for OTN cards which wrap a payload into an OTU1/2 wrapper."
+    ::=  { otuSectionDataEntry 1 }
+
+oduSectionConfigTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OduSectionConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Contains entries for the configuration of ODU interfaces.
+         This table extends the entries in
+         the ifTable (RFC 2863)."
+    ::=  { oduConfig 1 }
+
+oduSectionConfigEntry OBJECT-TYPE
+    SYNTAX      OduSectionConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ODU interfaces will have an entry
+         in this table."
+    INDEX       { entityIndex }
+    ::=  { oduSectionConfigTable  1  }
+
+OduSectionConfigEntry ::=  SEQUENCE
+  { oduSectionConfigSignalDegradeThres Integer32,
+    oduSectionConfigSignalDegradePeriod Unsigned32 }
+
+
+
+oduSectionConfigSignalDegradeThres OBJECT-TYPE
+    SYNTAX      Integer32 (1..100)
+    UNITS       "1 %"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Background-Block-Error-Based Signal Degradation Definition for ODU"
+    ::=  { oduSectionConfigEntry 1 }
+
+oduSectionConfigSignalDegradePeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (2..10)
+    UNITS       "s"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Measuring period for ODU SM-SD alarm: 2..10 sec) (bursty)
+         Ref. table 24/G.7710. Default value: 7."
+    ::=  { oduSectionConfigEntry 2 }
+
+oduTcmAConfigTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OduTcmAConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Contains entries for the configuration of ODU interfaces.
+         This table extends the entries in
+         the ifTable (RFC 2863)."
+    ::=  { oduConfig 3 }
+
+oduTcmAConfigEntry OBJECT-TYPE
+    SYNTAX      OduTcmAConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ODU interfaces will have an entry
+         in this table."
+    INDEX       { entityIndex }
+    ::=  { oduTcmAConfigTable  1  }
+
+OduTcmAConfigEntry ::=  SEQUENCE
+  { oduTcmAConfigSignalDegradeThreshold Integer32,
+    oduTcmAConfigSignalDegradePeriod Unsigned32,
+    oduTcmAConfigTcmLevel OtnTcmLevel }
+
+
+
+oduTcmAConfigSignalDegradeThreshold OBJECT-TYPE
+    SYNTAX      Integer32 (1..100)
+    UNITS       "1 %"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Threshold for ODU SM-SD alarm (threshold level 0..100%, default value 15 %.
+         Ref. table 24/G.7710."
+    ::=  { oduTcmAConfigEntry 1 }
+
+oduTcmAConfigSignalDegradePeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (2..10)
+    UNITS       "s"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Measuring period for ODU SM-SD alarm: 2..10 sec) (bursty)
+         Ref. table 24/G.7710. Default value: 7."
+    ::=  { oduTcmAConfigEntry 2 }
+
+oduTcmAConfigTcmLevel OBJECT-TYPE
+    SYNTAX      OtnTcmLevel
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Activation of Tandem Connection Monitoring Instance A"
+    ::=  { oduTcmAConfigEntry 3 }
+
+oduTcmBConfigTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OduTcmBConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Contains entries for the configuration of ODU interfaces.
+         This table extends the entries in
+         the ifTable (RFC 2863)."
+    ::=  { oduConfig 4 }
+
+oduTcmBConfigEntry OBJECT-TYPE
+    SYNTAX      OduTcmBConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "ODU interfaces will have an entry
+         in this table."
+    INDEX       { entityIndex }
+    ::=  { oduTcmBConfigTable  1  }
+
+OduTcmBConfigEntry ::=  SEQUENCE
+  { oduTcmBConfigSignalDegradeThreshold Integer32,
+    oduTcmBConfigSignalDegradePeriod Unsigned32,
+    oduTcmBConfigTcmLevel OtnTcmLevel }
+
+
+
+oduTcmBConfigSignalDegradeThreshold OBJECT-TYPE
+    SYNTAX      Integer32 (1..100)
+    UNITS       "1 %"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Threshold for ODU SM-SD alarm (threshold level 0..100%, default value 15 %.
+         Ref. table 24/G.7710."
+    ::=  { oduTcmBConfigEntry 1 }
+
+oduTcmBConfigSignalDegradePeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (2..10)
+    UNITS       "s"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Measuring period for ODU SM-SD alarm: 2..10 sec) (bursty)
+         Ref. table 24/G.7710. Default value: 7."
+    ::=  { oduTcmBConfigEntry 2 }
+
+oduTcmBConfigTcmLevel OBJECT-TYPE
+    SYNTAX      OtnTcmLevel
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Activation of Tandem Connection Monitoring Instance B"
+    ::=  { oduTcmBConfigEntry 3 }
+
+oduTcmCConfigTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF OduTcmCConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    ::=  { oduConfig 5 }
+
+oduTcmCConfigEntry OBJECT-TYPE
+    SYNTAX      OduTcmCConfigEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX       { entityIndex }
+    ::=  { oduTcmCConfigTable  1  }
+
+OduTcmCConfigEntry ::=  SEQUENCE
+  { oduTcmCConfigSignalDegradeThreshold Integer32,
+    oduTcmCConfigSignalDegradePeriod Unsigned32,
+    oduTcmCConfigTcmLevel OtnTcmLevel }
+
+
+
+oduTcmCConfigSignalDegradeThreshold OBJECT-TYPE
+    SYNTAX      Integer32 (1..100)
+    UNITS       "1 %"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Background-Block-Error-Based Signal Degradation Definition for TCM-C"
+    ::=  { oduTcmCConfigEntry 1 }
+
+oduTcmCConfigSignalDegradePeriod OBJECT-TYPE
+    SYNTAX      Unsigned32 (2..10)
+    UNITS       "s"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Integration Period of TCMC Signal Segrade (standard integration period?)"
+    ::=  { oduTcmCConfigEntry 2 }
+
+oduTcmCConfigTcmLevel OBJECT-TYPE
+    SYNTAX      OtnTcmLevel
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Activation of Tandem Connection Monitoring Instance C"
+    ::=  { oduTcmCConfigEntry 3 }
+
+neRestoreConfig OBJECT-TYPE
+    SYNTAX      RestoreActivation
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Shows whether the last activation was(will be) a database restore or a new software activation"
+    ::=  { dbAdmin 1 }
+
+swDbFileTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SwDbFileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    ::=  { swAdmin 1 }
+
+swDbFileEntry OBJECT-TYPE
+    SYNTAX      SwDbFileEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX       { swDbFileIndex }
+    ::=  { swDbFileTable  1  }
+
+SwDbFileEntry ::=  SEQUENCE
+  { swDbFileIndex EntityIndex,
+    swDbFileArea FileArea,
+    swDbFileType FileType,
+    swDbFileSize Unsigned32,
+    swDbFileCreationTime DateAndTime,
+    swDbFileVersion SnmpAdminString,
+    swDbFileGrade Grade,
+    swDbFileComment SnmpAdminString,
+    swDbFileFileName SnmpAdminString,
+    swDbFileRowStatus RowStatus }
+
+
+
+swDbFileIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Index"
+    ::=  { swDbFileEntry 1 }
+
+swDbFileArea OBJECT-TYPE
+    SYNTAX      FileArea
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Type of Area"
+    ::=  { swDbFileEntry 2 }
+
+swDbFileType OBJECT-TYPE
+    SYNTAX      FileType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Type of File"
+    ::=  { swDbFileEntry 3 }
+
+swDbFileSize OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "Byte"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Size of Memory = USED + AVAILABLE"
+    ::=  { swDbFileEntry 4 }
+
+swDbFileCreationTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "CRTDATEANDTIME"
+    ::=  { swDbFileEntry 5 }
+
+swDbFileVersion OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "General Release Issue Number of software in the ACT or STBY memory location. Format: XX-YY-Z"
+    ::=  { swDbFileEntry 6 }
+
+swDbFileGrade OBJECT-TYPE
+    SYNTAX      Grade
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Used to distinguish between NCU capabilities (range of supported services or applications)"
+    ::=  { swDbFileEntry 7 }
+
+swDbFileComment OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Comment of PGM or DBS files."
+    ::=  { swDbFileEntry 8 }
+
+swDbFileFileName OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Filename"
+    ::=  { swDbFileEntry 9 }
+
+swDbFileRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "RowStatus"
+    ::=  { swDbFileEntry 10 }
+
+swDbDataTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SwDbDataEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    ::=  { dbAdmin 2 }
+
+swDbDataEntry OBJECT-TYPE
+    SYNTAX      SwDbDataEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX       { swDbDataIndex }
+    ::=  { swDbDataTable  1  }
+
+SwDbDataEntry ::=  SEQUENCE
+  { swDbDataIndex EntityIndex,
+    swDbDataArea FileArea,
+    swDbDataProgramVersion SnmpAdminString,
+    swDbDataDatabaseVersion SnmpAdminString,
+    swDbDataActivationTime DateAndTime,
+    swDbDataRestoreConfig RestoreActivation }
+
+
+
+swDbDataIndex OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Index"
+    ::=  { swDbDataEntry 1 }
+
+swDbDataArea OBJECT-TYPE
+    SYNTAX      FileArea
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Type of Area"
+    ::=  { swDbDataEntry 2 }
+
+swDbDataProgramVersion OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "General Release Issue Number of software in the ACT or STBY memory location. Format: XX-YY-Z"
+    ::=  { swDbDataEntry 3 }
+
+swDbDataDatabaseVersion OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "General Release Issue Number of Database in the ACT or STBY memory location. Typically this will be the same as the GISSUE."
+    ::=  { swDbDataEntry 4 }
+
+swDbDataActivationTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "ACTDATEANDTIME"
+    ::=  { swDbDataEntry 5 }
+
+swDbDataRestoreConfig OBJECT-TYPE
+    SYNTAX      RestoreActivation
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Shows whether the last activation was(will be) a database restore or a new software activation"
+    ::=  { swDbDataEntry 6 }
+
+fwDataTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF FwDataEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    ::=  { swAdmin 2 }
+
+fwDataEntry OBJECT-TYPE
+    SYNTAX      FwDataEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        ""
+    INDEX       { entityIndex }
+    ::=  { fwDataTable  1  }
+
+FwDataEntry ::=  SEQUENCE
+  { fwDataNewVersion SnmpAdminString,
+    fwDataStandbyVersion SnmpAdminString,
+    fwDataServiceImpairment INTEGER }
+
+
+
+fwDataNewVersion OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "New Firmware Package Revision Number, Format XX.YY.ZZ (X,Y,Z are decimal characters, leading 0 are omitted)."
+    ::=  { fwDataEntry 1 }
+
+fwDataStandbyVersion OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Standbay Firmware Package Revision Number, Format XX.YY.ZZ (X,Y,Z are decimal characters, leading 0 are omitted)."
+    ::=  { fwDataEntry 2 }
+
+fwDataServiceImpairment OBJECT-TYPE
+    SYNTAX      INTEGER
+                {
+                  undefined(0),
+                  nsa(1),
+                  sa(2),
+                  saActivate(3),
+                  saInstall(4)
+                }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Service Affecting Change."
+    ::=  { fwDataEntry 3 }
+
+eqpFwUpgradeRequest OBJECT-TYPE
+    SYNTAX      INTEGER
+                {
+                  undefined(0),
+                  none(1),
+                  install(2),
+                  reboot(3),
+                  active(4),
+                  update(5)
+                }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Update, Install and Reboot commands."
+    ::=  { swAdmin 10 }
+
+eqpFwServiceImpairment OBJECT-TYPE
+    SYNTAX      INTEGER
+                {
+                  undefined(0),
+                  nsa(1),
+                  sa(2),
+                  saActivate(3),
+                  saInstall(4)
+                }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Service Affecting Change."
+    ::=  { swAdmin 11 }
+
+eqpFwNextEqpForUpdate OBJECT-TYPE
+    SYNTAX      EntityIndex
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The valid address of physically available Equipment part."
+    ::=  { swAdmin 12 }
+
+END

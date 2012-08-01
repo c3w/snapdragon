@@ -1,0 +1,329 @@
+-- *****************************************************************
+-- AGENT-CAPABILITIES for CISCO-DS3-MIB 
+--
+-- March 2002, Subra Hegde
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- *****************************************************************
+
+CISCO-DS3-EXT-CAPABILITY DEFINITIONS ::= BEGIN
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;   
+
+ciscoDs3ExtCapability MODULE-IDENTITY
+        LAST-UPDATED    "200203250000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-wanatm@cisco.com"
+        DESCRIPTION
+            "The Agent Capabilities for CISCO-DS3-MIB.
+            
+             - The ciscoDs3ExtAxsmCapabilityV2R00 is for
+               ATM Switch Service Module(AXSM).
+
+             - The ciscoDs3ExtAxsmeCapabilityV21R60 is for
+               Enhanced AXSM(AXSM-E) Module.
+
+             - The ciscoDs3ExtSrmCapabilityV3R00 is for
+               Service Resource Module(SRM).
+
+             - The ciscoDs3ExtFrsm12CapabilityV3R00 is for
+               Frame Relay Service Module(FRSM-12)."
+
+        REVISION "200203250000Z"
+        DESCRIPTION
+            "Initial version of the MIB Module."
+        ::= { ciscoAgentCapability 9999 }
+
+ciscoDs3ExtAxsmCapabilityV2R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 2.0"
+    STATUS               current
+    DESCRIPTION          "CISCO-DS3-MIB Capabilities for
+                         ATM Switch Service Module(AXSM)."
+
+    SUPPORTS CISCO-DS3-MIB
+        INCLUDES { ciscoDs3ConfMIBGroup,cds3StatsMIBGroup,
+                   ciscoDs3AlarmMIBGroup,ciscoPlcpAlarmMIBGroup }
+
+        VARIATION    cds3LineType
+        SYNTAX       INTEGER {
+                         ds3cbitadm(1),
+                         ds3cbitplcp(2),
+                         e3g832adm(3) 
+                     }
+        DESCRIPTION  "Does not support e3g751adm(4),e3751plcp(5),
+                      ds3m23adm(6),ds3m23plcp(7),other(8)."
+
+        VARIATION    cds3InternalEqualizer
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NearEndLineLoopbackStatus
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FarEndLineLoopbackStatus
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+    ::= { ciscoDs3ExtCapability 1 }
+
+ciscoDs3ExtAxsmeCapabilityV21R60 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 2.1.60"
+    STATUS               current
+    DESCRIPTION          "CISCO-DS3-MIB Capabilities for
+                         Enhanced AXSM Module(AXSM-E)."
+
+    SUPPORTS CISCO-DS3-MIB
+        INCLUDES { ciscoDs3ConfMIBGroup,cds3StatsMIBGroup,
+                   ciscoDs3AlarmMIBGroup,ciscoPlcpAlarmMIBGroup,
+                   ciscoPlcpCounterMIBGroup, 
+                   ciscoDs3Previous24HrGroup }
+
+        VARIATION    cds3LineType
+        SYNTAX       INTEGER {
+                         ds3cbitadm(1),
+                         ds3cbitplcp(2),
+                         e3g832adm(3) 
+                     }
+        DESCRIPTION  "Does not support e3g751adm(4),e3751plcp(5),
+                      ds3m23adm(6),ds3m23plcp(7),other(8)."
+
+        VARIATION    cds3InternalEqualizer
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NearEndLineLoopbackStatus
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NEAlarmUpCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION   cds3NEAlarmDownCount 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NEAlarmThreshold
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEAlarmUpCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEAlarmDownCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEAlarmThreshold
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3EXZSCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3LCVCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3PCVCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3CPECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEBECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3RcvAISCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+    ::= { ciscoDs3ExtCapability 2 }
+
+ciscoDs3ExtSrmCapabilityV3R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 3.0.00."
+    STATUS               current
+    DESCRIPTION          "CISCO-DS3-MIB Capabilities for
+                         Service Resource Module(SRM)."
+
+    SUPPORTS CISCO-DS3-MIB
+        INCLUDES { ciscoDs3ConfMIBGroup, cds3StatsMIBGroup, 
+                   ciscoDs3AlarmMIBGroup, ciscoDs3Previous24HrGroup }
+
+        VARIATION    cds3LineType
+        SYNTAX       INTEGER { dsx3M23(9), dsx3CbitParity(11) }
+        DESCRIPTION  "Does not support values ds3cbitadm(1),
+                      ds3cbitplcp(2), e3g832adm(3), e3g751adm(4),
+                      e3g751plcp(5), ds3m23adm(6), ds3m23plcp(7).
+                      dsx3SYNTRAN(10), dsx3ClearChannel(12),
+                      e3Framed(13), e3Plcp(14)."
+
+        VARIATION    cds3IntervalNumber
+        SYNTAX       INTEGER (0..1)
+        DESCRIPTION  "Only a restricted range is supported."
+        
+        VARIATION    cds3TraceAlarm
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3CPECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3RcvAISCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3LCVPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3LESPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3PCVPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3PESPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3PSESPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3SEFSPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3UASPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3CCVPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3CESPrevious24Hr 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+        VARIATION    cds3CSESPrevious24Hr
+        ACCESS       not-implemented
+        DESCRIPTION  "Not supported."
+
+    ::= { ciscoDs3ExtCapability 3 }
+
+ciscoDs3ExtFrsm12CapabilityV3R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 3.0.00"
+    STATUS               current
+    DESCRIPTION          "CISCO-DS3-MIB Capabilities for
+                         Frame Relay Service Module(FRSM-12)."
+
+    SUPPORTS CISCO-DS3-MIB
+        INCLUDES { ciscoDs3ConfMIBGroup,cds3StatsMIBGroup,
+                   ciscoDs3AlarmMIBGroup, ciscoDs3Previous24HrGroup }
+
+        VARIATION    cds3LineType
+        SYNTAX       INTEGER {
+                ds3cbitfrmronly(15),
+                ds3m23frmronly(16),
+                e3g832frmronly(17),
+                e3g751frmronly(18)
+                     }
+        DESCRIPTION  "Does not support ds3cbitadm(1), ds3cbitplcp(2),
+                e3g832adm(3), e3g751adm(4),e3751plcp(5),
+                        ds3m23adm(6),ds3m23plcp(7),other(8),dsx3M23(9),
+                dsx3SYNTRAN(10),dsx3CbitParity(11),dsx3ClearChannel(12),
+                e3Framed(13),e3Plcp(14)."
+
+        VARIATION    cds3InternalEqualizer
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NearEndLineLoopbackStatus
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NEAlarmUpCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION   cds3NEAlarmDownCount 
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3NEAlarmThreshold
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEAlarmUpCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEAlarmDownCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEAlarmThreshold
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3EXZSCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3LCVCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3PCVCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3CPECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3FEBECount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+        VARIATION    cds3RcvAISCount
+        ACCESS       not-implemented
+        DESCRIPTION  "Not Supported."
+
+    ::= { ciscoDs3ExtCapability 4 }
+END

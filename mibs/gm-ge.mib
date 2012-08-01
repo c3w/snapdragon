@@ -1,0 +1,1392 @@
+--
+-- Sorrento Networks Private MIB for Gigabit Ethernet Card.
+--
+--
+-- This MIB file is to be used with Gigabit Ethernet card version 
+-- 1.1.00-06 or greater.
+--
+-- Revision 2.0.2   22ndOct2002  ndhameja  version 1.1.00-06
+-- 1. Changed etherMACAddress from type 'OCTET STRING' to type      
+--    DisplayString, as MAC address was being displayed in ASCII.
+--
+--
+-- Modification History :
+--
+-- Revision 2.0.1   15th Oct 2002  ndhameja  version 1.1.00-05
+-- 1. Added traps for xceiver plug/unplug.
+-- 
+-- Revision 2.0.0   11/09/2002  ndhameja  version 1.0.02
+-- 1. Name changed from etherLastChange to etherTimeOperStatusChange.
+-- 2. Name changed from etherLastClearNetworkStats to 
+--    etherTimeNetworkStatsClear.
+-- 3. Changed description of etherTimeOperStatusChange & 
+--    etherTimeNetworkStatsClear.
+--
+-- Revision 1.0.8   03/04/2002  ndhameja  version 1.0.02
+-- 1. Change in the description of etherSpeed.
+--
+-- Revision 1.0.7   02/04/2002  ndhameja  version 1.0.02
+-- 1. Change in the description of etherSpeed.
+--
+-- Revision 1.0.6   21/03/2002  ndhameja  version 1.0.02-06
+-- 1. Added Pause frame control & status information for local & 
+--    link partner's port.
+-- 2. In clockModeSource, manual changed to forced.
+--
+-- Revision 1.0.5   15/03/2002  ndhameja  version 1.0.02-05
+-- 1. etherTransceiverStatus changed from read-write to read-only.
+-- 2. Added xponderLoopBack configuration.
+--
+-- Revision 1.0.4   04/03/2002  ndhameja
+-- 1. Changed etherTxOutputOctets, etherTxOutputPkts, etherRxInputOctets 
+--    etherRxInputPkts from OCTET STRING to DisplayString.
+-- 2. XponderLaserControl changed to xponderLaserControl.
+-- 3. XponderLaserStatus changed to xponderLaserStatus.
+-- 4. Traps gigELinkUp/Down & gigECntrOverflow are indexed by etherIndex
+--    not etherNumber.
+--
+-- Revision 1.0.3   07/02/2002  ndhameja
+-- 1. Added gigECntrOverflow & extClockSource(1/2)Normal/Failed trap.
+-- 2. Added etherTxOverflowStatus/etherRxOverflowStatus.
+-- 3. Added etherSFPStatus, externalClock(1/2)Status & cpldVersion.
+-- 4. Added XponderLaserStatus & XponderLaserControl
+-- 5. Removed fpgaUtopiaFifoError.
+--
+-- Revision 1.0.2   01/24/2002  ndhameja
+-- 1. Added media/connector/fiber type info.
+-- 2. Added traps for xponder Lock Detect.
+-- 3. Added Ethernet Utilzation Group.
+-- 4. Added configuration/status Group.
+-- 5. Changed names of the stats counters. 
+-- 6. Removed etherByteTxRxStats Group.
+-- 7. Removed trap for gigEUtopiaFifoError.
+--
+-- Revision 1.0.1   01/03/2002  ndhameja
+-- 1. Added traps GigEUtopiaFifoError & GigEFpgaLoadFailed.
+-- 2. Added group etherFpgaStatus.
+-- 3. etherMtu is now read-write.
+--
+-- Revision 1.0.0   12/12/2001  ndhameja
+-- Initial Release.
+--
+-- Copyright 2001, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any 
+-- revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use of this 
+-- Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors, end-users, and other interested 
+-- parties a non-exclusive license to use this Specification in connection 
+-- with the management of Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+
+
+	GMux-GbE-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215
+		  unit, management, client, tftp, inventory
+			  FROM GMux-Common-MIB;
+
+
+	osicomTechnologies		OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest			OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaGbE				OBJECT IDENTIFIER ::= { gigaNest 20 }
+		etherInterface		OBJECT IDENTIFIER ::= { gigaGbE 1 }
+		etherTxStats		OBJECT IDENTIFIER ::= { gigaGbE 2 }
+		etherRxStats		OBJECT IDENTIFIER ::= { gigaGbE 3 }
+		etherFpgaStatus		OBJECT IDENTIFIER ::= { gigaGbE 4 }
+		etherUtilzation		OBJECT IDENTIFIER ::= { gigaGbE 5 }
+		configuration		OBJECT IDENTIFIER ::= { gigaGbE 6 }
+		status			OBJECT IDENTIFIER ::= { gigaGbE 7 }
+
+--
+--  Ethernet Interface group
+--
+--  This table contains information on the entity's
+--  ethernet interfaces.
+--
+
+	etherNumber OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of ethernet interfaces (regardless of
+					 their current state) present on this system."
+		::= { etherInterface 1 }
+
+	etherTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF EtherEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"A list of ethernet interface entries.  The number of
+			 entries is given by the value of etherNumber."
+		::= { etherInterface 2 }
+
+	etherEntry OBJECT-TYPE
+		SYNTAX  EtherEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"An ethernet interface entry containing objects at the
+			 subnetwork layer and below for a particular interface."
+		INDEX   { etherIndex }
+		::= { etherTable 1 }
+
+	EtherEntry ::=
+		SEQUENCE {
+			etherIndex
+				INTEGER,
+			etherDescr
+				DisplayString,
+			etherType
+				INTEGER,
+			etherMtu
+				INTEGER,
+			etherSpeed
+				Gauge,
+			etherAdminStatus
+				INTEGER,
+			etherOperStatus
+				INTEGER,  
+			etherTimeOperStatusChange
+				TimeTicks,
+			etherClearNetworkStats
+				INTEGER,                  
+			etherTimeNetworkStatsClear
+				TimeTicks,
+			etherLoopBack
+				INTEGER,                          
+			etherAutoNegotiation
+				INTEGER,                          
+			etherMACAddress
+				DisplayString,    
+			etherTransceiverStatus
+				INTEGER,
+			etherOctetsActivity
+				INTEGER,
+			etherConnectorType
+				INTEGER,
+			etherFiberType
+				INTEGER,
+			etherMediaType
+				INTEGER,
+			etherSFPStatus
+				INTEGER,
+			etherTransmitPause
+				INTEGER,
+			etherRecvPause
+				INTEGER,
+			etherLPRecvPauseStatus
+				INTEGER
+		}
+
+
+	etherIndex OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"A unique value for each interface.  Its value
+			 ranges between 1 and the value of etherNumber.  The
+			 value for each interface must remain constant at
+			 least from one re-initialization of the entity's
+			 network management system to the next re-
+			 initialization."
+		::= { etherEntry 1 }
+
+	etherDescr OBJECT-TYPE
+		SYNTAX  DisplayString (SIZE (0..255))
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"A textual string containing information about the
+			 interface.  This string should include the name of
+			 the manufacturer, the product name and the version
+			 of the hardware interface."
+		::= { etherEntry 2 }
+
+	etherType OBJECT-TYPE
+		SYNTAX  INTEGER {
+			other(1),          -- none of the following
+			regular1822(2),
+			hdh1822(3),
+			ddn-x25(4),
+			rfc877-x25(5),
+			ethernet-csmacd(6),
+			iso88023-csmacd(7),
+			iso88024-tokenBus(8),
+			iso88025-tokenRing(9),
+			iso88026-man(10),
+			starLan(11),
+			proteon-10Mbit(12),
+			proteon-80Mbit(13),
+			hyperchannel(14),
+			fddi(15),
+			lapb(16),
+			sdlc(17),
+			ds1(18),           -- T-1
+			e1(19),            -- european equiv. of T-1
+			basicISDN(20),
+			primaryISDN(21),   -- proprietary serial
+			propPointToPointSerial(22),
+			ppp(23),
+			softwareLoopback(24),
+			eon(25),            -- CLNP over IP [11]
+			ethernet-3Mbit(26),
+			nsip(27),           -- XNS over IP
+			slip(28),           -- generic SLIP
+			ultra(29),          -- ULTRA technologies
+			ds3(30),            -- T-3
+			sip(31),            -- SMDS
+			frame-relay(32)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The type of interface, distinguished according to
+			 the physical/link protocol(s) immediately `below'
+			 the network layer in the protocol stack."
+		::= { etherEntry 3 }
+
+	etherMtu OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"The size of the largest datagram which can be
+			 sent/received on the interface, specified in
+			 octets.  For interfaces that are used for
+			 transmitting network datagrams, this is the size
+			 of the largest network datagram that can be sent
+			 on the interface."
+		::= { etherEntry 4 }
+
+	etherSpeed OBJECT-TYPE
+		SYNTAX  Gauge		
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The current configured speed of the
+			 interface in KBits per second."
+		::= { etherEntry 5 }
+
+	etherAdminStatus OBJECT-TYPE
+		SYNTAX  INTEGER {
+			up(1),       -- ready to pass packets
+			down(2)	
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"The desired state of the interface."
+		::= { etherEntry 6 }
+
+	etherOperStatus OBJECT-TYPE
+		SYNTAX  INTEGER {
+			up(1),       -- ready to pass packets
+			down(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The current operational state of the interface."
+		::= { etherEntry 7 }
+
+	etherTimeOperStatusChange OBJECT-TYPE
+		SYNTAX  TimeTicks
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The time since the interface entered its current 
+			 operational state.
+			 If the current state was entered prior to the last 
+			 re-initialization of the local network management
+			 subsystem, then this object contains a zero value."
+		::= { etherEntry 8 }
+
+	etherClearNetworkStats OBJECT-TYPE
+		SYNTAX   INTEGER {
+			clearCounter(1),       
+			noAction(2)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"Re-initializes the network statistic counters 
+			 for that interface."
+		::= { etherEntry 9 }
+		
+	etherTimeNetworkStatsClear OBJECT-TYPE
+		SYNTAX  TimeTicks
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The time since the interface last re-initialized 
+			 its network statistic counters.
+			 If the current state was entered prior to the last 
+			 re-initialization of the local network management
+			 subsystem, then this object contains a zero value."
+		::= { etherEntry 10 }
+
+	etherLoopBack OBJECT-TYPE
+		SYNTAX   INTEGER {
+			portLpbk(1),       
+			lineLpbk(2),
+			noLpbk(3)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"The loopbacks supported by the device.
+			 portLpbk  : Loopback towards GbE side.    
+			 lineLpbk  : Loopback towards SONET side.
+			 noLpbk    : No loopback."
+		::= { etherEntry 11 }
+
+	etherAutoNegotiation OBJECT-TYPE
+		SYNTAX   INTEGER {
+			enable(1),       
+			disable(2)			
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"To enable/disable auto negotiation."
+		::= { etherEntry 12 }
+                  
+	etherMACAddress OBJECT-TYPE
+		SYNTAX  DisplayString (SIZE (0..12))
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"MAC Address of the port."
+		::= { etherEntry 13 }
+     
+	etherTransceiverStatus OBJECT-TYPE
+		SYNTAX   INTEGER {
+			faultyOrAbsent(1),       
+			disabled(2),			
+			linkDown(3),			
+			linkUP(4)			
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Status of the transceiver.
+			 faultyOrAbsent: Either Transceiver is not 
+			   	present or it is faulty.
+			 disabled: The Transceiver is disabled. 
+			 linkDown: Link is down.
+			 linkUp: Link is up."
+		::= { etherEntry 14 }
+    
+	etherOctetsActivity OBJECT-TYPE
+		SYNTAX  INTEGER {
+			badOctets(1),       
+			goodOctets(2),			
+			noOctets(3)			
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates the traffic status for the last 
+			few 100 milli-seconds."
+		::= { etherEntry 15 }
+
+	etherConnectorType OBJECT-TYPE
+		SYNTAX  INTEGER {
+			connector-SC(1),       
+			connector-LC(2),			
+			unknown(3)			
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The type of connector."
+		::= { etherEntry 16 }
+
+	etherFiberType OBJECT-TYPE
+		SYNTAX  INTEGER {
+			multi-mode(1),       
+			single-mode(2),			
+			unknown(3)			
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The type of fiber."
+		::= { etherEntry 17 }
+    
+	etherMediaType  OBJECT-TYPE
+		SYNTAX  INTEGER {
+			media-850nm(1),       
+			media-1310nm-IR(2),			
+			media-1310nm-SR(3),			
+			unknown(4)			
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The type of media."
+		::= { etherEntry 18 }
+    
+	etherSFPStatus  OBJECT-TYPE
+		SYNTAX  INTEGER {
+			present(1),       
+			absent(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Present : Indicates that an SFP is present.
+			 Absent : Indicates that either unable to communicate 
+			      with the Xceiver or that it's  not an SFP."
+		::= { etherEntry 19 }
+
+	etherTransmitPause  OBJECT-TYPE
+		SYNTAX  INTEGER {
+			enable(1),       
+			disable(2)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"enable : MAC port can transmit pause frames.
+			 disable : MAC port cannot transmit pause frames."
+		::= { etherEntry 20 }
+
+	etherRecvPause  OBJECT-TYPE
+		SYNTAX  INTEGER {
+			enable(1),       
+			disable(2)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"enable : port will obey pause frames.
+			 disable : port will not obey pause frames."
+		::= { etherEntry 21 }
+
+	etherLPRecvPauseStatus  OBJECT-TYPE
+		SYNTAX  INTEGER {
+			enable(1),       
+			disable(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"enable : Link Partner will obey pause frames.
+			 disable : Link Partner will not obey pause frames."
+		::= { etherEntry 22 }
+   
+
+-- 
+-- The Ethernet Packet Tx Statistics Group
+--
+-- The ethernet statistics group contains statistics measured by the
+-- probe for each monitored interface on this device.  These
+-- statistics take the form of free running counters that start from
+-- zero when a valid entry is created.
+--
+
+	etherTxStatsTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF EtherTxStatsEntry
+		MAX-ACCESS not-accessible
+		STATUS     current
+		DESCRIPTION
+        	"A list of Tx Ethernet statistics entries."
+     	::= { etherTxStats 1 }
+
+	etherTxStatsEntry OBJECT-TYPE
+		SYNTAX     EtherTxStatsEntry
+		MAX-ACCESS not-accessible
+		STATUS     current
+		DESCRIPTION
+			"A collection of statistics kept for a particular
+			 Ethernet interface."
+		INDEX   { etherIndex }
+		::= { etherTxStatsTable 1 }
+
+	EtherTxStatsEntry ::= 
+		SEQUENCE {
+			etherTxOutputOctets
+				DisplayString,
+			etherTxOutputPkts
+				DisplayString,
+			etherTxNoBufferPkts               
+				Counter32,
+			etherTxUnicastPkts
+				Counter32,
+			etherTxMulticastPkts 
+				Counter32,
+			etherTxBroadcastPkts 
+				Counter32,
+			etherTxFlowControlPkts
+				Counter32,
+			etherTx64OctetPkts             
+				Counter32,
+			etherTx65to127OctetPkts        
+				Counter32,
+			etherTx128to255OctetPkts       
+				Counter32,
+			etherTx256to511OctetPkts       
+				Counter32,
+			etherTx512to1023OctetPkts      
+				Counter32,
+			etherTx1024to1518OctetPkts     
+				Counter32,
+			etherTxMaxOctetPkts     
+				Counter32,
+			etherTxOverflowStatus     
+				INTEGER				
+		}
+
+	etherTxOutputOctets OBJECT-TYPE
+		SYNTAX  DisplayString (SIZE (6))
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of bytes transmitted in good packets."
+		::= { etherTxStatsEntry 1 }
+
+	etherTxOutputPkts OBJECT-TYPE
+		SYNTAX  DisplayString (SIZE (6))  
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of good packets transmitted."
+		::= { etherTxStatsEntry 2 }
+
+	etherTxNoBufferPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of packets transmitted with an error due to
+			 transmit FIFO underflow or txerr signal assertion."
+		::= { etherTxStatsEntry 3 }
+	
+	etherTxUnicastPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of unicast packets transmitted without any errors."
+		::= { etherTxStatsEntry 4 }
+
+	etherTxMulticastPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of multicast packets that are not 
+			 broadcast, transmitted without any errors."  
+		::= { etherTxStatsEntry 5 }
+
+	etherTxBroadcastPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of broadcast packets transmitted without any errors."
+		::= { etherTxStatsEntry 6 }
+
+	etherTxFlowControlPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of correct transmitted flow-control packets."
+		::= { etherTxStatsEntry 7 }
+
+	etherTx64OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets, 64 bytes in length,
+			 including bad packets."
+		::= { etherTxStatsEntry 8 }
+
+	etherTx65to127OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets, 65 to 127 bytes 
+			 in length, including bad packets."
+		::= { etherTxStatsEntry 9 }
+
+	etherTx128to255OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets, 128 to 255 bytes in 
+			 length, including bad packets."
+		::= { etherTxStatsEntry 10 }
+
+	etherTx256to511OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets, 256 to 511 bytes in 
+			 length, including bad packets."
+		::= { etherTxStatsEntry 11 }
+
+	etherTx512to1023OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets, 512 to 1023 bytes in 
+			 length, including bad packets."
+		::= { etherTxStatsEntry 12 }
+
+	etherTx1024to1518OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets, 1024 to 1518 bytes in 
+			 length, including bad packets."
+		::= { etherTxStatsEntry 13 }
+
+	etherTxMaxOctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of transmitted packets larger than 1518 bytes,
+			 including bad packets."
+		::= { etherTxStatsEntry 14 }
+
+	etherTxOverflowStatus OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates the counters that have overflowed
+			 Bit positions are:
+			 etherTxUnicastPkts			0
+			 etherTxMulticastPkts 			1
+			 etherTxBroadcastPkts 			2
+			 etherTxOutputPkts			3
+			 etherTx64OctetPkts             	9
+			 etherTx65to127OctetPkts        	10
+			 etherTx128to255OctetPkts       	11
+			 etherTx256to511OctetPkts      		12 
+			 etherTx512to1023OctetPkts      	13
+			 etherTx1024to1518OctetPkts     	14
+			 etherTxMaxOctetPkts     		15
+			 etherTxFlowControlPkts			16
+			 etherTxNoBufferPkts                    17
+			 etherTxOutputOctets			18."
+		::= { etherTxStatsEntry 15 }
+								
+-- 
+-- The Ethernet Rx Statistics Group
+--
+-- The ethernet statistics group contains statistics measured by the
+-- probe for each monitored interface on this device.  These
+-- statistics take the form of free running counters that start from
+-- zero when a valid entry is created.
+--
+
+	etherRxStatsTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF EtherRxStatsEntry
+		MAX-ACCESS not-accessible
+		STATUS     current
+		DESCRIPTION
+        	"A list of Rx Ethernet statistics entries."		
+     	::= { etherRxStats 1 }
+
+	etherRxStatsEntry OBJECT-TYPE
+		SYNTAX     EtherRxStatsEntry
+		MAX-ACCESS not-accessible
+		STATUS     current
+		DESCRIPTION
+			"A collection of statistics kept for a particular
+			 Ethernet interface."
+		INDEX   { etherIndex }
+		::= { etherRxStatsTable 1 }
+
+	EtherRxStatsEntry ::= 
+		SEQUENCE {
+			etherRxInputOctets
+				DisplayString,
+			etherRxInputPkts
+				DisplayString,
+			etherRxNoBufferPkts               
+				Counter32,
+			etherRxUnicastPkts
+				Counter32,
+			etherRxMulticastPkts 
+				Counter32,
+			etherRxBroadcastPkts 
+				Counter32,
+			etherRxFlowControlPkts
+				Counter32,
+			etherRxRuntPkts
+				Counter32,
+			etherRxGiantPkts
+				Counter32,
+			etherRxCRCPkts
+				DisplayString,
+			etherRxLostCarrierPkts             
+				Counter32,
+			etherRxErrorPkts
+				Counter32,
+			etherRx64OctetPkts             
+				Counter32,
+			etherRx65to127OctetPkts        
+				Counter32,
+			etherRx128to255OctetPkts       
+				Counter32,
+			etherRx256to511OctetPkts       
+				Counter32,
+			etherRx512to1023OctetPkts      
+				Counter32,
+			etherRx1024to1518OctetPkts     
+				Counter32,
+			etherRxMaxPktSizeOctetPkts     
+				Counter32,
+			etherRxOverflowStatus
+				INTEGER
+		}
+
+	etherRxInputOctets OBJECT-TYPE
+		SYNTAX  DisplayString (SIZE (6))
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of bytes received in good packets."
+		::= { etherRxStatsEntry 1 }
+
+	etherRxInputPkts OBJECT-TYPE
+		SYNTAX  DisplayString (SIZE (6))
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number good packets received."
+		::= { etherRxStatsEntry 2 }
+
+	etherRxNoBufferPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of receive packets not fully accepted 
+			 due to receive FIFO overflow."
+		::= { etherRxStatsEntry 3 }
+
+	etherRxUnicastPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of unicast packets with lengths between 64 
+			 bytes and the maximum packet size, received without any 
+			 errors."
+		::= { etherRxStatsEntry 4 }
+
+	etherRxMulticastPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of multicast packets with lengths between 64
+			 bytes and the maximum packet size, received without any
+			 errors."  
+		::= { etherRxStatsEntry 5 }
+
+	etherRxBroadcastPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of broadcast packets with lengths between 64
+			 bytes and the maximum packet size, received without any
+			 errors."
+		::= { etherRxStatsEntry 6 }
+
+	etherRxFlowControlPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of correct recieved flow-control packets."
+		::= { etherRxStatsEntry 7 }
+
+	etherRxRuntPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of packets, less than 64 bytes in length, 
+			 received without any error."
+		::= { etherRxStatsEntry 8 }
+
+	etherRxGiantPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of packets, larger than the maximum packet
+			 size, received without any error."
+		::= { etherRxStatsEntry 9 }
+
+	etherRxCRCPkts OBJECT-TYPE
+		SYNTAX  DisplayString
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of packets with an integral number
+			 of bytes and a CRC error."
+		::= { etherRxStatsEntry 10 }
+
+	etherRxLostCarrierPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of false carrier events detected."
+		::= { etherRxStatsEntry 11 }
+	
+	etherRxErrorPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of received packets during which PHY 
+			 symbol errors were detected.."
+		::= { etherRxStatsEntry 12 }
+
+	etherRx64OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of recieved packets, 64 bytes in length,
+			 including bad packets."
+		::= { etherRxStatsEntry 13 }
+
+	etherRx65to127OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of recieved packets, 65 to 127 bytes in 
+			 length, including bad packets."
+		::= { etherRxStatsEntry 14 }
+
+	etherRx128to255OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of recieved packets, 128 to 255 bytes in 
+			 length, including bad packets."
+		::= { etherRxStatsEntry 15 }
+
+	etherRx256to511OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of recieved packets, 256 to 511 bytes in 
+			 length, including bad packets."
+		::= { etherRxStatsEntry 16 }
+
+	etherRx512to1023OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of recieved packets, 512 to 1023 bytes in 
+			 length, including bad packets."
+		::= { etherRxStatsEntry 17 }
+
+	etherRx1024to1518OctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of recieved packets, 1024 to 1518 bytes in 
+			 length, including bad packets."
+		::= { etherRxStatsEntry 18 }
+
+	etherRxMaxPktSizeOctetPkts OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS	 mandatory
+		DESCRIPTION
+			"The number of received packets, with lengths between 
+			1519 bytes and the maximum packet size (programmable value),
+			including bad packets."
+		::= { etherRxStatsEntry 19 }
+
+	etherRxOverflowStatus OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates the counters that have overflowed. 
+			 Bit positions are:
+			 etherRxInputOctets                0	 
+			 etherRxInputPkts                  2
+ 			 etherRxNoBufferPkts               3 
+			 etherRxRuntPkts                   4 
+			 etherRxUnicastPkts                6 
+			 etherRxMulticastPkts              7 
+			 etherRxBroadcastPkts              8 
+			 etherRxGiantPkts                  10
+			 etherRxCRCPkts                    11 
+			 etherRx64OctetPkts                13
+			 etherRx65to127OctetPkts           14
+			 etherRx128to255OctetPkts          15
+			 etherRx256to511OctetPkts          16
+			 etherRx512to1023OctetPkts         17
+			 etherRx1024to1518OctetPkts        18
+			 etherRxMaxPktSizeOctetPkts        19
+			 etherRxFlowControlPkts            20 
+			 etherRxLostCarrierPkts            21
+			 etherRxErrorPkts                  22 ."
+		::= { etherRxStatsEntry 20 }
+
+--
+--
+-- Ethernet FPGA Status Group 
+--
+--
+
+	fpgaNumber OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"The number of FPGA interface present on this system."
+		::= { etherFpgaStatus 1 }
+
+	fpgaTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF FPGAEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"A list of FPGA interface entries.  The number of
+			 entries is given by the value of fpgaNumber."
+		::= { etherFpgaStatus 2 }
+
+	fpgaEntry OBJECT-TYPE
+		SYNTAX  FPGAEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"An FPGA interface entry."
+		INDEX   { fpgaIndex }
+		::= { fpgaTable 1 }
+
+	FPGAEntry ::=
+		SEQUENCE {
+			fpgaIndex
+				INTEGER,
+			fpgaVersionID
+				DisplayString,
+			fpgaLoadStatus
+				INTEGER
+		}
+	
+	fpgaIndex OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"A unique value for each interface.  Its value
+			 ranges between 1 and the value of fpgaNumber. The
+			 value for each interface must remain constant at
+			 least from one re-initialization of the entity's
+			 network management system to the next re-
+			 initialization."
+		::= { fpgaEntry 1 }
+
+	fpgaVersionID OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"FPGA Version number."
+		::= { fpgaEntry 2 }
+		
+	fpgaLoadStatus OBJECT-TYPE
+		SYNTAX  INTEGER
+		{
+			successfull(1),
+			failed(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates whether the FPGA has been loaded 
+			successfully or not."
+		::= { fpgaEntry 3 }
+
+--
+--
+-- Ethernet Utilzation Group 
+--
+--
+	
+	etherUtilTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF EtherUtilEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"Ethernet Utilization Table."      
+		::= { etherUtilzation 1 }
+
+	etherUtilEntry OBJECT-TYPE
+		SYNTAX  EtherUtilEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"Ethernet Utilization Entry."
+		INDEX   { etherIndex }
+		::= { etherUtilTable 1 }
+
+	EtherUtilEntry ::=
+		SEQUENCE {
+			etherUtilzationInterval
+				INTEGER,
+			etherUtilzationOctetsRx                
+				Counter32,
+			etherUtilzationOctetsTx                
+				Counter32,
+			etherUtilzationPktsRx                  
+				Counter32,
+			etherUtilzationPktsTx                  
+				Counter32,
+			etherUtilzationPercentRx                  
+				Counter32,
+			etherUtilzationPercentTx          
+				Counter32
+		}
+
+	etherUtilzationInterval OBJECT-TYPE
+		SYNTAX  INTEGER {
+			thirty-sec(1),       
+			five-min(2),
+			disabled(3)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"The time interval over which data is to be saved in the
+			 part of the media-specific table associated with this
+			 ethernet entry."
+		::= { etherUtilEntry 1 }
+ 
+	etherUtilzationOctetsRx OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  current
+		DESCRIPTION
+			"The total number of octets of data received in good packets."
+		::= { etherUtilEntry 2 }
+
+	etherUtilzationOctetsTx OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  current
+		DESCRIPTION
+			"The total number of octets of data transmitted in good packets."
+		::= { etherUtilEntry 3 }
+
+	etherUtilzationPktsRx OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS 	read-only
+		STATUS  current
+		DESCRIPTION
+			 "The total number of good packets recieved."
+		::= { etherUtilEntry 4 }
+
+	etherUtilzationPktsTx OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  current
+		DESCRIPTION
+			"The total number of good packets transmitted."
+		::= { etherUtilEntry 5 }
+
+	etherUtilzationPercentRx OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  current
+		DESCRIPTION
+			"The % of good octets recieved."
+		::= { etherUtilEntry 6 }
+
+	etherUtilzationPercentTx OBJECT-TYPE
+		SYNTAX  Counter32
+		ACCESS  read-only
+		STATUS  current
+		DESCRIPTION
+			"The % of good octets transmitted."
+		::= { etherUtilEntry 7 }
+
+--
+--
+-- Configuration Group 
+--
+--
+
+	configuredAPSD OBJECT-TYPE
+		SYNTAX  INTEGER {
+			enabled(1),       
+			disabled(2)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"Enables/disables Auto Port Shut Down. If enabled
+			 in case of loss of signal at the SONET Rx interface, 
+			 the GigE ports would be shut down."
+		::= { configuration 1 }
+
+	clockModeSource OBJECT-TYPE
+		SYNTAX INTEGER {
+			auto-Ext-Onboard(1),
+			auto-Ext-Line-Onboard(2),
+			forced-Ext(3),
+			forced-Line(4),
+			forced-Onboard(5)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"System Clock Selection.
+			 In 'auto' mode, the highest priority available clock source
+			 is selected.
+			 In forced mode the user selects the clock source.
+			 Ext - Is the external/BITS clock source.
+			 Line - The clock recovered from the SONET line.
+			 Onboard - The local clock.  
+			 The default value is auto-Ext-Onboard(1). "
+		::= { configuration 2 }
+
+	xponderLaserControl OBJECT-TYPE
+		SYNTAX  INTEGER {
+			laser-enable(1),       
+			laser-disable(2)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"Enables/disables the Xponder Laser."
+		::= { configuration 3 }
+
+	xponderLoopBack OBJECT-TYPE
+		SYNTAX   INTEGER {
+			facilityLpbk(1),       
+			terminalLpbk(2),
+			noLpbk(3)
+		}
+		ACCESS  read-write
+		STATUS  mandatory
+		DESCRIPTION
+			"The loopbacks supported by the transponder.
+			 facilityLpbk  : Loopback towards SONET(network) side.    
+			 terminalLpbk  : Loopback towards GbE(client) side.
+			 noLpbk        : No loopback."
+		::= { configuration 4 }
+
+--
+--
+-- Status Group 
+--
+--
+ 
+	isAPSDActive OBJECT-TYPE
+		SYNTAX  INTEGER {
+			yes(1),       
+			no(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"If yes then the GigE ports are currently disabled."
+		::= { status 1 }
+
+	xponderLockDetect OBJECT-TYPE
+		SYNTAX  INTEGER {
+			normal(1),       
+			fail(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates if the transponder transmit PLL is able 
+			 to lock to the reference."
+		::= { status 2 }
+
+	activeClockSource OBJECT-TYPE
+		SYNTAX INTEGER {
+			externalClock(1),
+			lineClock(2),
+			onboardClock(3),
+			unknownClock(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Active clock source."
+		::= { status 3 }
+
+	xponderLaserStatus OBJECT-TYPE
+		SYNTAX  INTEGER {
+			laser-enabled(1),       
+			laser-disabled(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Xponder Laser Status."
+		::= { status 4 }
+
+
+	externalClock1Status OBJECT-TYPE
+		SYNTAX  INTEGER {
+			normal(1),       
+			fail(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates the status of the external clock 1 source."
+		::= { status 5 }
+
+	externalClock2Status OBJECT-TYPE
+		SYNTAX  INTEGER {
+			normal(1),       
+			fail(2)
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+			"Indicates the status of the external clock 2 source."
+		::= { status 6 }
+
+	cpldVersion OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The CPLD version number."
+		::= { status 7 }
+
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+   	gigELinkUp TRAP-TYPE
+		ENTERPRISE gigaGbE
+		VARIABLES { etherIndex }
+		DESCRIPTION
+			"GigE Link has transitioned into normal state for 
+			the indicated ethernet port number."
+		::= 1
+
+   	gigELinkDown TRAP-TYPE
+		ENTERPRISE gigaGbE
+		VARIABLES { etherIndex, etherTransceiverStatus, isAPSDActive }
+		DESCRIPTION
+			"GigE Link has transitioned into an alarm state for 
+			the indicated ethernet port number."
+		::= 2
+
+   	gigEFpgaLoadFailed TRAP-TYPE
+		ENTERPRISE gigaGbE
+		VARIABLES { fpgaIndex }
+		DESCRIPTION
+			"Unable to Load the indicated FPGA."
+		::= 3
+
+	xponderLockDetectFailed TRAP-TYPE
+		ENTERPRISE gigaGbE
+		DESCRIPTION
+			"Transponder transmit PLL is unable to lock to the reference."
+		::= 4
+ 
+	xponderLockDetectNormal TRAP-TYPE
+		ENTERPRISE gigaGbE
+		DESCRIPTION
+			"Transponder transmit PLL is locked to the reference."
+		::= 5
+
+   	gigECntrOverflow TRAP-TYPE
+		ENTERPRISE gigaGbE
+		VARIABLES { etherIndex, etherTxOverflowStatus, etherRxOverflowStatus }
+		DESCRIPTION
+			"GigE Link has transitioned into an alarm state for 
+			the indicated ethernet port number."
+		::= 6
+
+	extClockSource1Failed TRAP-TYPE
+		ENTERPRISE gigaGbE
+		DESCRIPTION
+			"external clock source 1 failed."
+		::= 7
+
+	extClockSource1Normal TRAP-TYPE
+		ENTERPRISE gigaGbE
+		DESCRIPTION
+			"external clock source 1 is OK."
+		::= 8 
+
+	extClockSource2Failed TRAP-TYPE
+		ENTERPRISE gigaGbE
+		DESCRIPTION
+			"external clock source 2 failed."
+		::= 9
+
+	extClockSource2Normal TRAP-TYPE
+		ENTERPRISE gigaGbE
+		DESCRIPTION
+			"external clock source 2 is OK."
+		::= 10 
+
+	xceiverAbsent TRAP-TYPE
+		ENTERPRISE gigaGbE
+		VARIABLES { etherIndex } 
+		DESCRIPTION
+			"transceiver not detected or faulty."
+		::= 11
+
+	xceiverPresent TRAP-TYPE
+		ENTERPRISE gigaGbE
+		VARIABLES { etherIndex } 
+		DESCRIPTION
+			"transceiver detected."
+		::= 12
+
+END

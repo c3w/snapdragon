@@ -1,0 +1,51 @@
+#!/bin/sh
+read HOST
+
+EMAIL="snapdragon"
+EMAIL_INBOX="techstaff"
+TRAP_DIR="/data/snapdragon/traps"
+DATE_STR=$(date +"%Y%m%d_%H:%M.%S")
+TRAP_FILE=${TRAP_DIR}/${DATE_DIR}-${HOST}.trap
+SENDMAIL_BIN="/usr/lib/sendmail"
+KEYWORDS_EXCLUDE="/data/snapdragon/etc/keywords.exclude"
+KEYWORDS_PAGE="/data/snapdragon/etc/keywords.page"
+
+if [ ! -d ${TRAP_DIR} ]; then { mkdir ${TRAP_DIR}; chmod oug+rwx ${TRAP_DIR}; }; fi
+
+cat > ${TRAP_FILE} <<EOF
+From: {snapdragon} <snapdragon@ipncore.com>
+Subject: ${HOST} trap {snapDragon}
+
+${HOST} ${DATE_STR}
+
+EOF
+
+cat - >> ${TRAP_FILE}; chmod oug+rwx ${TRAP_FILE}
+
+cat >> ${TRAP_FILE} <<EOF
+
+http://ipncore.com/snapdragon/
+or
+http://in.ipncore.com/snapdragon/
+EOF
+
+### INCLUDE PAGE
+for keyword in $(cat ${KEYWORDS_PAGE}); do {
+	if ( grep -i ${keyword} ${TRAP_FILE}>/dev/null ); then {
+	${SENDMAIL_BIN} ${EMAIL} < ${TRAP_FILE}
+#	/data/snapdragon/bin/escalate ${TRAP_FILE}&
+	exit;
+	}; fi
+}; done
+
+###EXCLUDE List
+for keyword in $(cat ${KEYWORDS_EXCLUDE}); do {
+	if ( grep -i ${keyword} ${TRAP_FILE}>/dev/null ); then {
+	#exlucde match; delete
+	rm -f ${TRAP_FILE}
+	exit;
+	}; fi
+}; done
+
+#no page, no exclude, so email techstaff
+${SENDMAIL_BIN} ${EMAIL_INBOX} < ${TRAP_FILE}

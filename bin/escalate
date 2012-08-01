@@ -1,0 +1,12 @@
+#!/bin/sh
+
+EMAIL_ESC="snapdragon-escalate"
+TRAP_FILE=${1}
+SENDMAIL_BIN="/usr/lib/sendmail"
+
+sleep 900
+if [ -f ${TRAP_FILE} ]; then {
+sed -e "s/Subject:/Subject: ESCALATED/" ${TRAP_FILE} > ${TRAP_FILE}.tmp
+mv ${TRAP_FILE}.tmp ${TRAP_FILE}
+${SENDMAIL_BIN} ${EMAIL_ESC} < ${TRAP_FILE}
+}; fi

@@ -1,0 +1,6 @@
+#!/bin/sh
+TRAPS_DIR="/data/snapdragon/traps"
+
+cd ${TRAPS_DIR}
+rm -rf *
+

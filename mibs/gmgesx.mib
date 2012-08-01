@@ -1,0 +1,575 @@
+--
+-- Sorrento Networks Private MIB for the GigaMux GMI-GESX, GMI-GESX-2 Circuit Packs.
+--
+-- Revision 2.5  06/24/2002  mjagtap
+-- 1. Deprecated 'unit', 'managemet', 'client' and 'tftp' groups.
+--    Next firmware revision will NOT support these deprecated groups
+--    from this MIB.
+--    Instead, firmware version 3.4.00 and above, support these groups
+--    from gmCommon.mib.
+-- 2. Removed TFTP related traps. Now supports these traps from gmCommon.mib
+-- 3. Removed unused 'resetAllCounters(3)' value of 'unitCommand' and modified
+--    'saveConfigurationNow(4)' to 'saveConfigurationNow(3)' to make it
+--    compliant to gmCommon.mib.
+--
+-- Modification History
+--
+-- Revision 2.4  08/21/2001  mjagtap
+-- 1. Added tftp group and traps.
+--    tftp group is NOT supported by GMI-GESX, GMI-GESX-2 cards version
+--    3.3.00 and older.
+--
+-- Revision 2.3  01/14/2001  mjagtap
+-- 1. Credited to Sorrento Networks.
+--
+-- Revision 2.2  1999/10/08 17:23:21  mjagtap
+-- Same as MIB with SCCS Id. : 2.1.2
+--
+-- SCCS ID  gmgesx.mib Revision 2.1.2  1/25/99      
+--
+-- This MIB file is to be used with GigaMux Gigabit Ethernet Card 
+-- version 3.3.01 or greater. Previous versions may not return all variables.
+--
+-- Copyright 2000 Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition
+-- that this copyright notice is included.
+-- This Sorrento Networks SNMP Management Information Base
+-- Specification (Specification) embodies Sorrento Networks'
+-- proprietary intellectual property.  Sorrento Networks retains
+-- all title and ownership in the Specification, including any
+-- revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread
+-- use of this Specification in connection with the management of
+-- Sorrento Networks' products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of 
+-- Sorrento Networks products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+
+	GMux-GESXCard-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxGESX		OBJECT IDENTIFIER ::= { gigaNest 7 }
+		status		OBJECT IDENTIFIER ::= { gigaMuxGESX 1 }
+		configuration	OBJECT IDENTIFIER ::= { gigaMuxGESX 2 }
+		unit		OBJECT IDENTIFIER ::= { gigaMuxGESX 3 }
+		management	OBJECT IDENTIFIER ::= { gigaMuxGESX 4 }
+		client		OBJECT IDENTIFIER ::= { gigaMuxGESX 5 }
+		tftp		OBJECT IDENTIFIER ::= { gigaMuxGESX 6 }
+
+--
+--  Status group
+--
+--  This group contains objects for obtaining the status of the 
+--  GMI_GESX channel card.
+--
+
+	aOpticalInputStatus  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			absent(2)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The status of the the optical data input for the A Module."
+		::= { status 1 }
+
+	aElectricalInputStatus  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			absent(2)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The status of the electical data input for the A Module."
+		::= { status 2 }
+
+
+	aClockRecovery  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			present(1),
+			absent(2)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates if clock recovery is present for the A Module."
+		::= { status 3 }
+
+	bOpticalInputStatus  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			absent(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The status of the the optical data input for the B Module."
+		::= { status 4 }
+
+	bElectricalInputStatus  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			absent(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The status of the electical data input for the B Module."
+		::= { status 5 }
+
+	bClockRecovery  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			present(1),
+			absent(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates if clock recovery is present for the B Module."
+		::= { status 6 }
+
+--
+--  Configuration group
+--
+--  This group contains objects for managing the GMI_GESX version of
+--	the channel card
+--
+
+	aCircuitId OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..20))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field can be used by a network
+			 management system to provide an end-to-end
+			 view of a single channel which is
+			 cross-connected through multiple
+			 multiplexers for the A module. 
+			 Enter the same number into all
+			 modules which carry the same channel of
+			 traffic. Up to 20 alphanumeric characters can
+			 be entered."
+		::= { configuration 1 }
+
+	aSequenceNumber OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field is used along with the
+			 CircuitId field to portray and end-to-end
+			 view of each channel which is cross-connected
+			 through multiplexers for the A module. 
+			 Enter a two digit
+			 number, starting with 01 on the module
+			 interfacing to the customers equipment on the
+			 one end. Increment this number as the
+			 connection traverses other modules
+			 to the far end of the circuit."
+		::= { configuration 2 }
+
+	bCircuitId OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..20))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field can be used by a network
+			 management system to provide an end-to-end
+			 view of a single channel which is
+			 cross-connected through multiple
+			 multiplexers for the B module. 
+			 Enter the same number into all
+			 modules which carry the same channel of
+			 traffic. Up to 20 alphanumeric characters can
+			 be entered."
+		::= { configuration 3 }
+
+	bSequenceNumber OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field is used along with the
+			 CircuitId field to portray and end-to-end
+			 view of each channel which is cross-connected
+			 through multiplexers for the B module. 
+			 Enter a two digit
+			 number, starting with 01 on the module
+			 interfacing to the customers equipment on the
+			 one end. Increment this number as the
+			 connection traverses other modules
+			 to the far end of the circuit."
+		::= { configuration 4 }
+
+--
+--
+--	Unit group
+--
+--
+
+	unitName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Short name for the card."
+		::= { unit 1 }
+
+	unitDescription OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..40))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Additional description information about
+			 the card, expanding upon the short name."
+		::= { unit 2 }
+
+	unitVersion OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The software version number."
+		::= { unit 3 }
+
+	unitCommand OBJECT-TYPE
+		SYNTAX INTEGER
+			{
+			nothing(1),
+			warmResetNow(2),
+			saveConfigurationNow(3)
+			}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Set this object to one of the following
+			 values to perform one of a variety of
+			 actions:
+			 nothing(1)		 - Do nothing.
+			 warmResetNow(2)	 - Causes a system
+						   restart.
+			 saveConfigurationNow(3) - Stores active
+						   configuration into
+						   non-volatile flash
+						   memory.
+			 The default is nothing(1)."
+		::= { unit 4 }
+
+	unitConfigurationState OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			unchanged(1),
+			changed(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the state of the active
+			 configuration as compared to that saved in
+			 flash memory.
+			 unchanged(1) - Flash is up-to-date
+			 changed(2)   - operating configuration differs
+					from that saved in the flash
+					memory."
+		::= { unit 5 }
+
+--
+--	Management group
+--
+--	Internet management (SNMP/TCP/IP) configuration options.
+--
+
+	internetAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"internetAddress is the IP address that is
+			 assigned to the card."
+		::= { management 1 }
+
+	subnetMask OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"subnetMask is the IP subnet mask that is
+			 assigned to the card."
+		::= { management 2 }
+
+	enterpriseTraps OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"enterpriseTraps enables or disables the sending
+			 of the private enterprise traps specified in
+			this MIB."
+		::= { management 3 }
+
+	trapDelay OBJECT-TYPE
+		SYNTAX INTEGER (0..255)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the delay between detection of a
+			 alarm condition and the sending of a trap.
+			 During this delay period, if the trap
+			 condition clears, then the trap will not be
+			 sent. This delay is used to avoid
+			 transmission of traps for momentary
+			 problems."
+		::= { management 4 }
+
+	clientAutoLearn OBJECT-TYPE
+		SYNTAX INTEGER	{
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"clientAutoLearn allows the card to
+			 automatically learn client SNMP addresses. If
+			 enabled, the card can automatically learn 16
+			 Client IP addresses and store them in the
+			 unitClientTable as dynamic. Addresses are
+			 learned from incoming SNMP messages. If set
+			 to disabled, only the addresses that are
+			 manually entered in the unitClientTable are
+			 available.
+			 The default is enabled(1)."
+		::= { management 5 }
+
+--
+--	Client Table
+--
+--	Contains the IP addresses of SNMP network management stations
+--	that will receive SNMP traffic.  The agent will only
+--	communicated with managers whose IP addresses are in the
+--	table.	Entries can be either learned automatically, from
+--	requests received by the card, or via configuration, by
+--	terminal or SNMP. See also the clientAutoLearn object in the
+--	management group.
+--
+
+	clientTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF ClientEntry
+		ACCESS not-accessible
+		STATUS mandatory
+		DESCRIPTION
+			"Client IP addresses of SNMP network
+			 management stations that should receive SNMP
+			 traffic generated by the card."
+		::= { client 1 }
+
+	clientEntry OBJECT-TYPE
+		SYNTAX ClientEntry
+		ACCESS not-accessible
+		STATUS mandatory
+		DESCRIPTION
+			""
+		INDEX	{ clientIndex }
+		::= { clientTable 1 }
+
+	ClientEntry ::=
+		SEQUENCE {
+			clientIndex
+				INTEGER,
+			clientAddress
+				IpAddress,
+			clientType
+				INTEGER
+		}
+
+	clientIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Number for this entry in the client table."
+		::= { clientEntry 1 }
+
+	clientAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"IP address for an SNMP network management
+			 station. Set the address to 0.0.0.0 to remove
+			 the entry."
+		::= { clientEntry 2 }
+
+	clientType OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			dynamic(1),
+			static(2),
+			unused(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the entry:
+			 dynamic(1) - Auto-learned from an SNMP request
+			 static(2)  - Configured statically
+			 unused(3)  - As yet unusd entry."
+		::= { clientEntry 3 }
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+	SYNTAX IpAddress
+	ACCESS read-write
+	STATUS mandatory
+	DESCRIPTION
+		"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			no-action(1),
+			start-software-download(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		    "Get or Set download state.
+			no-action(1)			- no TFTP activity
+			start-software-download(2) 	- srtart software download"
+		::= { tftp 3 }
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+	aOpticalDataLoss TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aOpticalInputStatus has transitioned
+			 to an alarm state."
+		::= 1
+
+	aOpticalDataNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aOpticalInputStatus has transitioned
+			 to a normal state."
+		::= 2
+
+	aElectricalDataLoss TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aElectriclInputStatus has transitioned into
+			 the an alarm state."
+		::= 3
+
+	aElectricalDataNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aElectriclInputStatus has transitioned to
+			 a normal state."
+		::= 4
+
+	bOpticalDataLoss TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aOpticalInputStatus has transitioned
+			 to an alarm state."
+		::= 5
+
+	bOpticalDataNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aOpticalInputStatus has transitioned
+			 to a normal state."
+		::= 6
+
+	bElectricalDataLoss TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aElectriclInputStatus has transitioned into
+			 the an alarm state."
+		::= 7
+
+	bElectricalDataNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGESX
+		DESCRIPTION
+			"The aElectriclInputStatus has transitioned to
+			 a normal state."
+		::= 8 
+
+	END		

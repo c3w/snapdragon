@@ -1,0 +1,207 @@
+-- *****************************************************************
+-- CISCO-DS3-CAPABILITY
+--
+-- AGENT-CAPABILITIES for DS3-MIB(RFC 2496) in CISCO Products
+--
+-- May 2002, Subra Hegde
+--
+-- Copyright(c) 2002 by Cisco Systems, Inc.
+--
+-- *****************************************************************
+
+CISCO-DS3-CAPABILITY DEFINITIONS ::= BEGIN
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;
+
+ciscoDs3Capability MODULE-IDENTITY
+        LAST-UPDATED    "200205010000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-wanatm@cisco.com"
+        DESCRIPTION
+            "The Agent Capabilities for DS3-MIB(RFC 2496)."
+   
+        REVISION "200205010000Z"
+        DESCRIPTION
+            "Initial version of this MIB module."
+        ::= { ciscoAgentCapability 9999 }
+
+ciscoDs3CapabilityV2R0100 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 2.1.00"
+STATUS          current
+DESCRIPTION     "DS3 MIB Capabilities for Following Modules:
+                ATM Switch Service Module(AXSM).
+                AXSM-E(AXSM Enhanced)."
+
+SUPPORTS    DS3-MIB
+INCLUDES { ds3NearEndConfigGroup,
+           ds3NearEndStatisticsGroup,
+           ds3NearEndOptionalConfigGroup
+         }
+
+VARIATION    dsx3LineType
+ACCESS       read-only
+DESCRIPTION  "Write access is not supported."
+
+VARIATION    dsx3LoopbackConfig
+SYNTAX       INTEGER { dsx3NoLoop(1), dsx3LineLoop(3),
+                       dsx3InwardLoop(5) }
+DESCRIPTION  "Does not support values dsx3PayloadLoop(2),
+             dsx3OtherLoop(4) and dsx3DualLoop(6)."
+
+VARIATION    dsx3TransmitClockSource
+SYNTAX       INTEGER { loopTiming(1), localTiming(2) }
+DESCRIPTION  "Does not support value throughTiming(3). "
+
+VARIATION    dsx3LineStatusLastChange
+DESCRIPTION  "The value does not get updated.
+             Always returns value 0."
+        
+VARIATION    dsx3LineStatusChangeTrapEnable
+DESCRIPTION  "Read always returns disabled(2).
+             Write operation is ignored."
+
+VARIATION    dsx3Channelization
+ACCESS       read-only
+DESCRIPTION  "Write access is not supported."
+
+VARIATION    dsx3Ds1ForRemoteLoop
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+    ::= { ciscoDs3Capability 1 }
+
+ciscoDs3CapabilitySrmV3R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 3.0.00"
+STATUS          current
+DESCRIPTION     "DS3 MIB Capabilities for
+                Service Resource Module(SRM)."
+
+SUPPORTS DS3-MIB
+INCLUDES { ds3NearEndConfigGroup,
+           ds3NearEndStatisticsGroup,
+           ds3NearEndOptionalConfigGroup
+         }
+
+VARIATION    dsx3TimeElapsed
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    dsx3ValidIntervals
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+        
+VARIATION    dsx3LineType
+SYNTAX       INTEGER { dsx3M23(2), dsx3CbitParity(4) }
+DESCRIPTION  "Does not support values dsx3other(1),
+             dsx3SYNTRAN(3), dsx3ClearChannel(5),
+             e3other(6), e3Framed(7) and e3Plcp(8)."
+
+VARIATION    dsx3LineCoding
+SYNTAX       INTEGER { dsx3B3ZS(2), e3HDB3(3) }
+DESCRIPTION  "Does not support value dsx3Other(1)."       
+ 
+VARIATION    dsx3CircuitIdentifier
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+        
+VARIATION    dsx3LoopbackConfig
+SYNTAX       INTEGER { dsx3NoLoop(1), dsx3PayloadLoop(2),
+             dsx3LineLoop(3), dsx3InwardLoop(5) }
+DESCRIPTION  "Does not support values dsx3OtherLoop(4)
+             and dsx3DualLoop(6)."
+
+VARIATION    dsx3TransmitClockSource
+SYNTAX       INTEGER { loopTiming(1), localTiming(2) }
+DESCRIPTION  "Does not support value throughTiming(3)."
+
+VARIATION    dsx3InvalidIntervals
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+        
+VARIATION    dsx3LineStatusLastChange
+DESCRIPTION  "The value does not get updated.
+             Always returns value 0."
+        
+VARIATION    dsx3LineStatusChangeTrapEnable
+DESCRIPTION  "Read always returns disabled(2).
+             Write operation is ignored."
+
+VARIATION    dsx3LoopbackStatus
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    dsx3Channelization
+ACCESS       read-only
+DESCRIPTION  "Write access is not supported."
+
+    ::= { ciscoDs3Capability 2 }
+
+ciscoDs3CapabilityPxm1eV3R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 3.0.00"
+STATUS          current
+DESCRIPTION     "DS3 MIB Capabilities for
+                 Processor Switch Module Enhanced (PXM1E)
+                 controller card."
+
+SUPPORTS DS3-MIB
+INCLUDES { ds3NearEndConfigGroup,
+           ds3NearEndStatisticsGroup,
+           ds3NearEndOptionalConfigGroup
+         }
+
+VARIATION    dsx3LineType
+ACCESS       read-only
+DESCRIPTION  "Write access is not supported."
+
+VARIATION    dsx3CircuitIdentifier
+ACCESS       read-only
+DESCRIPTION  "Agent always returns 0 length string."
+
+VARIATION    dsx3LoopbackConfig
+SYNTAX       INTEGER { dsx3NoLoop(1), dsx3LineLoop(3),
+                       dsx3InwardLoop(5) }
+DESCRIPTION  "Does not support values dsx3PayloadLoop(2),
+             dsx3OtherLoop(4) and dsx3DualLoop(6)."
+
+VARIATION    dsx3TransmitClockSource
+SYNTAX       INTEGER { loopTiming(1), localTiming(2) }
+DESCRIPTION  "Does not support value throughTiming(3). "
+
+VARIATION    dsx3LineStatusLastChange
+DESCRIPTION  "The value does not get updated.
+             Always returns value 0."
+        
+VARIATION    dsx3LineStatusChangeTrapEnable
+DESCRIPTION  "Read always returns disabled(2).
+             Write operation is ignored."
+
+VARIATION    dsx3Channelization
+ACCESS       read-only
+DESCRIPTION  "Write access is not supported."
+
+VARIATION    dsx3Ds1ForRemoteLoop
+ACCESS       read-only
+DESCRIPTION  "Agent always returns value 0."
+
+
+    ::= { ciscoDs3Capability 3 }
+
+END

@@ -1,0 +1,17 @@
+From: {snapdragon} <snapdragon@ipncore.com>
+Subject: 192.168.240.57.fe0.22 administratively
+
+customers affected:
+this is chas testing interface. wheeeee
+
+flap-5 history:
+Mon Oct 10 19:52:54 PDT 2005 linkup
+Mon Oct 10 19:52:55 PDT 2005 linkdown
+Mon Oct 10 19:52:56 PDT 2005 administratively
+Fri Oct 21 16:58:04 PDT 2005 linkup
+Fri Oct 21 16:58:05 PDT 2005 linkdown
+
+keywords matched:
+192.168.240.57
+"FastEthernet0/22"
+administratively

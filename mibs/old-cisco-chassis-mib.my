@@ -1,0 +1,1038 @@
+-- *****************************************************************
+-- OLD-CISCO-CHASSIS-MIB.my:  Cisco Chassis MIB file
+--
+--
+-- May 1994, Jeffrey T. Johnson
+--
+-- Copyright (c) 1994-1997, 1998, 1999 by cisco Systems, Inc.
+-- All rights reserved.
+--
+-- NOTE WELL
+-- Starting with IOS 12.0, all objects defined in this mib have been
+-- deprecated.  They have been replaces with objects defined in the
+-- ENTITY-MIB.my document. Management applications should no longer
+-- be examining the objects defined in this document.
+-- NOTE WELL
+-- 
+-- *****************************************************************
+--
+--
+               OLD-CISCO-CHASSIS-MIB DEFINITIONS ::= BEGIN
+
+               IMPORTS
+                    TimeTicks
+                        FROM RFC1155-SMI
+                    OBJECT-TYPE
+			FROM RFC-1212
+                    DisplayString
+			FROM RFC1213-MIB
+		    temporary
+			FROM CISCO-SMI;
+          
+               chassis             OBJECT IDENTIFIER ::= { temporary 6 }
+
+               -- Temporary Chassis Section
+
+
+               -- (not the same as the IETF Chassis MIB)
+
+          -- This group is present in all products.
+
+               chassisType OBJECT-TYPE
+                   SYNTAX  INTEGER {
+			unknown(1)
+			,multibus(2)
+			,agsplus(3)
+			,igs(4)
+			,c2000(5)
+			,c3000(6)
+			,c4000(7)
+			,c7000(8)
+			,cs500(9)
+			,c7010(10)
+			,c2500(11)
+			,c4500(12)
+			,c2102(13)
+			,c2202(14)
+			,c2501(15)
+			,c2502(16)
+			,c2503(17)
+			,c2504(18)
+			,c2505(19)
+			,c2506(20)
+			,c2507(21)
+			,c2508(22)
+			,c2509(23)
+			,c2510(24)
+			,c2511(25)
+			,c2512(26)
+			,c2513(27)
+			,c2514(28)
+			,c2515(29)
+			,c3101(30)
+			,c3102(31)
+			,c3103(32)
+			,c3104(33)
+			,c3202(34)
+			,c3204(35)
+			,accessProRC(36)
+			,accessProEC(37)
+			,c1000(38)
+			,c1003(39)
+			,c1004(40)
+			,c2516(41)
+			,c7507(42)
+			,c7513(43)
+			,c7506(44)
+			,c7505(45)
+			,c1005(46)
+			,c4700(47)
+			,c2517(48)
+			,c2518(49)
+			,c2519(50)
+			,c2520(51)
+			,c2521(52)
+			,c2522(53)
+			,c2523(54)
+			,c2524(55)
+			,c2525(56)
+			,c4700S(57)
+			,c7206(58)
+			,c3640(59)
+			,as5200(60)
+			,c1601(61)
+			,c1602(62)
+			,c1603(63)
+			,c1604(64)
+			,c7204(65)
+			,c3620(66)
+			,wsx3011(68)
+			,mc3810(69)
+			,c1503(72)
+			,as5300(73)
+			,as2509RJ(74)
+			,as2511RJ(75)
+			,c2501FRADFX(77)
+			,c2501LANFRADFX(78)
+			,c2502LANFRADFX(79)
+			,wsx5302(80)		
+			,c1605(81)
+			,c12012(82)
+			,c12004(84)
+			,c12008(85)
+			,ubr7246(86)			-- Universal Broadband Router
+			,c2610(87)			-- c2600 with 1 integrated ethernet interface 
+			,c2612(88)			-- c2600 with an integrated ethernet and token ring interface
+			,c2611(89)			-- c2600 with 2 integrated ethernet interfaces
+			,ubr904(90)			-- Cisco Cable Modem (ubr - universal broadband router)
+			,c6200(91)			-- Digital Subscriber Line Access Multiplexer(DSLAM) 
+			,c3660(92)                      -- Six slot MARS Router
+			,c7202(94)                      -- Modular two slot router in the cisco7200 family
+			,c2620(95)			-- c2600 platform with an onboard fast ethernet
+			,c2621(96)			-- c2600 platform with two onboard fast ethernets
+			,rpm(99)			-- Router Processor Module 
+			,c1720(101)                     
+			,c7576(102)			-- Dual Independent RSP platform, 13 slots
+			,c1401(103)			-- Router with 1 ethernet and 1 ATM25 interface 
+			,c2613(104)			-- c2600 with 1 integrated token ring interface
+			,ubr7223(105)			-- Universal Broadband Router
+			,c6400Nrp(106)			-- c6400 Network Routing Processor
+			,c801(107)			-- Cisco 800 platform with 1 ethernet and 1 BRI/ST 
+			,c802(108)			-- Cisco 800 platform with 1 ethernet and 1 BRI U 
+			,c803(109)			-- Cisco 800 platform with 1 ethernet 4-port hub, 1 BRI S/T, and 2 POTs 
+			,c804(110)			-- Cisco 800 platform with 1 ethernet 4-port hub, 1 BRI U, and 2 POTs 
+			,c7206VXR(111)			-- Cisco 7200 platform, VXR series chassis with 6 slots 
+			,c7204VXR(112)			-- Cisco 7200 platform, VXR series chassis with 4 slots
+			,mgx8850(114)			-- Cisco MGX8850 Multiservice Gigabit Switch with 32 half height slots
+			,c805(116)			-- Cisco 800 platform with 1 ethernet and 1 serial WIC 
+			,ws-c3508g-xl(117)		-- Cisco Catalyst 3508G-XL switch with 8 GBIC Gigabit ports, can run Standard or Enterprise edition software. 
+			,ws-c3512-xl(118)		-- Cisco Catalyst 3512XL switch with 12 10/100BaseTX ports and 2 GBIC Gigabit ports, can run Standard or Enterprise edition software. 
+			,ws-c3524-xl(119)		-- Cisco Catalyst 3524XL switch with 24 10/100BaseTX ports and 2 GBIC Gigabit ports, can run Standard or Enterprise edition software.
+			,ws-c2908-xl(120)		-- Cisco Catalyst 2900XL series 8 port 10/100BaseTX switch
+			,ws-c2916m-xl(121)		-- Cisco Catalyst 2916M-XL switch with 16 10/100BaseTX ports and 2 uplink slots.
+			,ws-c2924-xl-v(122)		-- Cisco Catalyst 2924XL switch with 24 autosensing 10/100BaseTX ports; supports port-based VLANs; can run Standard or Enterprise edition software. 
+			,ws-c2924c-xl-v(123)		-- Cisco Catalyst 2924C-XL switch with 22 autosensing 10/100BaseTX ports and 2 100BaseFX ports; supports port-based VLANs, can run Standard or Enterprise edition software.
+			,ws-c2912-xl(124)		-- Cisco Catalyst 2912XL switch with 12 autosensing 10/100BaseTX ports, can run Standard or Enterprise edition software. 
+			,ws-c2924m-xl(125)		-- Cisco Catalyst 2924M-XL switch with 24 autosensing 10/100BaseTX ports and 2 uplink slots, can run Standard or Enterprise edition software.
+			,ws-c2912mf-xl(126)		-- Cisco Catalyst 2912MF-XL switch with 12 100BaseFX ports and 2 uplink slots; can only run Enterprise edition software.
+			,c1417(128)			-- Cisco 1400 series router with 1 Ethernet and 1 ADSL interface, with 1417 chipset
+			,cOpticalRegenerator(129)	-- Cisco Optical Regenerator
+			,ws-c2924-xl(130)		-- Cisco Catalyst 2924XL with 24 10/100BaseTX switch ports; doesn't support port-based VLANs.
+			,ws-c2924c-xl(131)		-- Cisco Catalyst 2924C-XL; doesn't support port-based VLANs.
+			,ubr924(132)			-- Cisco UBR Cable Modem which is a UBR904 with 2 FXS Voice ports
+			,ws-x6302-msm(133)		-- Catalyst 6000 or 6500 Series Multilayer Switch Module WS-X6302-MSM that directly interfaces to the switch's backplane to provide layer 3 switching.
+			,cat5k-rsfc(134)		-- Router Switching Feature Card for the Catalyst 5000 that is treated as a standalone system by the NMS
+			,c7120-quadt1(136)		-- 7120 Series chassis with 2 10/100 FE interfaces, 4 T1/E1 interfaces
+			,c7120-t3(137)			-- 7120 Series chassis with 2 10/100 FE interfaces, 1 T3 interface
+			,c7120-e3(138)			-- 7120 Series chassis with 2 10/100 FE interfaces, 1 E3 interface
+			,c7120-at3(139)			-- 7120 Series chassis with 2 10/100 FE interfaces, 1 T3 ATM interface
+			,c7120-ae3(140)			-- 7120 Series chassis with 2 10/100 FE interfaces, 1 E3 ATM interface
+			,c7120-smi3(141)		-- 7120 Series chassis with 2 10/100 FE interfaces, 1 OC3SMI ATM interface
+			,c7140-dualt3(142)		-- 7140 Series chassis with 2 10/100 FE interfaces, 2 T3 interfaces
+			,c7140-duale3(143)		-- 7140 Series chassis with 2 10/100 FE interfaces, 2 E3 interfaces
+			,c7140-dualat3(144)		-- 7140 Series chassis with 2 10/100 FE interfaces, 2 T3 ATM interfaces 
+			,c7140-dualae3(145)		-- 7140 Series chassis with 2 10/100 FE interfaces, 2 E3 ATM interfaces
+			,c7140-dualmm3(146)		-- 7140 Series chassis with 2 10/100 FE interfaces, 2 OC3MM ATM interfaces
+
+                   }
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Chassis type."
+                   ::= { chassis 1 }
+
+               chassisVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Chassis hardware revision level, or an empty
+                           string if unavailable."
+                   ::= { chassis 2 }
+
+               chassisId OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-write
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Unique ID string. Defaults to chassis serial
+                           number if available, otherwise empty. Can
+                           also be set with 'snmp-server chassis-id'."
+                   ::= { chassis 3 }
+
+               romVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "ROM monitor version."
+                   ::= { chassis 4 }
+
+               romSysVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "ROM system software version, or an empty
+                           string if unavailable."
+                   ::= { chassis 5 }
+
+               processorRam OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Bytes of RAM available to CPU."
+                   ::= { chassis 6 }
+
+               nvRAMSize OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Bytes of non-volatile configuration memory."
+                   ::= { chassis 7 }
+
+               nvRAMUsed OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Bytes of non-volatile configuration memory
+                           in use."
+                   ::= { chassis 8 }
+
+               configRegister OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Value of configuration register."
+                   ::= { chassis 9 }
+
+               configRegNext OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Value of configuration register at next
+                           reload."
+                   ::= { chassis 10 }
+
+               cardTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF CardTableEntry
+                   ACCESS  not-accessible
+                   STATUS  deprecated
+                   DESCRIPTION
+                            "Chassis card table."
+                   ::= { chassis 11 }
+
+               cardTableEntry OBJECT-TYPE
+                   SYNTAX CardTableEntry
+                   ACCESS  not-accessible
+                   STATUS  deprecated
+                   DESCRIPTION
+                            "Chassis card table."
+                   INDEX { cardIndex }
+               ::= { cardTable 1 }
+
+               CardTableEntry ::=
+                   SEQUENCE {
+                       cardIndex
+                           INTEGER,
+                       cardType
+                           INTEGER,
+                       cardDescr
+                           DisplayString,
+                       cardSerial
+                           INTEGER,
+                       cardHwVersion
+                           DisplayString,
+                       cardSwVersion
+                           DisplayString,
+                       cardSlotNumber
+                           INTEGER,
+                       cardContainedByIndex
+                           INTEGER,
+                       cardOperStatus
+                           INTEGER,
+                       cardSlots
+                           INTEGER
+                   }
+
+
+          -- The following section describes the components of the
+          -- table.
+
+               cardIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Index into cardTable (not physical chassis
+                           slot number)."
+                   ::= { cardTableEntry 1 }
+
+--
+
+-- The expansions for some acronyms used for cardType enumerations are:
+--	CSU : Channel Service Unit
+--	DSU : Dial Service Unit
+--	FT1 : Fractional T1
+--	WIC : Wan Interface Card
+--	DTR : Dedicated Token Ring
+--	PM  : Port Module
+--	PA  : Port Adapter
+
+               cardType OBJECT-TYPE
+                   SYNTAX  INTEGER {
+			unknown(1)
+			,csc1(2)
+			,csc2(3)
+			,csc3(4)
+			,csc4(5)
+			,rp(6)
+			,cpu-igs(7)
+			,cpu-2500(8)
+			,cpu-3000(9)
+			,cpu-3100(10)
+			,cpu-accessPro(11)
+			,cpu-4000(12)
+			,cpu-4000m(13)
+			,cpu-4500(14)
+			,rsp1(15)
+			,rsp2(16)
+			,cpu-4500m(17)
+			,cpu-1003(18)
+			,cpu-4700(19)
+			,csc-m(20)
+			,csc-mt(21)
+			,csc-mc(22)
+			,csc-mcplus(23)
+			,csc-envm(24)
+			,chassisInterface(25)
+			,cpu-4700S(26)
+			,cpu-7200-npe100(27)
+			,rsp7000(28)
+			,chassisInterface7000(29)
+			,rsp4(30)
+			,cpu-3600(31)
+			,cpu-as5200(32)
+			,c7200-io1fe(33)
+			,cpu-4700m(34)
+			,cpu-1600(35)
+			,c7200-io(36)
+			,cpu-1503(37)
+			,cpu-1502(38)
+			,cpu-as5300(39)
+			,csc-16(40)
+			,csc-p(41)
+			,csc-a(50)
+			,csc-e1(51)
+			,csc-e2(52)
+			,csc-y(53)
+			,csc-s(54)
+			,csc-t(55)
+			,csc-r(80)
+			,csc-r16(81)
+			,csc-r16m(82)
+			,csc-1r(83)
+			,csc-2r(84)
+			,sci4s(56)
+			,sci2s2t(57)
+			,sci4t(58)
+			,mci1t(59)
+			,mci2t(60)
+			,mci1s(61)
+			,mci1s1t(62)
+			,mci2s(63)
+			,mci1e(64)
+			,mci1e1t(65)
+			,mci1e2t(66)
+			,mci1e1s(67)
+			,mci1e1s1t(68)
+			,mci1e2s(69)
+			,mci2e(70)
+			,mci2e1t(71)
+			,mci2e2t(72)
+			,mci2e1s(73)
+			,mci2e1s1t(74)
+			,mci2e2s(75)
+			,csc-cctl1(100)
+			,csc-cctl2(101)
+			,csc-mec2(110)
+			,csc-mec4(111)
+			,csc-mec6(112)
+			,csc-fci(113)
+			,csc-fcit(114)
+			,csc-hsci(115)
+			,csc-ctr(116)
+			,cpu-7200-npe150(121)
+			,cpu-7200-npe200(122)
+			,cpu-wsx5302(123)
+			,gsr-rp(124)
+			,cpu-3810(126)
+			,cpu-2600(127)
+			,cpu-rpm(128)
+			,cpu-ubr904(129)		-- CPU card for Cisco Cable Modem (ubr - universal broadband router)
+			,cpu-6200-mpc(130)		-- Maintenance processor card for c6200
+			,cpu-1700(131)			-- CPU for Cisco 1700 series
+			,cpu-7200-npe300(132)		-- Network processing engine (CPU card) for 7200 series 
+			,cpu-1400(133)			-- CPU for Cisco 1400 series 
+			,cpu-800(134)			-- CPU for Cisco 800 series products 
+			,cpu-psm-1gbps(135)		-- Processor Switch Module 1 with 1.2Gbps switching capacity for MGX 8800 series chassis
+			,cpu-7200-npe175(137)		-- Network processing engine (CPU card) for 7200 series
+			,cpu-7200-npe225(138)		-- Network processing engine (CPU card) for 7200 series
+			,cpu-1417(140)			-- CPU for Cisco 1417 only
+			,cpu-psm1-1oc12(141)		-- Cisco MGX8800 Processor Switch Module 1 with 1 622Mbps port
+			,cpu-optical-regenerator(142)	-- CPU for the Cisco Optical Regenerator chassis
+			,cpu-ubr924(143)		-- CPU for the UBR924 Cisco Cable Modem
+			,cpu-7120(144)			-- CPU for the Cisco 7120 series
+			,cpu-7140(145)			-- CPU for the Cisco 7140 series
+			,cpu-psm1-2t3e3(146)		-- Cisco MGX8800 Processor Switch Module 1 with 2 T3/E3 ports
+			,cpu-psm1-4oc3(147)		-- Cisco MGX8800 Processor Switch Module 1 with 4 155Mbps ports
+			,sp(150)
+			,eip(151)
+			,fip(152)
+			,hip(153)
+			,sip(154)
+			,trip(155)
+			,fsip(156)
+			,aip(157)
+			,mip(158)
+			,ssp(159)
+			,cip(160)
+			,srs-fip(161)
+			,srs-trip(162)
+			,feip(163)
+			,vip(164)
+			,vip2(165)
+			,ssip(166)
+			,smip(167)
+			,posip(168)
+			,feip-tx(169)
+			,feip-fx(170)
+			,cbrt1(178)
+			,cbr120e1(179)
+			,cbr75e(180)
+			,vip2-50(181)
+			,feip2(182)
+			,acip(183)
+			,mc11(184)			-- cable card 1 downstream 1 upstream
+			,mc12a(185)			-- cable card 1 downstream 2 upstream 
+			,io1fe-tx-isl(186)		-- Fast Ethernet I/O Controller which provides RJ45 and MII Connectors
+			,geip(187)			-- Gigabit Ethernet Interface Processor 
+			,vip4(188)			-- 4th Generation Versatile Interface Processor for the c7500 router 
+			,mc14a(189)			-- cable card 1 downstream 4 upstream 
+			,mc16a(190)			-- cable card 1 downstream 6 upstream 
+			,mc11a(191)			-- modem card 1 downstream 1 upstream (ASIC)  
+			,cip2(192)			-- channel interface processor 2 for the 7500 router family.  supports IBM ESCON and IBM Parallel (Bus & Tag) interface types.
+			,npm-4000-fddi-sas(200)
+			,npm-4000-fddi-das(201)
+			,npm-4000-1e(202)
+			,npm-4000-1r(203)
+			,npm-4000-2s(204)
+			,npm-4000-2e1(205)
+			,npm-4000-2e(206)
+			,npm-4000-2r1(207)
+			,npm-4000-2r(208)
+			,npm-4000-4t(209)
+			,npm-4000-4b(210)
+			,npm-4000-8b(211)
+			,npm-4000-ct1(212)
+			,npm-4000-ce1(213)
+			,npm-4000-1a(214)
+     	                ,npm-4000-6e-pci(215)
+			,npm-4000-1fe(217)
+			,npm-4000-1hssi(218)
+			,npm-4000-2e-pci(219)
+			,pa-1fe(230)
+			,pa-8e(231)
+			,pa-4e(232)
+			,pa-5e(233)
+			,pa-4t(234)
+			,pa-4r(235)
+			,pa-fddi(236)
+			,sa-encryption(237)
+			,pa-ah1t(238)
+			,pa-ah2t(239)
+			,pa-a8t-v35(241)
+			,pa-1fe-tx-isl(242)
+			,pa-1fe-fx-isl(243)
+			,pa-1fe-tx-nisl(244)
+			,sa-compression(245)
+			,pa-atm-lite-1(246)
+			,pa-ct3(247)
+			,pa-oc3sm-mux-cbrt1(248)
+			,pa-oc3sm-mux-cbr120e1(249)
+			,pa-ds3-mux-cbrt1(254)
+			,pa-e3-mux-cbr120e1(255)
+			,pa-8b-st(257)
+			,pa-4b-u(258)
+			,pa-fddi-fd(259)
+			,pm-cpm-1e2w(260)
+			,pm-cpm-2e2w(261)
+			,pm-cpm-1e1r2w(262)
+			,pm-ct1-csu(263)
+			,pm-2ct1-csu(264)
+			,pm-ct1-dsx1(265)
+			,pm-2ct1-dsx1(266)
+			,pm-ce1-balanced(267)
+			,pm-2ce1-balanced(268)
+			,pm-ce1-unbalanced(269)
+			,pm-2ce1-unbalanced(270)
+			,pm-4b-u(271)
+			,pm-4b-st(272)
+			,pm-8b-u(273)
+			,pm-8b-st(274)
+			,pm-4as(275)
+			,pm-8as(276)
+			,pm-4e(277)
+			,pm-1e(278)
+			,pm-m4t(280)
+			,pm-16a(281)
+			,pm-32a(282)
+			,pm-c3600-1fe-tx(283)
+			,pm-c3600-compression(284)
+			,pm-dmodem(285)
+			,pm-8admodem(286)
+			,pm-16admodem(287)
+			,pm-c3600-1fe-fx(288)
+			,pm-1fe-2t1-csu(289)		-- Port Module with 1 Fast Ethernet, 2 T1 with CSU
+			,as5200-carrier(290)
+			,as5200-2ct1(291)
+			,as5200-2ce1(292)
+			,as5200-dtd-carrier(293)
+			,pm-as5xxx-12m(310)
+			,pm-as5xxx-12m-56k(311)
+			,pm-as5xxx-12m-v110(312)
+-- The expansions for some acronyms used in this section are given below:
+--	CSU - Channel Service Unit
+--	DSU - Dial Service Unit
+--	FT1 - Fractional T1
+--	WIC - Wan Interface Card
+			,wm-c2500-5in1(330)
+			,wm-c2500-t1-csudsu(331)
+			,wm-c2500-sw56-2wire-csudsu(332)
+			,wm-c2500-sw56-4wire-csudsu(333)
+			,wm-c2500-bri(334)
+			,wm-c2500-bri-nt1(335)
+			,wic-serial-1t(360)
+			,wic-serial-2t(361)
+			,wic-csu-dsu-4(363)
+			,wic-s-t-3420(364)
+			,wic-s-t-2186(365)
+			,wic-u-3420(366)
+			,wic-u-2091(367)
+			,wic-u-2091-2081(368)
+			,wic-s-t-2186-leased(369)
+			,wic-t1-csudsu(370)		-- FT1 CSU/DSU Wan Interface Card 
+			,wic-serial-2as(371)		-- WAN Interface Card - 2 port Async/Sync
+			,aim-compression(372)		-- Compression Advanced Interface Module (AIM)
+			,c3660-2fe-tx(373)		-- c3660 onboard 2FE(TX) version
+			,pm-oc3mm(374)			-- ATM OC3 multimode Port Module
+			,pm-oc3mm-vpd(375)		-- ATM OC3 multimode Port Module with Voice Processing Deck
+			,pm-oc3smi-vpd(376)		-- ATM OC3 single mode intermediate reach Port Module with Voice Processing Deck
+			,pm-oc3sml-vpd(377)		-- ATM OC3 single mode long reach Port Module with Voice Processing Deck
+			,pm-oc3sml(378)			-- ATM OC3 single mode long reach Port Module
+			,pm-oc3smi(379)			-- ATM OC3 single mode intermediate reach Port Module
+			,c36xx-1fe-tx(389)		-- Onboard 1FE Interface for the c3660 chassis
+			,pa-jt2(400)
+			,pa-posdw(401)
+			,pa-4me1-bal(402)
+			,pa-2ce1-balanced(403)
+			,pa-2ct1(404)
+			,pa-1vg(405)
+			,pa-atmdx-ds3(406)
+			,pa-atmdx-e3(407)
+			,pa-atmdx-sml-oc3(408)
+			,pa-atmdx-smi-oc3(409)
+			,pa-atmdx-mm-oc3(410)
+			,pa-a8t-x21(414)
+			,pa-a8t-rs232(415)
+			,pa-4me1-unbal(416)
+			,pa-4r-fdx(417)
+			,pa-1e3(418)
+			,pa-2e3(419)
+			,pa-1t3(420)
+			,pa-2t3(421)
+			,pa-2ce1-unbalanced(422)
+			,pa-14e-switch(423)
+			,pa-1fe-fx-nisl(424)
+			,pa-esc-channel(425)
+			,pa-par-channel(426)
+			,pa-ge(427)			-- Gigabit Ethernet Port Adapter
+			,pa-4ct1-csu(428)		-- 8 Port Channelized T1 with CSU 
+			,pa-8ct1-csu(429)		-- 8 Port Channelized T1 with CSU
+			,c3800-vdm(430)
+			,c3800-vdm-dc-2t1e1(431)
+			,c3800-vdm-dc-1t1e1-enet(432)
+			,pa-2feisl-tx(433)
+			,pa-2feisl-fx(434)
+			,mc3810-dcm(435)
+			,mc3810-mfm-e1balanced-bri(436)
+			,mc3810-mfm-e1unbalanced-bri(437)
+			,mc3810-mfm-e1-unbalanced(438)
+			,mc3810-mfm-dsx1-bri(439)
+			,mc3810-mfm-dsx1-csu(440)
+			,mc3810-vcm(441)	
+			,mc3810-avm(442)
+			,mc3810-avm-fxs(443)
+			,mc3810-avm-fxo(444)
+			,mc3810-avm-em(445)
+			,mc3810-vcm3(446)		-- MC3810 Voice Compression Module with 3 DSPs (Digital Signal Processor) 
+			,mc3810-bvm(447)		-- MC3810 Basic Voice Module
+			,mc3810-avm-fxo-uk(448)		-- MC3810 Analog Voice Module UK Foreign eXchange Office
+			,mc3810-avm-fxo-ger(449)	-- MC3810 Analog Voice Module Germany Foreign eXchange Office
+			,mc3810-hcm2(450)		-- MC3810 High (Voice) Compression Module with 2 DSPs (Digital Signal Processor)
+			,mc3810-hcm6(451)		-- MC3810 High (Voice) Compression Module with 6 DSPs (Digital Signal Processor) 
+			,mc3810-avm-fxo-pr3(452)	-- MC3810 Analog Voice Module Singapore or Japan Foreign eXchange Office
+			,mc3810-avm-fxo-pr2(453)	-- MC3810 Analog Voice Module Australia or New Zealand Foreign eXchange Office
+-- 460 available
+			,pm-dtd-6m(461)
+			,pm-dtd-12m(462)		-- mica 12 modem module 
+			,as5300-4ct1(480)
+			,as5300-4ce1(481)
+			,as5300-carrier(482)
+			,as5300-dtd-carrier(484)
+			,as5300-8ct1-4t(485)		-- Channelized octal T1 and 4 serial card
+			,as5300-8ce1-4t(486)		-- Channelized octal E1 and 4 serial card
+			,as5300-4ct1-4t(487)		-- Channelized quad T1 and 4 serial card
+			,as5300-4ce1-4t(488)		-- Channelized quad E1 and 4 serial card
+			,as5300-amazon2-carrier(489)	-- Amazon II mica carrier card
+			,vic-em(500)
+			,vic-fxo(501)
+			,vic-fxs(502)
+			,vpm-2v(503)
+			,vpm-4v(504)
+			,dsp-vfc30(505)
+			,dspm-c542(507)			-- DSP (Digital Signal Processor) C542  module for the AS5300 and AS5800 series
+			,vic-2fxo-eu(508)		-- 2 port Foreign eXchange Office Voice Interface Cards for most of Europe 
+			,vic-2fxo-m3(509)		-- 2 port Foreign eXchange Office Voice Interface Cards for Australia 
+			,vic-2fxo-m4(510)		-- 2 port Foreign eXchange Office Voice Interface Cards for Germany
+			,vic-2fxo-m5(511)		-- 2 port Foreign eXchange Office Voice Interface Cards for France
+			,vic-2fxo-m6(512)		-- 2 port Foreign eXchange Office Voice Interface Cards for Italy
+			,vic-2fxo-m7(513)		-- 2 port Foreign eXchange Office Voice Interface Cards for Portugal
+			,vic-2fxo-m8(514)		-- 2 port Foreign eXchange Office Voice Interface Cards for Singapore 
+			,vic-2st-2086(515)		-- 2 port Terminal Endpoint BRI S/T Voice interface daughter card
+			,hdv(516)                       -- High Density Voice over IP network module
+			,dspm-6c549(517)		-- DSP (Digital Signal Processor) module that contains 6 C549 DSPs, used in AS5300 and AS5800
+			,pos-qoc3-mm(530)
+			,pos-qoc3-sm(531)
+			,pos-oc12-mm(532)
+			,pos-oc12-sm(533)
+			,atm-oc12-mm(534)
+			,atm-oc12-sm(535)
+			,pos-oc48-mm-l(536)
+			,pos-oc48-sm-lr-fc(537)		-- GSR 1 port Packet Over Sonet OC-48, single mode, long reach, FC connector card
+			,gsr-sfc(538)
+			,gsr-csc(539)
+			,gsr-csc4(540)
+			,gsr-csc8(541)
+			,gsr-sfc8(542)
+			,atm-qoc3-sm(543)               -- Quad OC3 Line Card ATM Singlemode Fiber Ports
+			,atm-qoc3-mm(544)               -- Quad OC3 Line Card ATM Multimode Fiber Ports
+			,gsr-oc12chds3-mm(545)		-- OC12 channelised to DS3 multimode
+			,gsr-oc12chds3-sm(546)		-- OC12 channelised to DS3 singlemode
+			,gsr-1ge(547)			-- GSR 1 Port Gigabit Ethernet Line Card 
+			,gsr-oc12chsts3-mm(548)		-- GSR OC12 channelized to STS-3c/STM-1 multi-mode line card
+			,gsr-oc12chsts3-sm(549)		-- GSR OC12 channelized to STS-3c/STM-1 single-mode line card
+			,pos-oc48-sm-sr-fc(552)		-- GSR 1 Port Packet Over SONET OC-48c/STM-16 Single Mode Short Reach with FC connector
+			,pos-qoc3-sm-l(553)		-- GSR 4 Port Packet Over SONET OC-3c/STM-1 Single Mode Long Reach
+			,pa-8ct1(560)			-- 8 Port Channelized T1
+			,pa-8ce1(561)			-- 8 Port Channelized E1
+			,pa-ce3(562)			-- Channelized E3 Port Adapter
+			,pa-4r-dtr(563)			-- 4 port Dedicated Token Ring port adapter 
+			,pa-possw-sm(564)		-- Single Width POS (Packet Over Sonet) Port Adapter with Singlemode Fiber
+			,pa-possw-mm(565)		-- Single Width POS (Packet Over Sonet) Port Adapter with Multimode Fiber
+			,pa-possw-lr(566)		-- Single Width POS (Packet Over Sonet) Port Adapter with Long Range Fiber
+			,pa-1t3-plus(567)		-- Improved one port serial T3 plus port adapter
+			,pa-2t3-plus(568)		-- Improved 2 port serial T3 plus port adapter
+			,pa-ima-t1(569)			-- Implements IMA functionality for the 7200/7500 platform for a T1
+			,pa-ima-e1(570)			-- Implements IMA functionality for the 7200/7500 platform for an E1
+			,pa-2ct1-csu(571)		-- 2 port multichannel T1 port adapter with built in csu/dsu for the 7200, 7500, and rsp7000 platforms
+			,pa-2ce1(572)			-- 2 port multichannel E1 port adapter for the 7200, 7500, and rsp7000 platforms 
+			,pm-1fe-1t1(600)		-- Port Module with 1 Fast Ethernet, 1 T1
+			,pm-1fe-2t1(601)		-- Port Module with 1 Fast Ethernet, 2 T1
+			,pm-1fe-1e1(602)		-- Port Module with 1 Fast Ethernet, 1 E1
+			,pm-1fe-2e1(603)		-- Port Module with 1 Fast Ethernet, 2 E1
+			,pm-1fe-1t1-csu(604)            -- Port Module with 1 Fast Ethernet, 1 T1 with CSU 
+			,pm-atm25(605)			-- 25 Mbits/sec ATM Port Module
+			,pm-hssi(606)			-- HSSI Card Port Module 
+			,as5800-dsc(630)
+			,as5800-12t1(631)
+			,as5800-12e1(632)
+			,as5800-mica-hmm(633)
+			,as5800-t3(634)			-- T3 trunk card
+			,as5800-1fe-dsi(635)
+			,as5800-mica-dmm(636)		-- Mica Double density Modem Module
+			,as5800-vcc(637)		-- Voice Carrier Card for the AS5800
+			,as5800-dspm-6c549(638)		-- Digital Signal Processor Module with 6 C549's Voice Feature Card for the AS5800
+			,as5800-dsp(639)		-- Digital Signal Processor Voice Feature Card for the AS5800
+--	650-699:	c6xxx cards
+			,slc-cap8(650)			-- Subscriber line card for c6200 - Carrierless Amplitude and Phase modulation - 8 port variation 
+			,ntc-oc3si(651)			-- Network Trunk card for c6200 - Optical Carrier 3, single-mode, intermediate reach variation
+			,ntc-oc3mm(652)			-- Network Trunk card for c6200 -  Optical Carrier 3, multi-mode reach variation
+			,ntc-stm1si(653)		-- Network Trunk card for c6200 - Synchronous Transport Module level 1, single-mode, intermediate reach variation 
+			,ntc-stm1mm(654)		-- Network Trunk card for c6200 - Synchronous Transport Module level 1, multi-mode variation
+			,slc-dmt8(655)			-- Subscriber line card for c6200 - Discrete Multi-Tone 8 port variation
+			,slc-dmt16(656)			-- Subscriber line card for c6200 - Discrete Multi-Tone 16 port variation
+			,ntc-ds3(657)			-- Network Trunk card for c6200 - DS3
+			,atmdx-rpm(750)			-- RPM Cell Bus Interface
+			,pa-atm-oc12-mm(802)		-- Multimode ATM OC-12 Port Adapter 
+			,pa-atm-oc12-smi(803)		-- Singlemode ATM OC-12 Intermediate reach Port Adapter 
+			,pa-mct3(804)			-- Multichannel DS3 single port adapter
+			,pa-mc2t3(805)			-- Multichannel DS3 dual port adapter
+			,pa-pos-oc12-mm(806)		-- OC-12 Packet Over SONET Port Adapter, Multi-Mode fiber
+			,pa-pos-oc12-sm(807)		-- OC-12 Packet Over SONET Port Adapter, Single Mode fiber
+			,srp-pa-oc12-mm(808)		-- SRP OC-12/STM-4 Multimode Port Adapter for 7000 series
+			,srp-pa-oc12-sm-ir(809)		-- SRP OC-12/STM-4 Single Mode Intermediate Reach Port Adapter for 7000 series
+			,srp-pa-oc12-lr(810)		-- SRP OC-12/STM-4 Single Mode Long Reach Port Adapter for 7000 series
+			,ausm-8t1(850)			-- ATM User Network Interface Service Module with 8 T1 ports
+			,ausm-8e1(851)			-- ATM User Network Interface Service Module with 8 E1 ports
+			,cesm-8t1(852)			-- Circuit Emulation Service Module with 8 T1 ports
+			,cesm-8e1(853)			-- Circuit Emulation Service Module with 8 E1 ports
+			,frsm-8t1(854)			-- Frame Relay Service Module with 8 T1 ports
+			,frsm-8e1(855)			-- Frame Relay Service Module with 8 E1 ports
+			,frsm-4x21(856)			-- Frame Relay Service Module supporting 4 high speed X.21 ports
+			,frsm-2hssi(857)		-- Frame Relay Service Module supporting 2 high speed HSSI ports
+			,cesm-1t3(858)			-- Circuit Emulation Service Module (CESM) with one T3 port
+			,cesm-1e3(859)			-- Circuit Emulation Service Module (CESM) with one E3 port
+			,vism-8t1(860)			-- Voice Interworking Service Module (VISM) with 8 T1 ports
+			,vism-8e1(861)			-- Voice Interworking Service Module (VISM) with 8 E1 ports
+			,mgx-rpm(862)			-- MGX8800 Route Processor Module having the functionality of a C7200 router
+			,mgx-srm-3t3(863)		-- MGX8800 Service Redundancy Module supporting 3 T3 ports on back card, used for providing 1:N redundancy for T1 modules
+			,wsx-2914(900)			-- 4 port 10/100BaseTX module for Catalyst 2900XL series
+			,wsx-2922(901)			-- 2 port 100BaseFX module for Catalyst 2900XL series
+			,wsx-2914-v(902)		-- 4 port 10/100BaseTX ISL module for Catalyst 2900XL series
+			,wsx-2922-v(903)		-- 2 port 100BaseFX ISL module for Catalyst 2900XL series
+			,wsx-2924-v(904)		-- 4 port 100BaseFX module for Catalyst 2900XL series
+			,wsx-2951(905)			-- ATM UTP module for Catalyst 2900XL series
+			,wsx-2961(906)			-- ATM MMF module for Catalyst 2900XL series
+			,wsx-2971(907)			-- ATM SMF-MR module for Catalyst 2900XL series
+			,wsx-2972(908)			-- ATM SMF-LR module for Catalyst 2900XL series
+			,wsx-2931(909)			-- GBIC Gigabit module for Catalyst 2900XL series
+			,lm-bnc-2t3(950)		-- Two T3 75-ohm BNC back card
+			,lm-bnc-2e3(951)		-- Two E3 75-ohm BNC back card
+			,lm-db15-4x21(952)		-- Four X.21 DB-15 back card
+			,lm-scsi2-2hssi(953)		-- Two HSSI SCSI-2 back card
+			,lm-rj48-8t1(954)		-- Eight T1 RJ48 back card
+			,lm-rj48-8t1-r(955)		-- Eight T1 RJ48 redundancy back card
+			,lm-rj48-8e1(956)		-- Eight E1 RJ48 back card
+			,lm-rj48-8e1-r(957)		-- Eight E1 RJ48 redundancy back card
+			,lm-smb-8e1(958)		-- Eight E1 SMB back card
+			,lm-smb-8e1-r(959)		-- Eight E1 SMB redundancy back card
+			,lm-psm-ui(960)			-- User Interface back card containing 2 RS-232 ports and one ethernet port, T1/E1 timing reference ports for Processor Switch Modules
+			,lm-mmf-4oc3(961)		-- 4 port 155Mbps back card, MMF, SC connectors
+			,lm-smfir-4oc3(962)		-- 4 port 155Mbps back card, SMF-IR, SC connectors
+			,lm-smflr-4oc3(963)		-- 4 port 155Mbps back card, SMF-LR, SC connectors
+			,lm-smfir-1oc12(964)		-- 1 port 622Mbps back card, SMF-IR, FC connectors
+			,lm-smflr-1oc12(965)		-- 1 port 622Mbps back card, SMF-LR, FC connectors
+			,lm-s3-ui(966)			-- Processor Switch Module (PXM) Stratum 3 User Interface back card for PXM1 or PXM2
+			,lm-1fe-tx(967)			-- 1 port Fast Ethernet RJ45 connector back card for MGX8800 RPM module
+			,lm-1fe-fx(968)			-- 1 port Fast Ethernet MMF connector back card for MGX8800 RPM module
+			,lm-1mmf-fddi(969)		-- 1 port FDDI MMF connector back card for MGX8800 RPM module
+			,lm-1smf-fddi(970)		-- 1 port FDDI SMF connector back card for MGX8800 RPM module
+			,lm-rj45-4e(971)		-- 4 port Ethernet (10BaseT) RJ45 connector back card for MGX8800 RPM module
+			,gsr-8fe-tx(1050)		-- GSR 8 port Fast Ethernet card with Copper interface 
+			,gsr-8fe-fx(1051)		-- GSR 8 port Fast Ethernet card with Fiber interface 
+			,pos-qoc12-sm-lr(1054)		-- GSR 4 port (Quad) OC-12 POS card, single mode, long reach
+			,pos-qoc12-mm-sr(1055)		-- GSR 4 port (Quad) OC-12 POS card, multi mode, short reach
+			,pos-oc48-sm-lr-sc(1056)	-- GSR 1 port Packet Over Sonet OC-48, single mode, long reach, SC connector card
+			,pos-oc48-sm-sr-sc(1057)	-- GSR 1 port Packet Over Sonet OC-48, single mode, short reach, SC connector card
+			,srp-oc12-sm-ir(1058)		-- GSR 1 port single mode SRP OC-12/STM-4 intermediate reach module
+			,srp-oc12-sm-lr(1059)		-- GSR 1 port single mode SRP OC-12/STM-4 long reach module
+			,srp-oc12-mm(1060)		-- GSR 1 port SRP OC-12/STM-4 Multimode Ring line card
+			,pos-en-oc48-sr-sc(1061)	-- GSR enhanced OC-48 short reach SC connector line card
+			,pos-en-oc48-sr-fc(1062)	-- GSR enhanced OC-48 short reach FC connector line card
+			,pos-en-oc48-lr-sc(1063)	-- GSR enhanced OC-48 long reach SC connector line card
+			,pos-en-oc48-lr-fc(1064)	-- GSR enhanced OC-48 long reach FC connector line card
+			,pos-en-qoc12-sr(1065)		-- GSR enhanced 4 port OC-12 short reach line card
+			,pos-en-qoc12-ir(1066)		-- GSR enhanced 4 port OC-12 intermediate reach line card 
+			,copper-6ds3(1067)		-- GSR 6 port copper DS3 interface line card
+			,copper-12ds3(1068)		-- GSR 12 port copper DS3 interface line card
+			,aim-lc-4e1-compression(1100)	-- Lowcost 4 E-1 Compression AIM 
+			,io-2fe-tx-isl(1150)		-- I/O card Dual 10/100 Fast Ethernet ISL card for the 7100 series
+
+
+                   }
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Functional type of this card."
+                   ::= { cardTableEntry 2 }
+
+               cardDescr OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Text description of this card."
+                   ::= { cardTableEntry 3 }
+
+               cardSerial OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "The serial number of this card, or zero if
+                           unavailable."
+                   ::= { cardTableEntry 4 }
+
+               cardHwVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Hardware revision level of this card, or an
+                           empty string if unavailable."
+                   ::= { cardTableEntry 5 }
+
+               cardSwVersion OBJECT-TYPE
+                   SYNTAX  DisplayString
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Version of the firmware or microcode
+                           installed on this card, or an empty string if
+                           unavailable."
+                   ::= { cardTableEntry 6 }
+
+               cardSlotNumber OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Slot number relative to the containing card or 
+                           chassis, or -1 if neither applicable nor 
+                           determinable."
+                   ::= { cardTableEntry 7 }
+
+               cardContainedByIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "cardIndex of the parent card which
+                           directly contains this card, or 0 if
+                           contained by the chassis, or -1 if not
+                           applicable nor determinable."
+                   ::= { cardTableEntry 8 }
+
+               cardOperStatus OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                          not-specified(1), 
+                          up(2),
+                          down(3),
+                          standby(4)
+                      }
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "The operational status of the card.
+                           cardOperStatus is up when a card is
+                           recognized by the device and is enabled for
+                           operation. cardOperStatus is down if the
+                           card is not recognized by the device, or if
+                           it is not enabled for operation.
+                           cardOperStatus is standby if the card is
+                           enabled and acting as a standby slave"
+                   ::= { cardTableEntry 9 }
+
+               cardSlots OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Number of slots on this card, or 0 if no
+                           slots or not applicable, or -1 if not 
+			   determinable."
+                   ::= { cardTableEntry 10 }
+
+               -- End of table
+
+
+               chassisSlots OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Number of slots in this chassis, or -1 of
+                           neither applicable nor determinable."
+                   ::= { chassis 12 }
+
+               cardIfIndexTable OBJECT-TYPE
+                   SYNTAX  SEQUENCE OF CardIfIndexEntry
+                   ACCESS  not-accessible
+                   STATUS  deprecated
+                   DESCRIPTION
+                            "Chassis card table."
+                   ::= { chassis 13 }
+
+               cardIfIndexEntry OBJECT-TYPE
+                   SYNTAX CardIfIndexEntry
+                   ACCESS  not-accessible
+                   STATUS  deprecated
+                   DESCRIPTION
+                            "Chassis card table."
+                   INDEX { cardIfIndex }
+               ::= { cardIfIndexTable 1 }
+
+               CardIfIndexEntry ::=
+                   SEQUENCE {
+                       cardIfIndex
+                           INTEGER,
+                       cardIfSlotNumber
+                           INTEGER,
+                       cardIfPortNumber
+                           INTEGER,
+                       cardIfCardIndex
+                           INTEGER,
+                       cardIfConnectorTypeEnabled
+                           INTEGER
+                   }
+
+               cardIfIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "matches RFC1213 ifTable IfIndex"
+                   ::= { cardIfIndexEntry 1 }
+
+               cardIfSlotNumber OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Chassis slot number, or -1 if neither
+                           applicable nor determinable."
+                   ::= { cardIfIndexEntry 2 }
+
+               cardIfPortNumber OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Chassis port number, unique per port on a 
+                            given card if available. If cardIfPortNumber is not
+                            applicable to the card, then the object instance
+                            won't be populated"
+                   ::= { cardIfIndexEntry 3 }
+
+               cardIfCardIndex OBJECT-TYPE
+                   SYNTAX  INTEGER
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "cardIndex of the card in the Chassis 
+                            cardTable which contains this interface, or -1 if
+                            not applicable."
+                   ::= { cardIfIndexEntry 4 }
+
+               cardIfConnectorTypeEnabled OBJECT-TYPE
+                   SYNTAX  INTEGER {
+                           not-specified(1), 
+                           none (2),
+                           rj-45 (3),
+                           db-40 (4),
+                           db-15 (5),
+                           auto-select (6)
+                   }
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Interface connector type currently
+                           enabled. Value will be 1 if not known or not
+                           used, or 2 if none of this ports' interface
+                           connectors are enabled."
+                   ::= { cardIfIndexEntry 5 }
+
+	       -- End of table
+
+               chassisPartner OBJECT-TYPE
+                   SYNTAX  INTEGER {
+			cisco(1)
+			,synoptics(2)
+			,chipcom(3)
+			,cabletron(4)
+			,dec(5)
+			,ncr(6)
+			,usrobotics(7)
+			,alcatel(8)
+			,nec(9)
+			,dsc(10)
+			,microcom(11)
+			,oki(12)
+			,ubn(13)
+			,hp(14)
+			,samsung(15)
+			,mitsubishi(16)
+                   }
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Used to determine if this is a partner 
+                            variant of a product."
+                   ::= { chassis 14 }
+
+               sysUpTimeAtLastChassisChange OBJECT-TYPE
+                   SYNTAX  TimeTicks
+                   ACCESS  read-only
+                   STATUS  deprecated
+                   DESCRIPTION
+                           "Time in seconds/100 from the last cold
+                           start to the last change in the chassis'
+                           configuration. This value will be updated
+                           whenever the chassis experiences a change
+                           in the count, type, or slot position of
+                           a card in cardTable."
+                   ::= { chassis 15 }
+
+
+
+
+
+
+               END
+      

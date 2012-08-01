@@ -1,0 +1,154 @@
+-- *****************************************************************
+-- CISCO-CONFIG-COPY-CAPABILITY.my:  CISCO-CONFIG-COPY-MIB AGENT-CAPABILITIES
+--
+-- October 1999, Vinod B C
+-- April 2002, Subra Hegde
+--
+-- Copyright (c) 1999,2002 by cisco Systems, Inc.
+-- All rights reserved.
+-- 
+-- *****************************************************************
+--
+
+CISCO-CONFIG-COPY-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;
+
+ciscoConfigCopyCapability MODULE-IDENTITY
+                LAST-UPDATED    "200204290000Z"
+                ORGANIZATION    "Cisco Systems, Inc."
+                CONTACT-INFO
+                        "       Cisco Systems
+                                Customer Service
+
+                        Postal: 170 West Tasman Drive
+                                San Jose, CA  95134
+                                USA
+
+                           Tel:         +1 800 553-NETS
+
+                        E-mail: cs-snmp@cisco.com"
+                DESCRIPTION
+                        "This is the Agent Capabilities for
+                         CISCO-CONFIG_COPY-MIB."
+                REVISION         "200204290000Z"
+                DESCRIPTION
+                        "Added ciscoConfigCopyCapabilityV2R0175
+                        for RPM-PR module in MGX8850."
+                REVISION         "200009060000Z"
+                DESCRIPTION
+                        "Added VARIATION clauses to 
+                         ccCopySourceFileType and ccCopyDestFileType."
+                REVISION         "9910070000Z"
+                DESCRIPTION
+                        "Initial version of this MIB module."
+                ::= { ciscoAgentCapability 128 }
+
+ciscoConfigCopyCapabilityV12R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "Cisco IOS 12.0"
+STATUS          current
+DESCRIPTION     "CONFIG-COPY MIB capabilities"
+
+SUPPORTS        CISCO-CONFIG-COPY-MIB
+INCLUDES        { ccCopyGroup }
+
+VARIATION       ccCopyProtocol
+SYNTAX          INTEGER { tftp(1) }
+DESCRIPTION     "ftp(2) and rcp(3) are not available"
+
+        ::= { ciscoConfigCopyCapability 1 }
+
+
+ciscoConfigCopyCapabilityV12R01 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "Cisco IOS 12.1"
+STATUS          current
+DESCRIPTION     "CONFIG-COPY MIB capabilities"
+
+SUPPORTS        CISCO-CONFIG-COPY-MIB
+INCLUDES        { ccCopyGroup }
+
+VARIATION       ccCopyProtocol
+SYNTAX          INTEGER { tftp(1) }
+-- no           { ftp(2) and rcp(3) }
+DESCRIPTION     "ftp(2) and rcp(3) are not available"
+
+VARIATION       ccCopySourceFileType
+SYNTAX          INTEGER { networkFile(1), startupConfig(3), 
+                          runningConfig(4) }
+-- no           { iosFile(2) and terminal(5) }
+DESCRIPTION     "iosFile(2) and terminal(5) not supported."
+
+VARIATION       ccCopyDestFileType
+SYNTAX          INTEGER { networkFile(1), startupConfig(3), 
+                          runningConfig(4) }
+-- no           { iosFile(2) and terminal(5) }
+DESCRIPTION     "iosFile(2) and terminal(5) not supported."
+
+        ::= { ciscoConfigCopyCapability 2 }
+
+ciscoConfigCopyCapabilityV2R0175 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE      "MGX8850 Release 2.1.75"
+STATUS               current
+DESCRIPTION          "CISCO-CONFIG-COPY-MIB Capabilities
+                     for RPM-PR(Router Module)."
+
+SUPPORTS CISCO-CONFIG-COPY-MIB
+INCLUDES { ccCopyGroup }
+
+VARIATION    ccCopyProtocol
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    ccCopySourceFileType
+SYNTAX       INTEGER {runningConfig(4)}
+DESCRIPTION  " Values networkFile(1), iosFile(2),
+             startupConfig(3), terminal(5) are 
+             not supported."
+
+VARIATION    ccCopyDestFileType
+SYNTAX       INTEGER {startupConfig(3)}
+DESCRIPTION  " Values networkFile(1), iosFile(2),
+             runningConfig(4), terminal(5) are 
+             not supported."
+
+VARIATION    ccCopyServerAddress
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    ccCopyFileName
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    ccCopyUserName
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    ccCopyUserPassword
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    ccCopyNotificationOnCompletion
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+VARIATION    ccCopyEntryRowStatus
+SYNTAX       INTEGER {
+                 active(1),
+                 createAndGo(4),
+                 destroy(6)
+             }
+DESCRIPTION  "The Values notInService(2), notReady(3),
+             createAndWait(5) are not supported.
+             Value active(1) is Read-Only."
+
+    ::= { ciscoConfigCopyCapability 3 }
+END

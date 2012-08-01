@@ -1,0 +1,1033 @@
+--
+-- Sorrento Networks Private MIB for the GigaMux Channel Card.
+--
+-- Revision 2.6  03/09/2001  ndhameja
+-- 1. Added tftp group and traps.
+--    tftp group is NOT supported by channel card version 3.3.00 and older.
+--
+-- Modification History
+--
+-- Revision 2.5  03/08/2001  ndhameja
+-- 1. Added support for APS.
+--
+-- Revision 2.4  01/14/2001  mjagtap
+-- 1. Removed GMOX-ER card type support.
+--
+-- Revision 2.3  09/29/2000  mjagtap
+-- 1. Added trapDelay in management group.
+-- 2. Changed bTxxLaserOutputLow to bTxLaserOutputLow
+-- 3. Added support for GMOX-ER (Ethernet Ring Transponder) card type.
+--
+-- Revision 2.2  1999/10/08 17:21:12  mjagtap
+-- Same as MIB with SCCS Id. : 2.1.11
+--
+-- SCCS ID  gmchcard.mib Revision 2.1.11	      9/14/98
+--
+--
+-- This MIB file is to be used with GigaMux Channel Card version 
+-- 3.3.00 or greater for GMTR-15, GMTR-25, GMOX-06, GMOX-15 and GMOX-25.
+-- Previous versions may not return all variables.
+--
+-- Copyright 2000 Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition
+-- that this copyright notice is included.
+-- This Sorrento Networks SNMP Management Information Base
+-- Specification (Specification) embodies Sorrento Networks'
+-- proprietary intellectual property.  Sorrento Networks retains
+-- all title and ownership in the Specification, including any
+-- revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread
+-- use of this Specification in connection with the management of
+-- Sorrento Networks' products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of 
+-- Sorrento Networks products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+
+
+	GMux-ChannelCard-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxChannel		OBJECT IDENTIFIER ::= { gigaNest 2 }
+		moduleA 	OBJECT IDENTIFIER ::= { gigaMuxChannel 1 }
+		moduleB 	OBJECT IDENTIFIER ::= { gigaMuxChannel 2 }
+		unit		OBJECT IDENTIFIER ::= { gigaMuxChannel 3 }
+		management	OBJECT IDENTIFIER ::= { gigaMuxChannel 4 }
+		client		OBJECT IDENTIFIER ::= { gigaMuxChannel 5 }
+		fpmr		OBJECT IDENTIFIER ::= { gigaMuxChannel 6 }
+		tftp		OBJECT IDENTIFIER ::= { gigaMuxChannel 7 }
+
+--
+--  moduleA group
+--
+--  These objects contain current settings and status for the
+--  upper module on the card.
+--
+
+	aType OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Textual representation of the card type.
+			 Names are encoded to represent features of
+			 the card. The codes mean:
+			      GMOX = transponder (txa/rxb)
+			      GMT  = transmitter (txa)
+			      GMR  = receiver (rxa)
+			      -06  = OC12 speed
+			      -25  = OC48 speed
+			      -2   = dual channels
+			 Some examples:
+			  GMOX-06      OC12 transponder (txa/rxb)
+			  GMT-25-2     OC48 dual-transmitter (txa/txb)
+			  GMR-06       OC12 single receiver (rxa)"
+		::= { moduleA 1 }
+
+	aTypeValue OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The numeric representation of the cardType."
+		::= { moduleA 2 }
+
+	aChannel OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Selects the channel/frequency used for this
+			 module. Applicable only to transmitters: GMOX, GMT,
+                         GMT-xx-2"
+		::= { moduleA 3 }
+
+	aTxLaserOn  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether the upper module A's laser
+			 is enabled or not. Applicable if GMOX, GMT or
+			 GMT-xx-2 is installed."
+		::= { moduleA 4 }
+
+	aTxLaserOutput	OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether upper module A's laser has
+			 good output or not towards the MUX module.
+			 Applicable if GMOX, GMT or GMT-xx-2 is
+			 installed."
+		::= { moduleA 5 }
+
+	aTxLaserTemp  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			high(3),
+			not-applicable(4)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's laser
+			 temperature is normal, too high or too low.
+			 Applicable if GMOX, GMT or GMT-xx-2 is
+			 installed."
+		::= { moduleA 6 }
+
+	aTxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's laser has proper
+			 input electrical signal level or not.
+			 Applicable if GMOX, GMT or GMT-xx-2 is
+			 installed."
+		::= { moduleA 7 }
+
+	aRxOpticalPower  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's receiver has
+			 proper input optical signal level or not from
+			 the DEMUX module. Applicable only for
+			 receivers - GMR and GMR-xx-2."
+		::= { moduleA 8 }
+
+	aRxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's receiver has
+			 proper output electrical signal level or not
+			 presented at the equipment OUTPUT A connecor
+			 of the module.	Applicable only for
+			 receivers: GMR, GMR-xx-2."
+		::= { moduleA 9 }
+
+	aRxAPDBias  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's receiver is
+			 generating proper bias at the Avalanche
+			 PhotoDetector or not. Applicable for receiver
+			 modules: GMR, GMR-xx-2"
+		::= { moduleA 10 }
+
+	apsON  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			on(1),
+			off(2),
+			not-applicable(3)
+		     }
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's transmitter has auto 
+			 power shutdown on or off. Applicable for transponder
+			 modules: GMOX-xx"
+		::= { moduleA 11 }
+
+--
+--  moduleB Status group
+--
+--  These objects contain current settings and status for the
+--  lower module on the channel card.
+--
+
+	bType OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Textual representation of the card type.
+			 Names are encoded to represent features of
+			 the card. The codes mean:
+			      GMOX = transponder (txa/rxb)
+			      GMT  = transmitter (txa)
+			      GMR  = receiver (rxa)
+			      -06  = OC12 speed
+			      -25  = OC48 speed
+			      -2   = dual channels
+			 Some examples:
+			  GMOX-06      OC12 transponder (txa/rxb)
+			  GMT-25-2     OC48 dual-transmitter (txa/txb)
+			  GMR-06       OC12 single receiver (rxa)"
+		::= { moduleB 1 }
+
+	bTypeValue OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The numeric representation of the cardType."
+		::= { moduleB 2 }
+
+	bChannel OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Selects the channel/frequency used for this
+			 module. Applicable only to transmitters: GMT-xx-2."
+		::= { moduleB 3 }
+
+	bTxLaserOn  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether the lower module B's laser
+			 is enabled or not. Applicable only if GMT-xx-2 is
+                         installed."
+		::= { moduleB 4 }
+
+	bTxLaserOutput	OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether lower module B's laser has
+			 good output or not towards the MUX module.
+			 Applicable only if GMT-xx-2 is installed."
+		::= { moduleB 5 }
+
+	bTxLaserTemp  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			high(3),
+			not-applicable(4)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's laser
+			 temperature is normal, too high or too low.
+			 Applicable only if GMT-xx-2 is installed."
+		::= { moduleB 6 }
+
+	bTxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's laser has proper
+			 input electrical signal level or not.
+			 Applicable only if GMT-xx-2 is installed."
+		::= { moduleB 7 }
+
+	bRxOpticalPower  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver has
+			 proper input optical signal level or not from
+			 the DEMUX module. Applicable only for
+			 receivers - GMOX and GMR-xx-2."
+		::= { moduleB 8 }
+
+	bRxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver has
+			 proper output electrical signal level or not.
+			 Applicable only for receivers: GMOX, GMR-xx-2."
+		::= { moduleB 9 }
+
+	bRxAPDBias  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver is
+			 generating proper bias at the Avalanche
+			 PhotoDetector or not. Applicable for receiver
+			 modules: GMOX, GMR-xx-2."
+		::= { moduleB 10 }
+
+--
+-- Unit group
+--
+
+	unitFirmwareRevision OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"unitFirmwareRevision indicates the version
+			 number of the GigaMux Channel Card firmware."
+		::= { unit 1 }
+
+
+	unitResetCommand OBJECT-TYPE
+		SYNTAX INTEGER
+			{
+			noAction(1),
+			warmResetNow(2)
+			}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"unitResetCommand resets the GigaMux Channel Card.
+
+			 noAction(1)	  - No action taken.
+			 warmResetNow(2)  - Causes a warm restart of
+					    the GigaMux Channel Card.
+
+			 The default is noAction(1)."
+		::= { unit 2 }
+
+	saveConfigToFlash OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+		saveConfigurationNow(1),
+		noCommand(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"saveConfigToFlash allows the NMS user to
+			write the current unit configuration to
+			flash memory."
+		::= { unit 3 }
+
+
+--
+-- Management group
+--
+-- Internet management (SNMP/TCP/IP) configuration options.
+--
+
+	internetAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"internetAddress is the IP address that is
+			 assigned to the GigaMux Channel Card."
+		::= { management 1 }
+
+	subnetMask OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"subnetMask is the subnet mask that is
+			 assigned to the GigaMux Channel Card."
+
+		::= { management 2 }
+
+	enterpriseTraps OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"enterpriseTraps enables or disables the sending
+			 of the private enterprise traps specified in
+			this MIB."
+
+		::= { management 3 }
+
+	clientAutoLearn OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"clientAutoLearn allows the GigaMux Channel Card
+			 to automatically learn client SNMP addresses.
+
+			 If enabled, the GigaMux Channel Card can
+			 automatically learn 16 Client IP addresses and
+			 store them in the unitClientTable as dynamic.
+			 Addresses are learned from incoming SNMP
+			 messages.
+
+			 If set to disabled, only the addresses that
+			 are manually entered in the unitClientTable
+			 are available.
+
+			 The default is enabled(1)."
+		::= { management 4 }
+
+	moduleACircuitId OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..20))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field can be used by a network
+			 management system to provide an end-to-end
+			 view of a single channel which is
+			 cross-connected through multiple
+			 multiplexers. Enter the same number into all
+			 modules which carry the same channel of
+			 traffic. Up to 20 alphanumeric characters can
+			 be entered."
+		::= { management 5 }
+
+	moduleASequenceNumber OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field is used along with the
+			 CircuitId field to portray and end-to-end
+			 view of each channel which is cross-connected
+			 through multiplexers. Enter a two digit
+			 number, starting with 01 on the module
+			 interfacing to the customers equipment on the
+			 one end. Increment this number as the
+			 connection traverses other modules
+			 to the far end of the circuit."
+		::= { management 6 }
+
+	moduleBCircuitId OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field can be used by a network
+			 management system to provide an end-to-end
+			 view of a single channel which is
+			 cross-connected through multiple
+			 multiplexers. Enter the same number into all
+			 modules which carry the same channel of
+			 traffic. Up to 20 alphanumeric characters can
+			 be entered."
+		::= { management 7 }
+
+	moduleBSequenceNumber OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field is used along with the
+			 CircuitId field to portray and end-to-end
+			 view of each channel which is cross-connected
+			 through multiplexers. Enter a two digit
+			 number, starting with 01 on the module
+			 interfacing to the customers equipment on the
+			 one end. Increment this number as the
+			 connection traverses other modules
+			 to the far end of the circuit."
+		::= { management 8 }
+
+	trapDelay OBJECT-TYPE
+                SYNTAX INTEGER (0..255)
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Specifies the delay between detection of a
+                         alarm condition and the sending of a trap.
+                         During this delay period, if the trap
+                         condition clears, then the trap will not be
+                         sent. This delay is used to avoid
+                         transmission of traps for momentary
+                         problems."
+		::= { management 9 }
+
+
+
+--
+-- Client Group
+--
+-- Client IP addresses of SNMP network management stations that
+-- will receive SNMP traffic generated by the GigaMux Channel Card
+--
+
+	clientTable OBJECT-TYPE
+	  SYNTAX  SEQUENCE OF ClientEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Client IP addresses of SNMP network
+			 management stations that should receive SNMP
+			 traffic generated by the ."
+		::= { client 1 }
+
+
+	clientEntry OBJECT-TYPE
+		SYNTAX	ClientEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Displays the entry number (1 to 16) for an
+			     entry in the client IP address."
+		INDEX	{ clientIndex }
+		::= { clientTable 1 }
+
+	ClientEntry ::=
+		SEQUENCE {
+			clientIndex
+				      INTEGER,
+			clientAddress
+				      IpAddress,
+			clientType
+				      INTEGER
+		   }
+
+	clientIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Client Index displays the sequential entry
+			 number (1 to 16) for this entry in the client
+			 table."
+		::= { clientEntry 1 }
+
+	clientAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Client IP address for an SNMP network
+			 management station. Set the address to
+			 0.0.0.0 to remove the entry."
+		::= { clientEntry 2 }
+
+	clientType OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			dynamic (1),
+			static (2),
+			unused (3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Client Type displays type of entry in the
+			 client table.	This field is Dynamic (auto
+			 learned), Static (entered), or Unused."
+		::= { clientEntry 3 }
+
+--
+-- FPMR: Fiber Protection Module Receive
+--
+-- This group contains objects for managing the FPMR version of
+-- a channel card. This is an interim group, the FPMR is planned
+-- to have its own MIB in the future.
+--
+
+	fpmrTrunk1Status  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			failed(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"The state of fiber 1 for an FTMR module."
+		::= { fpmr 1 }
+
+	fpmrTrunk2Status  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			failed(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"The state of fiber 2 for an FTMR module."
+		::= { fpmr 2 }
+
+	fpmrSwitchMode  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			automatic(1),
+			manual(2)
+		     }
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"The operational mode of the FPMR switch.
+			 automatic(1) - module selects best fiber and
+			                automatically sets switch position.
+			 manual(2)    - operator manually sets the fiber
+			                switch position."
+		::= { fpmr 3 }
+
+	fpmrSwitchPostion  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			fiber1(1),
+			fiber2(2)
+		     }
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"The position of the FPMR switch. Applicable
+			 only for FPMR modules."
+		::= { fpmr 4 }
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			no-action(1),
+			start-software-download(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Set download state.
+			no-action(1)			- no TFTP activity
+			start-software-download(2) 	- start software download"
+		::= { tftp 3 }
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+       aTxLaserOffTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOn changes state from 'yes' to 'no'."
+	    ::= 1
+
+       aTxLaserOnTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOn changes state from 'no' to 'yes'."
+	    ::= 2
+
+       aTxLaserOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOutput changes state from 'normal'
+		   to 'low'."
+	    ::= 3
+
+       aTxLaserOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOutput changes state from 'low'
+		   to 'normal'."
+	    ::= 4
+
+       aTxInputSignalLost TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aTxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 5
+
+       aTxInputSignalDetected TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aTxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 6
+
+       bTxLaserOffTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOn changes state from 'yes' to 'no'."
+	    ::= 7
+
+       bTxLaserOnTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOn changes state from 'no' to 'yes'."
+	    ::= 8
+
+       bTxLaserOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOutput changes state from 'normal'
+		   to 'low'."
+	    ::= 9
+
+       bTxLaserOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOutput changes state from 'low'
+		   to 'normal'."
+	    ::= 10
+
+       bTxInputSignalLost TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bTxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 11
+
+       bTxInputSignalDetected TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bTxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 12
+
+       aRxOpticalPowerLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxOpticalPower changes state from 'normal'
+		   to 'low'."
+	    ::= 13
+
+       aRxOpticalPowerNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxOpticalPower changes state from 'low'
+		   to 'normal'."
+	    ::= 14
+
+       aRxSignalOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 15
+
+       aRxSignalOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 16
+
+       aRxAPDBiasLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'normal'
+		   to 'low'."
+	    ::= 17
+
+       aRxAPDBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'low'
+		   to 'normal'."
+	    ::= 18
+
+       bRxOpticalPowerLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bRxOpticalPower changes state from 'normal'
+		   to 'low'."
+	    ::= 19
+
+       bRxOpticalPowerNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bRxOpticalPower changes state from 'low'
+		   to 'normal'."
+	    ::= 20
+
+       bRxSignalOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bRxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 21
+
+       bRxSignalOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bRxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 22
+
+       bRxAPDBiasLow TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when bRxAPDBias changes state from 'normal'
+		   to 'low'."
+	    ::= 23
+
+       bRxAPDBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxChannel
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'low'
+		   to 'normal'."
+	    ::= 24
+
+	aTxLaserTempLow TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"Module A Laser temperature is below normal."
+		::= 25
+
+	aTxLaserTempNormal TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"Module A Laser temperature is normal."
+		::= 26
+
+	aTxLaserTempHigh TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"Module A Laser temperature is above normal."
+		::= 27
+
+	bTxLaserTempLow TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"Module B Laser temperature is below normal."
+		::= 28
+
+	bTxLaserTempNormal TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"Module B Laser temperature is normal."
+		::= 29
+
+	bTxLaserTempHigh TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"Module B Laser temperature is above normal."
+		::= 30
+
+	fiberTrunk1Normal TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"FPMR Fiber Trunk 1 Recovered."
+		::= 31
+
+	fiberTrunk1Failed TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"FPMR Fiber Trunk 1 Failed."
+		::= 32
+
+	fiberTrunk2Normal TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"FPMR Fiber Trunk 2 Recovered."
+		::= 33
+
+	fiberTrunk2Failed TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"FPMR Fiber Trunk 2 Failed."
+		::= 34
+    	tftpDownloadFailed TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		VARIABLES { tftpStatus }
+		DESCRIPTION
+			"TFTP download operation failed.
+			tftpStatus is the error code."
+		::= 35
+
+	tftpDownloadSuccessful TRAP-TYPE
+		ENTERPRISE gigaMuxChannel
+		DESCRIPTION
+			"TFTP download operation was successful.
+			Card will automatically reset and boot up with new image."
+		::= 36
+										
+END

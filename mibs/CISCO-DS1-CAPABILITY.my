@@ -1,0 +1,193 @@
+-- *****************************************************************
+-- CISCO-DS1-CAPABILITY
+--
+-- AGENT-CAPABILITIES mib for DS1-MIB for CISCO Products
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- April 2002, Wayne W. Cai
+-- 
+-- *****************************************************************
+
+CISCO-DS1-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;
+
+ciscoDs1Capability MODULE-IDENTITY
+        LAST-UPDATED    "200204280000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-wanatm@cisco.com"
+DESCRIPTION
+    "The Agent Capabilities for DS1-MIB for Cisco Products Series.
+     - ciscoDs1AxsmeCapabilityV3R00 is for
+       Enhanced ATM Switch Service Module(AXSM-E), and
+       Enhanced Processor Switch Module 1(PXM1E) uplink."
+           
+REVISION    "200204280000Z"
+DESCRIPTION
+    "Initial version of this MIB module."
+
+::= { ciscoAgentCapability  9999 }
+
+
+ciscoDs1AxsmeCapabilityV3R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 3.0"
+STATUS          current
+DESCRIPTION     "DS1-MIB Capabilities."
+
+SUPPORTS        DS1-MIB
+INCLUDES        { ds1NearEndConfigGroup, ds1NearEndStatisticsGroup,
+                  ds1FarEndGroup }
+
+VARIATION       dsx1LineType
+SYNTAX          INTEGER {dsx1ESF(2),
+                         dsx1E1CRCMF(7)}
+ACCESS          read-only
+DESCRIPTION     "Supported with limitation.
+                 dsx1ESF(2)     used only for T1 mode,
+                 dsx1E1CRCMF(7) used only for E1 mode."
+
+VARIATION       dsx1LineCoding
+SYNTAX          INTEGER {dsx1B8ZS(2),
+                         dsx1HDB3(3)}
+ACCESS          read-only
+DESCRIPTION     "Supported with limitation.
+                 dsx1B8ZS(2)    used only for T1 mode,
+                 dsx1HDB3(3)    used only for E1 mode."
+
+VARIATION       dsx1SendCode
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1CircuitIdentifier
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1LoopbackConfig
+SYNTAX          INTEGER {dsx1NoLoop(1),
+                         dsx1LineLoop(3),
+                         dsx1InwardLoop(5)}
+DESCRIPTION     "Supported with limitation."
+
+VARIATION       dsx1SignalMode
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1Fdl
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1LineStatusLastChange
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1LineStatusChangeTrapEnable
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1LoopbackStatus
+DESCRIPTION     "The agent only sets following bits:
+                  1  dsx1NoLoopback
+                 16  dsx1NearEndInwardLoopback
+                 64  dsx1FarEndLineLoopback."
+
+VARIATION       dsx1Ds1ChannelNumber
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1Channelization
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1CurrentCSSs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1CurrentBESs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1CurrentDMs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1IntervalCSSs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1IntervalBESs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1IntervalDMs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1TotalCSSs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1TotalBESs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1TotalDMs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndCurrentCSSs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndCurrentBESs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndCurrentDMs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndIntervalCSSs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndIntervalBESs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndIntervalDMs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndTotalCSSs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndTotalBESs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+VARIATION       dsx1FarEndTotalDMs
+ACCESS          not-implemented
+DESCRIPTION     "Not Supported."
+
+    ::= { ciscoDs1Capability 1 }
+
+END

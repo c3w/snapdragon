@@ -1,0 +1,55 @@
+
+-- ciscoSystemCapabilities MIB
+--
+-- AGENT-CAPABILITIES mib for CISCO-SYSTEM-MIB 
+--
+-- March 2002, Subra Hegde
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- *****************************************************************
+
+CISCO-SYSTEM-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;   
+
+ciscoSystemCapability MODULE-IDENTITY
+        LAST-UPDATED    "200203060000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-snmp@cisco.com"
+        DESCRIPTION
+            "The Agent Capabilities for CISCO-SYSTEM-MIB."
+
+        REVISION "200203060000Z"
+        DESCRIPTION
+            "Initial Version of the MIB Module."
+        ::= { ciscoAgentCapability 99999 }
+
+ciscoSystemCapabilityV2R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 2.00,
+                         BPX SES Release 1.00"
+    STATUS               current
+    DESCRIPTION          "CISCO-SYSTEM-MIB capabilities."
+
+    SUPPORTS CISCO-SYSTEM-MIB
+    INCLUDES { ciscoSystemClockGroup,ciscoSystemLocationGroup }
+
+    ::= { ciscoSystemCapability 1 }
+END
+

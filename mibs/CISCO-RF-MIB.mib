@@ -1,0 +1,691 @@
+-- *****************************************************************
+-- CISCO-RF-MIB.my:
+--   Descriptions of managed objects for the Redundancy Framework
+--   (RF) subsystem.
+--
+-- August 2000, Timothy Kurnik and Bo Berry
+--
+-- Copyright (c) 2000, 2001 by Cisco Systems, Inc.
+-- All rights reserved.
+-- *****************************************************************
+
+CISCO-RF-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY,
+    OBJECT-TYPE,
+    NOTIFICATION-TYPE,
+    Integer32
+            FROM SNMPv2-SMI
+    MODULE-COMPLIANCE,
+    OBJECT-GROUP,
+    NOTIFICATION-GROUP
+            FROM SNMPv2-CONF
+    TEXTUAL-CONVENTION,
+    TruthValue
+            FROM SNMPv2-TC
+    Unsigned32
+            FROM CISCO-TC
+    ciscoMgmt
+            FROM CISCO-SMI
+    sysUpTime
+            FROM RFC1213-MIB;
+
+ciscoRFMIB MODULE-IDENTITY
+    LAST-UPDATED "200104030945Z" -- April 3, 2001 9:45 AM
+    ORGANIZATION "Cisco Systems, Inc."
+    CONTACT-INFO
+        "Cisco Systems Customer Service
+         Postal: 170 West Tasman Drive
+                 San Jose, CA 95134
+                 USA
+         Tel: +1 800 553-NETS
+
+         E-mail: cs-rf-mib@cisco.com
+        "
+    DESCRIPTION
+        "This MIB provides configuration control and status for the
+         Redundancy Framework (RF) subsystem.  RF provides a mechanism
+         for logical redundancy of software functionality and is
+         designed to support 1:1 redundancy on processor cards.  RF is
+         not intended to solve all redundancy schemes.  Nor is RF
+         designed to support redundant hardware, such as power supplies.
+
+         Redundancy is concerned with the duplication of data elements
+         and software functions to provide an alternative in case of
+         failure. It is a key component to meeting 99.999%
+         availability requirements for Class 5 carrier solutions.
+
+         In the scope of this MIB definition, peer software elements
+         are redundant and redundant software elements are peers.
+        "
+    REVISION    "200104030945Z" -- April 3, 2001 9:45 AM
+    DESCRIPTION
+        "The initial release of this MIB."
+    ::= { ciscoMgmt 176 }
+
+
+--
+--     Glossary
+-- 
+--
+-- Active Unit - The CPU on which calls are being processed.
+--
+-- Availability - Availability is measured as a percentage of
+-- uptime. Based on continuous system operation which is typically
+-- 24 hours per day, 7 days per week, 365 days a year.
+-- 
+-- Bulk Sync - The process of updating the standby unit to the current
+-- context of the active unit. Once the Bulk sync is complete the
+-- standby unit is considered 'hot' and able to become the active unit.
+-- 
+-- Clients - Applications that have registered with the Redundancy
+-- Facility (RF) to receive RF events and notifications. These are
+-- considered redundancy aware applications.
+-- 
+-- Cold Redundancy - A redundancy scheme that is not able to instantly
+-- retain established calls and immediately able to handle new
+-- calls. The standby unit in a cold redundancy system is not fully
+-- initialized and is not able to retain established calls.
+-- 
+-- Configuration Data - Data that the user configures for the
+-- application and networking requirements. PVCs would fall into this
+-- category.
+-- 
+-- Cutover - A canonical term referring to either a switch-over or a
+-- fail-over.
+-- 
+-- Data Events - Messages, such as ATM SVC events, sent from active
+-- unit clients to the standby clients. Data Events are used to keep a
+-- standby-hot unit up-to-date with dynamic data changes on the active
+-- unit.
+-- 
+-- Drop Activity - The process by which the currently active unit
+-- relinquishes activity to the standby unit. The active unit can only
+-- drop activity to a standby-cold or standby-hot unit. This can be
+-- for one of two reasons:
+-- 
+--   - the currently active unit has determined that it is unhealthy
+--     and needs to release activity to the standby, or
+-- 
+--   - the user issues a command to drop activity. This is typically
+--     done for maintenance purposes such as upgrading to a new
+--     image in the standby.
+-- 
+-- Duplex Mode - The mode of operation when both control processors,
+-- one active and one standby, are present in the system. As opposed
+-- to simplex mode.
+-- 
+-- Dynamic Data - Dynamic Data is data that changes in real time. It
+-- is this data that is sync’ed from the active to the standby unit.
+-- The type and frequency of dynamic data syncs is client
+-- specific. ATM SVCs fall into this category. Once the SVC is
+-- established on the active unit, ATM sends SVC Data Events to the
+-- standby unit.
+-- 
+-- Gain Activity - The process by which the standby unit becomes the
+-- active unit.
+-- 
+-- Hot Redundancy - A redundancy scheme that is able to instantly
+-- retain established calls and immediately able to handle new calls.
+-- 
+-- Load Balancing - A high availability scheme whereby both control
+-- processors are sharing the load.
+-- 
+-- Negotiation Clash - The situation when two loosely coupled units
+-- think both have the same negotiation status. In this case, the
+-- primary unit should over ride the secondary unit.
+-- 
+-- Peer Unit - The Secondary Unit is the peer to the Primary Unit,
+-- and the Primary Unit is the peer to the Secondary Unit.
+-- 
+-- Primary Unit - This is the unit that wins in the unlikely event of
+-- a negotiation clash between two loosely coupled units. For example,
+-- if both units think they are active, the Primary unit is designed
+-- to remain active while the Secondary Unit backs down to standby. If
+-- both units think they are standby, the Primary unit is designed to
+-- gain activity while the Secondary Unit remains the standby.
+-- 
+-- Progression - The process of making redundancy state of the standby
+-- unit equivalent to that of the active unit. This includes
+-- transitioning the RF state machine through several states which in
+-- turn drives the RF clients on the active unit to synchronize any
+-- relevant data with their peer on the standby unit.
+-- 
+-- Secondary Unit - This is the unit that backs-down in the unlikely
+-- event of a negotiation clash between two loosely coupled units. For
+-- example, if both units think they are active, the Secondary unit is
+-- designed to back down while the Primary unit remains active. If
+-- both units think they are standby, the Secondary unit is designed to
+-- remain standby while the Primary unit gains activity.
+-- 
+-- Simplex Mode - The mode of operation when only a single control
+-- processor is present in the system. As opposed to duplex mode.
+-- 
+-- Split Mode - A mode in redundancy where the standby unit is present
+-- (duplex) but logically disconnected from the active unit. Clients
+-- do not send data syncs to the standby unit. This mode is useful
+-- for software upgrades and other maintenance procedures.
+-- 
+-- Standby Unit - The unit which is backing-up the currently Active
+-- unit. The Standby unit has several substates that are specific to
+-- becoming standby-hot. Once the standby unit progresses to
+-- standby-hot, it is able to instantly become the active unit while
+-- retaining calls.
+-- 
+-- Switch of Activity (SWACT) - Either a forced or automatic switch
+-- of active status from the active unit to the standby unit. The
+-- former standby unit is now referred to as the "active" unit.
+-- 
+-- Take Activity - The process by which the standby unit becomes the
+-- active unit. This can be for one of two reasons:
+-- 
+--   - the standby unit has determined that the currently active unit
+--     is unhealthy and takes activity, or
+-- 
+--   - the user issues a command to switch activity from the currently
+--     active unit. This is typically done for maintenance purposes
+--     such as upgrading the standby unit.
+
+
+--
+-- Textual conventions
+--
+RFState ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION
+        "The current state of the RF subsystem.
+         notKnown       - state is unknown
+         disabled       - RF is not operational on this unit
+         initialization - establish necessary system services
+         negotiation    - peer unit discovery and negotiation
+         standbyCold    - client notification on standby unit
+        *standbyColdConfig  - standby cfg is updated from active cfg
+        *standbyColdFileSys - standby file system (FS) is updated from
+                              the active FS
+        *standbyColdBulk    - clients sync data from active to standby
+         standbyHot     - incremental client data sync continues. This
+                          unit is ready to take over activity.
+         activeFast     - call maintenance efforts during a SWACT
+         activeDrain    - client clean-up phase
+         activePreconfig  - unit is active but has not read
+                            its configuration
+         activePostconfig  - unit is active and is post-processing
+                             its configuration
+         active         - unit is active and processing calls
+
+         * Sub-state of 'standbyCold'
+        "
+    SYNTAX INTEGER {
+        notKnown(1),
+        disabled(2),
+        initialization(3),
+        negotiation(4),
+        standbyCold(5),
+        standbyColdConfig(6),
+        standbyColdFileSys(7),
+        standbyColdBulk(8),
+        standbyHot(9),
+        activeFast(10),
+        activeDrain(11),
+        activePreconfig(12),
+        activePostconfig(13),
+        active(14)
+    }
+
+RFAction ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION
+        "Administrative commands to invoke in the RF subsystem.
+         reloadPeer     - reset the redundant peer unit
+         reloadShelf    - reset the entire shelf
+         switchActivity - safely SWACT to peer unit and go standby
+         forceSwitchActivity - switch activity; ignoring pre-conditions,
+                          system warnings and safety checks.
+        "
+    SYNTAX INTEGER {
+        reloadPeer(1),
+        reloadShelf(2),
+        switchActivity(3),
+        forceSwitchActivity(4)
+    }
+
+RFSwactReasonType ::= TEXTUAL-CONVENTION
+    STATUS current
+    DESCRIPTION
+        "Reason codes for the switch of activity from an active
+         redundant unit to its standby peer unit.
+         unsupported       - the 'reason code' is an unsupported feature
+         none              - no SWACT has occurred
+         notKnown          - reason is unknown
+         userInitiated     - a safe, manual SWACT was initiated by user
+         userForced        - a manual SWACT was forced by user; ignoring
+                             pre-conditions, warnings and safety checks
+         activeUnitFailed  - active unit failure caused an auto SWACT
+         activeUnitRemoved - active unit removal caused an auto SWACT
+        "
+    SYNTAX INTEGER {
+        unsupported(1),
+        none(2),
+        notKnown(3),
+        userInitiated(4),
+        userForced(5),
+        activeUnitFailed(6),
+        activeUnitRemoved(7)
+    }
+
+--
+-- OBJECT IDENTIFIER assignments for various groups
+--
+ciscoRFMIBObjects              OBJECT IDENTIFIER ::= { ciscoRFMIB 1 }
+
+--
+-- sub-groups
+--
+cRFStatus  OBJECT IDENTIFIER  ::= { ciscoRFMIBObjects 1 }
+cRFCfg     OBJECT IDENTIFIER  ::= { ciscoRFMIBObjects 2 }
+
+--
+-- "Status" sub-group definitions
+--
+cRFStatusUnitId OBJECT-TYPE
+    SYNTAX     Integer32 (0..2147483647)
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "A unique identifier for this redundant unit. This identifier
+         is implementation-specific but the method for selecting the
+         id must remain consistent throughout the redundant system.
+
+         Some example identifiers include: slot id, physical or
+         logical entity id, or a unique id assigned internally by the
+         RF subsystem.
+        "
+    ::= { cRFStatus 1 }
+
+cRFStatusUnitState OBJECT-TYPE
+    SYNTAX     RFState
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The current state of RF on this unit."
+    ::= { cRFStatus 2 }
+
+cRFStatusPeerUnitId OBJECT-TYPE
+    SYNTAX     Integer32 (0..2147483647)
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "A unique identifier for the redundant peer unit. This
+         identifier is implementation-specific but the method for
+         selecting the id must remain consistent throughout the
+         redundant system.
+
+         Some example identifiers include: slot id, physical or
+         logical entity id, or a unique id assigned internally by the
+         RF subsystem.
+        "
+    ::= { cRFStatus 3 }
+
+cRFStatusPeerUnitState OBJECT-TYPE
+    SYNTAX     RFState
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The current state of RF on the peer unit."
+    ::= { cRFStatus 4 }
+
+cRFStatusPrimaryMode OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "Indicates whether this is the primary redundant unit or
+         not. If this unit is the primary unit, this object is
+         true. If this unit is the secondary unit, this object is
+         false.
+
+         Note that the terms 'primary/secondary' are not synonymous
+         with the terms 'active/standby'.  At any given time, the
+         primary unit may be the active unit, or the primary unit may
+         be the standby unit.  Likewise, the secondary unit, at any
+         given time, may be the active unit, or the secondary unit
+         may be the standby unit.
+
+         The primary unit is given a higher priority or precedence
+         over the secondary unit. In a race condition (usually at
+         initialization time) or any situation where the redundant
+         units are unable to successfully negotiate activity between
+         themselves, the primary unit will always become the active
+         unit and the secondary unit will fall back to standby. Only
+         one redundant unit can be the primary unit at any given time.
+
+         The algorithm for determining the primary unit is system
+         dependent, such as 'the redundant unit with the lower numeric
+         unit id is always the primary unit.'
+        "
+    ::= { cRFStatus 5 }
+
+cRFStatusDuplexMode OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "Indicates whether the redundant peer unit has been detected
+         or not. If the redundant peer unit is detected, this object
+         is true. If the redundant peer unit is not detected, this
+         object is false.
+        "
+    ::= { cRFStatus 6 }
+
+cRFStatusManualSwactInhibit OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "Indicates whether a manual switch of activity is
+         permitted. If a manual switch of activity is allowed, this
+         object is false. If a manual switch of activity is not
+         allowed, this object is true.  Note that the value of this
+         object is the inverse of the status of manual SWACTs.
+
+         This object does not indicate whether a switch of activity is
+         or has occurred. This object only indicates if the
+         user-controllable capability is enabled or not.
+
+         A switch of activity is the event in which the standby
+         redundant unit becomes active and the previously active unit
+         becomes standby.
+        "
+    ::= { cRFStatus 7 }
+
+cRFStatusLastSwactReasonCode OBJECT-TYPE
+    SYNTAX     RFSwactReasonType
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The reason for the last switch of activity."
+    ::= { cRFStatus 8 }
+
+--
+-- "Config" sub-group definitions
+--
+cRFCfgSplitMode OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-write
+    STATUS     current
+    DESCRIPTION
+        "Indicates whether redundant units may communicate
+         synchronization messages with each other. If communication is
+         not permitted, this object is set to true. If communication is
+         permitted, this object is set to false.
+
+         In split mode (true), the active unit will not communicate
+         with the standby unit. The standby unit progression will not
+         occur. When split mode is disabled (false), the standby unit
+         is reset to recover.
+
+         Split mode (true) is useful for maintenance operations.
+        "
+    ::= { cRFCfg 1 }
+
+cRFCfgKeepaliveThresh OBJECT-TYPE
+    SYNTAX     Unsigned32
+    MAX-ACCESS read-write
+    STATUS     current
+    DESCRIPTION
+        "On platforms that support keep-alives, the keep-alive
+         threshold value designates the number of lost keep-alives
+         tolerated before a failure condition is declared.  If this
+         occurs, a SWACT notification is sent.
+
+         On platforms that do not support keep-alives, this
+         object has no purpose or effect.
+        "
+    ::= { cRFCfg 2 }
+
+cRFCfgKeepaliveThreshMin OBJECT-TYPE
+    SYNTAX     Unsigned32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The minimum acceptable value for the cRFCfgKeepaliveThresh
+         object.
+        "
+    ::= { cRFCfg 3 }
+
+cRFCfgKeepaliveThreshMax OBJECT-TYPE
+    SYNTAX     Unsigned32
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The maximum acceptable value for the cRFCfgKeepaliveThresh
+         object.
+        "
+    ::= { cRFCfg 4 }
+
+cRFCfgKeepaliveTimer OBJECT-TYPE
+    SYNTAX     Unsigned32
+    UNITS      "milliseconds"
+    MAX-ACCESS read-write
+    STATUS     current
+    DESCRIPTION
+        "On platforms that support keep-alives, the keep-alive timer
+         value is used to guard against lost keep-alives.  The RF
+         subsystem expects to receive a keep-alive within this period.
+         If a keep-alive is not received within this time period, a
+         SWACT notification is sent.
+
+         On platforms that do not support keep-alives, this
+         object has no purpose or effect.
+        "
+    ::= { cRFCfg 5 }
+
+cRFCfgKeepaliveTimerMin OBJECT-TYPE
+    SYNTAX     Unsigned32
+    UNITS      "milliseconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The minimum acceptable value for the cRFCfgKeepaliveTimer
+         object.
+        "
+    ::= { cRFCfg 6 }
+
+cRFCfgKeepaliveTimerMax OBJECT-TYPE
+    SYNTAX     Unsigned32
+    UNITS      "milliseconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The maximum acceptable value for the cRFCfgKeepaliveTimer
+         object.
+        "
+    ::= { cRFCfg 7 }
+
+cRFCfgNotifTimer OBJECT-TYPE
+    SYNTAX     Unsigned32
+    UNITS      "milliseconds"
+    MAX-ACCESS read-write
+    STATUS     current
+    DESCRIPTION
+        "Note that the term 'notification' here refers to an RF
+         notification and not an SNMP notification.
+
+         As the standby unit progresses to the 'standbyHot' state,
+         asynchronous messages are sent from the active unit to the
+         standby unit which must then be acknowledged by the standby
+         unit. If the active unit receives the acknowledgement during
+         the time period specified by this object, progression
+         proceeds as normal. If the timer expires and an
+         acknowledgement was not received by the active unit, a switch
+         of activity occurs.
+        "
+    ::= { cRFCfg 8 }
+
+cRFCfgNotifTimerMin OBJECT-TYPE
+    SYNTAX     Unsigned32
+    UNITS      "milliseconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The minimum acceptable value for the cRFCfgNotifTimer
+         object.
+        "
+    ::= { cRFCfg 9 }
+
+cRFCfgNotifTimerMax OBJECT-TYPE
+    SYNTAX     Unsigned32
+    UNITS      "milliseconds"
+    MAX-ACCESS read-only
+    STATUS     current
+    DESCRIPTION
+        "The maximum acceptable value for the cRFCfgNotifTimer
+         object.
+        "
+    ::= { cRFCfg 10 }
+
+cRFCfgAdminAction OBJECT-TYPE
+    SYNTAX     RFAction
+    MAX-ACCESS read-write
+    STATUS     current
+    DESCRIPTION
+        "This variable is set to invoke RF subsystem action commands.
+         The commands are useful for maintenance and software upgrade
+         activities.
+        "
+    ::= { cRFCfg 11 }
+
+cRFCfgNotifsEnabled OBJECT-TYPE
+    SYNTAX     TruthValue
+    MAX-ACCESS read-write
+    STATUS     current
+    DESCRIPTION
+        "Allows enabling/disabling of RF subsystem notifications."
+    DEFVAL { true }
+    ::= { cRFCfg 12 }
+
+--
+-- MIB Notification definitions
+--
+ciscoRFMIBNotificationsPrefix  OBJECT IDENTIFIER ::= { ciscoRFMIB 2 }
+ciscoRFMIBNotifications        OBJECT IDENTIFIER ::=
+    { ciscoRFMIBNotificationsPrefix 0 }
+
+ciscoRFSwactNotif NOTIFICATION-TYPE
+    OBJECTS {
+        cRFStatusUnitId,
+        sysUpTime,
+        cRFStatusLastSwactReasonCode
+    }
+    STATUS current
+    DESCRIPTION
+        "A SWACT notification is sent by the newly active redundant
+         unit whenever a switch of activity occurs. In the case where
+         a SWACT event may be indistinguishable from a reset event, a
+         network management station should use this notification to
+         differentiate the activity.
+
+         sysUpTime is the same sysUpTime defined in the RFC-1213 MIB.
+        "
+    ::= { ciscoRFMIBNotifications 1 }
+
+ciscoRFProgressionNotif NOTIFICATION-TYPE
+    OBJECTS {
+        cRFStatusUnitId,
+        cRFStatusUnitState,
+        cRFStatusPeerUnitId,
+        cRFStatusPeerUnitState
+    }
+    STATUS current
+    DESCRIPTION
+        "A progression notification is sent by the active redundant
+         unit whenever its RF state changes or the RF state of the
+         peer unit changes.
+
+         To avoid a flurry of notifications for all state transitions,
+         notifications will only be sent for transitions to the
+         following RF states:
+              standbyCold
+              standbyHot
+              active
+        "
+    ::= { ciscoRFMIBNotifications 2 }
+
+--
+-- Conformance
+--
+ciscoRFMIBConformance  OBJECT IDENTIFIER
+    ::= { ciscoRFMIB 3 }
+ciscoRFMIBCompliances  OBJECT IDENTIFIER
+    ::= { ciscoRFMIBConformance 1 }
+ciscoRFMIBGroups       OBJECT IDENTIFIER
+    ::= { ciscoRFMIBConformance 2 }
+
+--
+-- compliance statements
+--
+ciscoRFMIBCompliance MODULE-COMPLIANCE
+    STATUS current
+    DESCRIPTION
+        "The compliance statement for entities which implement the
+         Cisco RF MIB"
+    MODULE -- this module
+    MANDATORY-GROUPS {
+        ciscoRFStatusGroup,
+        ciscoRFConfigGroup,
+        ciscoRFNotifGroup
+    }
+    ::= { ciscoRFMIBCompliances 1 }
+
+--
+-- Units of conformance
+--
+ciscoRFStatusGroup OBJECT-GROUP
+    OBJECTS {
+        cRFStatusUnitId,
+        cRFStatusUnitState,
+        cRFStatusPeerUnitId,
+        cRFStatusPeerUnitState,
+        cRFStatusPrimaryMode,
+        cRFStatusDuplexMode,
+        cRFStatusManualSwactInhibit,
+        cRFStatusLastSwactReasonCode
+    }
+    STATUS current
+    DESCRIPTION
+        "The collection of global RF status objects."
+    ::= { ciscoRFMIBGroups 1 }
+
+ciscoRFConfigGroup OBJECT-GROUP
+    OBJECTS {
+        cRFCfgSplitMode,
+        cRFCfgKeepaliveThresh,
+        cRFCfgKeepaliveThreshMin,
+        cRFCfgKeepaliveThreshMax,
+        cRFCfgKeepaliveTimer,
+        cRFCfgKeepaliveTimerMin,
+        cRFCfgKeepaliveTimerMax,
+        cRFCfgNotifTimer,
+        cRFCfgNotifTimerMin,
+        cRFCfgNotifTimerMax,
+        cRFCfgAdminAction,
+        cRFCfgNotifsEnabled
+    }
+    STATUS current
+    DESCRIPTION
+        "The collection of RF configuration objects."
+    ::= { ciscoRFMIBGroups 2 }
+
+ciscoRFNotifGroup NOTIFICATION-GROUP
+    NOTIFICATIONS {
+        ciscoRFSwactNotif,
+        ciscoRFProgressionNotif
+    }
+    STATUS current
+    DESCRIPTION
+        "The collection of notifications used to indicate RF
+         state information."
+    ::= { ciscoRFMIBGroups 3 }
+
+END

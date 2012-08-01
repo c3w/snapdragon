@@ -1,0 +1,1208 @@
+-- *****************************************************************
+-- CISCO-IF-CAPABILITY.my: Cisco IF-MIB AGENT-CAPABILITIES
+--
+-- November 1998, Susheela Vaidya
+--
+-- Copyright (c) 1998 - 1999, 2000,2002 by cisco Systems, Inc.
+-- All rights reserved.
+--
+-- *****************************************************************
+
+CISCO-IF-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        DisplayString,
+        TruthValue
+                FROM SNMPv2-TC
+        ciscoAgentCapability
+                FROM CISCO-SMI;   
+
+ciscoIfCapability MODULE-IDENTITY
+    LAST-UPDATED    "200206120000Z"
+    ORGANIZATION    "Cisco Systems, Inc."
+    CONTACT-INFO  
+        "       Cisco Systems
+                Customer Service
+
+               Postal: 170 West Tasman Drive
+               San Jose, CA  95134
+               USA
+
+               Tel: +1 800 553-NETS
+
+               E-mail: cs-snmp@cisco.com"
+    DESCRIPTION
+       "Agent capabilities for IF-MIB"
+    REVISION        "200206120000Z"
+    DESCRIPTION
+        "Added following Agent capabilities for MGX product series:
+
+         - ciscoIfCapabilityPxmVR200 for 
+           PXM(Processor Switch Module) Module
+
+         - ciscoIfCapabilityAxsmVR200 for 
+           AXSM(ATM Switch Service Module)
+
+         - ciscoIfCapabilityAxsmeV21R60 for 
+           AXSM Enhanced Module.
+
+         - ciscoIfCapabilityFrsm12V3R00 for
+           Frame Relay Service Module(FRSM-12)."
+     
+        REVISION        "200002090000Z"
+        DESCRIPTION
+            "Modification of ifCounterDiscontinuityTime,
+             ifTableLastChange object and LinkUp/Down trap
+             objects."
+        REVISION        "9811160000Z"
+        DESCRIPTION
+            "Initial version of this MIB module."
+        ::= { ciscoAgentCapability 125 }
+
+ciscoIfCapabilityV11R03 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "Cisco IOS 11.3"
+STATUS          current
+DESCRIPTION     "IF MIB capabilities"
+
+SUPPORTS        IF-MIB
+INCLUDES        { ifGeneralInformationGroup, ifStackGroup2,
+                  ifFixedLengthGroup, ifHCFixedLengthGroup, 
+                  ifPacketGroup, ifHCPacketGroup, ifVHCPacketGroup,
+                  ifRcvAddressGroup, ifOldObjectsGroup }
+
+VARIATION       ifTableLastChange
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifAdminStatus
+ACCESS          read-write
+DESCRIPTION     "Can not be written in case of atm/aal5
+                sublayers on an ATM end system, LEC subinterfaces,
+                aal5 sublayer of an ATM switch CPU interface, 
+                ATM 2000 physical interface and lex based interfaces 
+                used for accounting."
+
+VARIATION       ifOperStatus
+SYNTAX          INTEGER { 
+                    up(1),
+                    down(2),
+                    testing(3),
+                    unknown(4),
+                    dormant(5) 
+                }
+-- no            { notPresent(6), lowerLayerDown(7) }
+DESCRIPTION     "Unable to detect all states."
+
+VARIATION       ifLastChange
+ACCESS          read-only
+DESCRIPTION     "Supported in physical interfaces, lex based interfaces
+                used for accounting. In case of subinterfaces, the value
+                returned will be the sysuptime when the subinterface
+                registered with ifmib."
+ 
+VARIATION       ifInOctets
+ACCESS          read-only 
+DESCRIPTION     "Not supported in atm sublayer on an ATM end system.
+                Supported in physical interfaces, lex based interfaces,
+                aal5 sublayer of an ATM switch CPU interface,  
+                aal5 sublayer on the atm interfaces of an ATM 
+                end system, AIP type aal5 sublayer on an ATM
+                end system and in frame-relay, x25,
+                aflane subinterfaces." 
+
+VARIATION       ifInUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces, 
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical interfaces, 
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface, aflane sublayers."
+
+VARIATION       ifInNUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifInDiscards
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface, aflane sublayers."
+
+VARIATION       ifInErrors
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface, aflane sublayers."
+
+VARIATION       ifInUnknownProtos
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical 
+                interfaces, lex based interfaces, aal5 
+                sublayer of an ATM switch CPU interface, 
+                aflane sublayers."
+
+VARIATION       ifOutOctets
+ACCESS          read-only 
+DESCRIPTION     "Not supported in atm sublayer on an ATM end system.
+                Supported in physical interfaces, lex based interfaces,
+                aal5 sublayer of an ATM switch CPU interface,  
+                aal5 sublayer on the atm interfaces of an ATM 
+                end system, AIP type aal5 sublayer on an ATM 
+                end system and in frame-relay, x25,
+                aflane subinterfaces." 
+
+VARIATION       ifOutUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface, aflane sublayers."
+
+VARIATION       ifOutNUcastPkts
+ACCESS          read-only                          
+DESCRIPTION     "Supported in physical interfaces, lex based accounting
+                interfaces and in aflane subinterfaces."
+
+VARIATION       ifOutDiscards
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface, aflane sublayers."
+
+VARIATION       ifOutErrors
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface, aflane sublayers."
+
+VARIATION       ifOutQLen
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifSpecific
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifInMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifInBroadcastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+ 
+VARIATION       ifOutMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifOutBroadcastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCInOctets
+ACCESS          read-only 
+DESCRIPTION     "Supported in LEC sublayers only."
+
+VARIATION       ifHCInUcastPkts
+ACCESS          not-implemented
+DESCRIPTION     "Not supported." 
+
+VARIATION       ifHCInMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCInBroadcastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutOctets
+ACCESS          read-only
+DESCRIPTION     "Supported in LEC sublayers only."
+
+VARIATION       ifHCOutUcastPkts
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutBroadcastPkts
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifLinkUpDownTrapEnable
+ACCESS          read-write
+DESCRIPTION     "Only physical interfaces can have link traps enabled.
+                Hardwired on subinterfaces and on lex based interfaces
+                used for accounting to be false."
+
+VARIATION       ifPromiscuousMode
+SYNTAX          TruthValue
+ACCESS          read-only
+DESCRIPTION     "Not writable, hardcoded to false (2)."   
+
+VARIATION       ifConnectorPresent
+ACCESS          read-only 
+DESCRIPTION     "Hardcoded to be true for controller 
+                type sub-interfaces and to be false for
+                all other sub-interfaces."  
+
+VARIATION       ifAlias
+SYNTAX          DisplayString (SIZE(0..64))
+ACCESS          read-write
+DESCRIPTION     "For interfaces that are not being nv written,
+                the ifAlias value is lost when the system is
+                reloaded."
+
+VARIATION       ifCounterDiscontinuityTime
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifStackStatus
+SYNTAX          INTEGER { active(1) } -- subset of RowStatus 
+ACCESS          read-only
+DESCRIPTION     "Write/create not supported.
+                Unable to detect all states."
+
+VARIATION       ifRcvAddressAddress
+ACCESS          read-only 
+DESCRIPTION     "Read access is added to this object. Supported in 
+                physical interfaces, lex based interfaces and in
+                lec sublayers."
+
+VARIATION       ifRcvAddressStatus
+SYNTAX          INTEGER { active(1) } -- subset of RowStatus 
+ACCESS          read-only
+DESCRIPTION     "Write/create not supported. Unable to detect 
+                all states.  Supported in physical interfaces,
+                lex based interfaces and in lec sublayers."
+
+VARIATION       ifRcvAddressType
+SYNTAX          INTEGER { other(1) }
+-- no            { volatile, nonVolatile }
+ACCESS          read-only
+DEFVAL          { other }
+-- not           { volatile } 
+DESCRIPTION     "Write/create not supported. Unable to detect 
+                all states.  Default value is { other }.
+                Supported in physical interfaces,
+                lex based interfaces and in lec sublayers."
+
+VARIATION       ifTestId
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestStatus
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestType
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestResult
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestCode
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestOwner
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       linkUp -- TRAP-TYPE
+--              OBJECTS { ifIndex, ifDescr, ifType, locIfReason }
+DESCRIPTION     "A linkUp trap signifies that the sending 
+                protocol entity recognizes that one of the
+                communication links represented in the agent's
+                configuration has come up."
+
+VARIATION       linkDown -- TRAP-TYPE
+--              OBJECTS { ifIndex, ifDescr, ifType, locIFReason }
+DESCRIPTION     "A linkDown trap signifies that the sending 
+                protocol entity recognizes a failure in one of  
+                the communication links represented in the 
+                agent's configuration."
+
+    ::= { ciscoIfCapability 1 } 
+ 
+ciscoIfCapabilityV12R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "Cisco IOS 12.0"
+STATUS          current
+DESCRIPTION     "IF MIB capabilities"
+
+SUPPORTS        IF-MIB
+INCLUDES        { ifGeneralInformationGroup, ifStackGroup2, 
+                  ifFixedLengthGroup, ifHCFixedLengthGroup, 
+                  ifPacketGroup, ifHCPacketGroup, ifVHCPacketGroup,
+                  ifRcvAddressGroup, ifOldObjectsGroup 
+                }
+
+VARIATION       ifTableLastChange
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifAdminStatus
+ACCESS          read-write
+DESCRIPTION     "Can not be written in case of atm/aal5 sublayers 
+                on an ATM end system, LEC subinterfaces, aal5
+                sublayer of an ATM switch CPU interface, ATM 2000
+                physical interface and lex based interfaces used 
+                for accounting."
+
+VARIATION       ifOperStatus
+SYNTAX          INTEGER { up(1), down(2), testing(3),
+                          unknown(4), dormant(5) }
+-- no            { notPresent(6), lowerLayerDown(7) }
+DESCRIPTION     "Unable to detect all states."
+
+VARIATION       ifLastChange
+ACCESS          read-only
+DESCRIPTION     "Supported in physical interfaces, lex based interfaces
+                used for accounting and in cable, mc3810_dsx1, voice 
+                subinterfaces."
+
+--               ifIn* counters return 0 in case of cable downstream
+--               subinterface and ifOut* counters return 0 
+--               in case of cable upstream interface as per rf mib.
+
+VARIATION       ifInOctets
+ACCESS          read-only 
+DESCRIPTION     "Not supported in atm sublayer on an ATM 
+                end system.  Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an
+                ATM switch CPU interface,  aal5 sublayer on 
+                the atm interfaces of an ATM end system, 
+                AIP type aal5 sublayer on an ATM end system and in 
+                frame-relay, x25, aflane, cable subinterfaces." 
+
+VARIATION       ifInUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane, cable 
+                subinterfaces."
+
+VARIATION       ifInNUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifInDiscards
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifInErrors
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces, 
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifInUnknownProtos
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutOctets
+ACCESS          read-only 
+DESCRIPTION     "Not supported in atm sublayer on an ATM end system.
+                Supported in physical interfaces, lex based interfaces,
+                aal5 sublayer of an ATM switch CPU interface,  
+                aal5 sublayer on the atm interfaces of an ATM
+                end system, AIP type aal5 sublayer on an ATM
+                end system and in frame-relay, x25, aflane,
+                cable subinterfaces." 
+
+VARIATION       ifOutUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutNUcastPkts
+ACCESS          read-only                          
+DESCRIPTION     "Supported in physical interfaces, lex based accounting
+                interfaces and in aflane subinterfaces."
+
+VARIATION       ifOutDiscards
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutErrors
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane, 
+                cable subinterfaces."
+
+VARIATION       ifOutQLen
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifSpecific
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifInMulticastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+
+VARIATION       ifInBroadcastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+ 
+VARIATION       ifOutMulticastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+
+VARIATION       ifOutBroadcastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+
+VARIATION       ifHCInOctets
+ACCESS          read-only 
+DESCRIPTION     "Supported in physical interfaces and 
+                LEC sub-layers." 
+
+VARIATION       ifHCInUcastPkts
+ACCESS          read-only 
+DESCRIPTION     "Supported in physical interfaces." 
+
+VARIATION       ifHCInMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCInBroadcastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutOctets
+ACCESS          read-only
+DESCRIPTION     "Supported in physical interfaces and 
+                in LEC sub-layers."
+
+VARIATION       ifHCOutUcastPkts
+ACCESS          read-only 
+DESCRIPTION     "Supported in physical interfaces."
+
+VARIATION       ifHCOutMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutBroadcastPkts
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifLinkUpDownTrapEnable
+ACCESS          read-write
+DESCRIPTION     "Physical interfaces and subinterfaces can have link
+                traps enabled. Write not supported in lex based 
+                interfaces used for accounting and the object is 
+                hardwired to be false." 
+
+VARIATION       ifPromiscuousMode
+SYNTAX          TruthValue
+ACCESS          read-only
+DESCRIPTION     "Not writable, hardcoded to false (2)."   
+
+VARIATION       ifConnectorPresent
+ACCESS          read-only 
+DESCRIPTION     "Hardcoded to be false on lex based interfaces
+                used for accounting." 
+
+VARIATION       ifAlias
+SYNTAX          DisplayString (SIZE(0..64))
+ACCESS          read-write
+DESCRIPTION     "For interfaces that are not being nv written,
+                the ifAlias value is lost when the system 
+                is reloaded."
+
+VARIATION       ifCounterDiscontinuityTime
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifStackStatus
+SYNTAX          INTEGER { active(1) } -- subset of RowStatus 
+ACCESS          read-only
+DESCRIPTION     "Write/create not supported. 
+                Unable to detect all states."
+
+VARIATION       ifRcvAddressAddress
+ACCESS          read-only 
+DESCRIPTION     "Read access is added to this object.
+                Supported in physical interfaces, 
+                lex based interfaces and in lec 
+                sublayers."
+
+VARIATION       ifRcvAddressStatus
+SYNTAX          INTEGER { active(1) } -- subset of RowStatus 
+ACCESS          read-only
+DESCRIPTION     "Write/create not supported. Unable to 
+                detect all states.  Supported in physical 
+                interfaces, lex based interfaces and in 
+                lec sublayers."
+
+VARIATION       ifRcvAddressType
+SYNTAX          INTEGER { other(1) }
+-- no            { volatile, nonVolatile }
+ACCESS          read-only
+DEFVAL          { other }
+-- not           { volatile } 
+DESCRIPTION     "Write/create not supported. Unable to detect
+                all states.  Default value is { other }. 
+                Supported in physical interfaces, lex based
+                interfaces and in lec sublayers."
+
+VARIATION       ifTestId
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestStatus
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestType
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestResult
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestCode
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestOwner
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       linkUp -- TRAP-TYPE
+--              OBJECTS { ifIndex, ifDescr, ifType, locIfReason }
+DESCRIPTION     "A linkUp trap signifies that the sending 
+                protocol entity recognizes that one of the
+                communication links represented in the agent's
+                configuration has come up."
+
+VARIATION       linkDown -- TRAP-TYPE
+--              OBJECTS { ifIndex, ifDescr, ifType, locIFReason }
+DESCRIPTION     "A linkDown trap signifies that the sending 
+                protocol entity recognizes a failure in one of  
+                the communication links represented in the 
+                agent's configuration."
+
+    ::= { ciscoIfCapability 2 }
+
+ciscoIfCapabilityV12R01T AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "Cisco IOS 12.1T"
+STATUS          current
+DESCRIPTION     "IF MIB capabilities"
+
+SUPPORTS        IF-MIB
+INCLUDES        { ifGeneralInformationGroup, ifStackGroup2,
+                  ifFixedLengthGroup, ifHCFixedLengthGroup, 
+                  ifPacketGroup, ifHCPacketGroup, ifVHCPacketGroup,
+                  ifRcvAddressGroup, ifOldObjectsGroup 
+                }
+
+VARIATION       ifTableLastChange
+ACCESS          not-implemented
+DESCRIPTION     "OIR instances need to be modified"
+
+VARIATION       ifAdminStatus
+ACCESS          read-write
+DESCRIPTION     "Can not be written in case of atm/aal5 sublayers 
+                on an ATM end system, LEC subinterfaces, aal5 
+                sublayer of an ATM switch CPU interface, ATM 2000
+                physical interface and lex based interfaces 
+                used for accounting."
+
+VARIATION       ifOperStatus
+SYNTAX          INTEGER { up(1), down(2), testing(3),
+                          unknown(4), dormant(5) }
+-- no            { notPresent(6), lowerLayerDown(7) }
+DESCRIPTION     "Unable to detect all states."
+
+VARIATION       ifLastChange
+ACCESS          read-only
+DESCRIPTION     "Supported in physical interfaces, lex based 
+                interfaces used for accounting and in cable, 
+                mc3810_dsx1, voice subinterfaces."
+
+--               ifIn* counters return 0 in case of cable downstream
+--               subinterface and ifOut* counters return 0 
+--               in case of cable upstream interface as per rf mib.
+
+VARIATION       ifInOctets
+ACCESS          read-only 
+DESCRIPTION     "Not supported in atm sublayer on an ATM end system.
+                Supported in physical interfaces, lex based interfaces,
+                aal5 sublayer of an ATM switch CPU interface,  
+                aal5 sublayer on the atm interfaces of an ATM
+                end system, AIP type aal5 sublayer on an ATM
+                end system and in frame-relay, x25,
+                aflane, cable subinterfaces." 
+
+VARIATION       ifInUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an 
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifInNUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifInDiscards
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifInErrors
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces, 
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifInUnknownProtos
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutOctets
+ACCESS          read-only 
+DESCRIPTION     "Not supported in atm sublayer on an ATM end system.
+                Supported in physical interfaces, lex based interfaces,
+                aal5 sublayer of an ATM switch CPU interface,  
+                aal5 sublayer on the atm interfaces of an 
+                ATM end system, AIP type aal5 sublayer on an
+                ATM end system and in frame-relay, x25,
+                aflane, cable subinterfaces." 
+
+VARIATION       ifOutUcastPkts
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutNUcastPkts
+ACCESS          read-only                          
+DESCRIPTION     "Supported in physical interfaces, lex based 
+                accounting interfaces and in aflane subinterfaces."
+
+VARIATION       ifOutDiscards
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutErrors
+ACCESS          read-only
+DESCRIPTION     "Not supported in frame-relay subinterfaces,
+                x25 subinterfaces, atm/aal5 sublayers on an
+                ATM end system. Supported in physical interfaces,
+                lex based interfaces, aal5 sublayer of an ATM
+                switch CPU interface and in aflane,
+                cable subinterfaces."
+
+VARIATION       ifOutQLen
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifSpecific
+ACCESS          read-only
+DESCRIPTION     "Not supported in subinterfaces."
+
+VARIATION       ifInMulticastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+
+VARIATION       ifInBroadcastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+ 
+VARIATION       ifOutMulticastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+
+VARIATION       ifOutBroadcastPkts
+ACCESS          read-only
+DESCRIPTION     "Supported in cable subinterface."
+
+VARIATION       ifHCInOctets
+ACCESS          read-only 
+DESCRIPTION     "Supported in physical interfaces and 
+                LEC sub-layers." 
+
+VARIATION       ifHCInUcastPkts
+ACCESS          read-only 
+DESCRIPTION     "Supported in physical interfaces." 
+
+VARIATION       ifHCInMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCInBroadcastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutOctets
+ACCESS          read-only
+DESCRIPTION     "Supported in physical interfaces and 
+                in LEC sub-layers."
+
+VARIATION       ifHCOutUcastPkts
+ACCESS          read-only 
+DESCRIPTION     "Supported in physical interfaces."
+
+VARIATION       ifHCOutMulticastPkts
+ACCESS          not-implemented 
+DESCRIPTION     "Not supported."
+
+VARIATION       ifHCOutBroadcastPkts
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifLinkUpDownTrapEnable
+ACCESS          read-write
+DESCRIPTION     "Physical interfaces and subinterfaces can have link
+                traps enabled. Write not supported in lex based 
+                interfaces used for accounting and the object is 
+                hardwired to be false." 
+
+VARIATION       ifPromiscuousMode
+SYNTAX          TruthValue
+ACCESS          read-only
+DESCRIPTION     "Not writable, hardcoded to false (2)."   
+
+VARIATION       ifConnectorPresent
+ACCESS          read-only 
+DESCRIPTION     "Hardcoded to be false on lex based 
+                interfaces used for accounting." 
+
+VARIATION       ifAlias
+SYNTAX          DisplayString (SIZE(0..64))
+ACCESS          read-write
+DESCRIPTION     "For interfaces that are not being nv written,
+                the ifAlias value is lost when the system 
+                is reloaded."
+
+VARIATION       ifStackStatus
+SYNTAX          INTEGER { active(1) } -- subset of RowStatus 
+ACCESS          read-only
+DESCRIPTION     "Write/create not supported.
+                Unable to detect all states."
+
+VARIATION       ifRcvAddressAddress
+ACCESS          read-only 
+DESCRIPTION     "Read access is added to this object. Supported in 
+                physical interfaces, lex based interfaces and in
+                lec sublayers."
+
+VARIATION       ifRcvAddressStatus
+SYNTAX          INTEGER { active(1) } -- subset of RowStatus 
+ACCESS          read-only
+DESCRIPTION     "Write/create not supported. Unable to detect
+                all states.  Supported in physical interfaces,
+                lex based interfaces and in lec sublayers."
+
+VARIATION       ifRcvAddressType
+SYNTAX          INTEGER { other(1) }
+-- no            { volatile, nonVolatile }
+ACCESS          read-only
+DEFVAL          { other }
+-- not           { volatile } 
+
+DESCRIPTION     "Write/create not supported. Unable to detect 
+                all states.  Default value is { other }.
+                Supported in physical interfaces,
+                lex based interfaces and in lec sublayers."
+
+VARIATION       ifTestId
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestStatus
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestType
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestResult
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestCode
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       ifTestOwner
+ACCESS          not-implemented
+DESCRIPTION     "Table for ifTestEntry not supported."
+
+VARIATION       linkUp -- TRAP-TYPE
+--              OBJECTS { ifIndex, ifAdminStatus, ifOperStatus,
+--                        ifDescr, ifType, locIfReason }
+DESCRIPTION     "A linkUp trap signifies that the sending 
+                protocol entity recognizes that one of the
+                communication links represented in the agent's
+                configuration has come up. When a new config 
+                command 'snmp-server trap link ietf' is set, the
+                varbind list is made of objects specified here. 
+                Otherwise, the varbind list defined in the 
+                previous version holds good. For sub-interfaces,
+                as there is no support for locIfReason, it will
+                be omitted from the trap message."
+
+VARIATION       linkDown -- TRAP-TYPE
+--              OBJECTS { ifIndex, ifAdminStatus, ifOperStatus,
+--                        ifDescr, ifType, locIFReason }
+DESCRIPTION     "A linkDown trap signifies that the sending 
+                protocol entity recognizes a failure in one of  
+                the communication links represented in the 
+                agent's configuration. When a new config 
+                command 'snmp-server trap link ietf' is set, the
+                varbind list is made of objects specified here. 
+                Otherwise, the varbind list defined in the 
+                previous version holds good. For sub-interfaces,
+                as there is no support for locIfReason, it will 
+                be omitted from the trap message."
+
+    ::= { ciscoIfCapability 3 }
+
+ciscoIfCapabilityPxmVR200 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 2.00,BPX SES Release 1.00."
+STATUS          current
+DESCRIPTION     "IF MIB capabilities for PXM45, PXM1 Modules."
+
+SUPPORTS         IF-MIB
+INCLUDES         { ifGeneralInformationGroup, ifPacketGroup }
+
+VARIATION        ifTableLastChange
+ACCESS           not-implemented
+DESCRIPTION      "Not supported."
+
+VARIATION        ifAdminStatus
+DESCRIPTION      "This object can not be written in case of 
+                 rs232 interface identified by ifType
+                 value rs232(33)."
+
+VARIATION        ifOperStatus
+SYNTAX           INTEGER { up(1), down(2), testing(3) }
+DESCRIPTION      "Unable to detect all states."
+
+VARIATION        ifLastChange
+DESCRIPTION      "The value does not reflect the change in
+                 the operational status of the interface.
+                 The value zero is returned."
+ 
+VARIATION        ifInOctets
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifInUcastPkts
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifInDiscards
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifInErrors
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifInUnknownProtos
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifOutOctets
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifOutUcastPkts
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifOutDiscards
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifOutErrors
+DESCRIPTION      "Supported only for following interfaces:
+                 Ethernet interface (ifType = ethernetCsmacd(6))
+                 Loopback interfce  (ifType = softwareLoopback(24))
+                 SLIP Interface (ifType = slip(28))."
+
+VARIATION        ifInMulticastPkts
+ACCESS           not-implemented 
+DESCRIPTION      "Not supported."
+
+VARIATION        ifInBroadcastPkts
+ACCESS           not-implemented 
+DESCRIPTION      "Not supported."
+ 
+VARIATION        ifOutMulticastPkts
+ACCESS           not-implemented 
+DESCRIPTION      "Not supported."
+
+VARIATION        ifOutBroadcastPkts
+ACCESS           not-implemented 
+DESCRIPTION      "Not supported."
+
+VARIATION        ifLinkUpDownTrapEnable
+ACCESS           read-only
+DEFVAL           { disabled }
+DESCRIPTION      "Write operation not supported."
+
+VARIATION        ifPromiscuousMode
+ACCESS           read-only
+DEFVAL           { false }
+DESCRIPTION      "Write operation not supported."
+
+VARIATION        ifAlias
+ACCESS           not-implemented
+DESCRIPTION      "Not supported."
+
+::= { ciscoIfCapability 4 }
+
+ciscoIfCapabilityAxsmVR200 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 2.00."
+STATUS          current
+DESCRIPTION     "IF MIB capabilities for ATM Switch Service
+                Module(AXSM)."
+
+SUPPORTS        IF-MIB
+INCLUDES        { ifGeneralInformationGroup }
+
+VARIATION       ifNumber
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifTableLastChange
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifPhysAddress
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifAdminStatus
+SYNTAX          INTEGER { up(1), down(2) }
+DESCRIPTION     "This object can not be written in case of 
+                atm interface identified by ifType value atm(37).
+                Does not support testing(3)."
+
+VARIATION       ifOperStatus
+SYNTAX          INTEGER { up(1), down(2), notPresent(6) }
+DESCRIPTION     "Unable to detect all states.
+                Does not support testing(3),unknown(4),
+                dormant(5),lowerLayerDown(7)."
+
+VARIATION       ifLastChange
+DESCRIPTION     "The value does not reflect the change in
+                the operational status of the interface.
+                The value zero is returned."
+ 
+VARIATION       ifLinkUpDownTrapEnable
+ACCESS          read-only
+DEFVAL          { disabled }
+DESCRIPTION     "Write operation not supported."
+
+VARIATION       ifAlias
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+::= { ciscoIfCapability 5 } 
+ 
+ciscoIfCapabilityAxsmeV21R60 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 2.1.60"
+STATUS          current
+DESCRIPTION     "IF MIB capabilities for Enhanced ATM 
+                Switch Service Module (AXSM-E)."
+
+SUPPORTS        IF-MIB
+INCLUDES        { ifGeneralInformationGroup }
+
+VARIATION       ifNumber
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifTableLastChange
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifPhysAddress
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifAdminStatus
+SYNTAX          INTEGER { up(1), down(2) }
+DESCRIPTION     "Does not support testing(3)."
+
+VARIATION       ifOperStatus
+SYNTAX          INTEGER { 
+                    up(1), 
+                    down(2),
+                    notPresent(6),
+                    lowerLayerDown(7) 
+                }
+DESCRIPTION     "Unable to detect all states.
+                Does not support testing(3), 
+                unknown(4), dormant(5)."
+
+VARIATION       ifLastChange
+DESCRIPTION     "The value does not reflect the change in
+                the operational status of the interface.
+                The value zero is returned."
+ 
+VARIATION       ifLinkUpDownTrapEnable
+ACCESS          read-only
+DEFVAL          { disabled }
+DESCRIPTION     "Write operation not supported."
+
+VARIATION       ifAlias
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+::= { ciscoIfCapability 6 } 
+
+ciscoIfCapabilityFrsm12V3R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 3.0.00"
+STATUS          current
+DESCRIPTION     "IF MIB capabilities for 
+                Frame Relay Service Module(FRSM-12)."
+
+SUPPORTS        IF-MIB
+INCLUDES        { ifGeneralInformationGroup }
+
+VARIATION       ifNumber
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifTableLastChange
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifPhysAddress
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+VARIATION       ifAdminStatus
+SYNTAX          INTEGER { up(1), down(2) }
+DESCRIPTION     "Does not support testing(3)."
+
+VARIATION       ifOperStatus
+SYNTAX          INTEGER { 
+                    up(1), 
+                    down(2),
+                    notPresent(6),
+                    lowerLayerDown(7) 
+                }
+DESCRIPTION     "Unable to detect all states.
+                Does not support testing(3), 
+                unknown(4), dormant(5)."
+
+VARIATION       ifLastChange
+DESCRIPTION     "The value does not reflect the change in
+                the operational status of the interface.
+                The value zero is returned."
+ 
+VARIATION       ifLinkUpDownTrapEnable
+ACCESS          read-only
+DEFVAL          { disabled }
+DESCRIPTION     "Write operation not supported."
+
+VARIATION       ifAlias
+ACCESS          not-implemented
+DESCRIPTION     "Not supported."
+
+    ::= { ciscoIfCapability 7 } 
+ 
+END

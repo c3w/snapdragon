@@ -1,0 +1,80 @@
+-- *****************************************************************
+-- ciscoEntityCapabilities MIB
+--
+-- AGENT-CAPABILITIES mib for ENTITY-MIB 
+--
+-- June 2002, Subra Hegde
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- *****************************************************************
+
+CISCO-ENTITY-CAPABILITY DEFINITIONS ::= BEGIN
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;   
+
+ciscoEntityCapability MODULE-IDENTITY
+        LAST-UPDATED    "200206120000Z"
+        ORGANIZATION    "Cisco Systems, Inc."
+        CONTACT-INFO
+                "       Cisco Systems
+                        Customer Service
+
+                Postal: 170 W Tasman Drive
+                        San Jose, CA  95134
+                        USA
+
+                        Tel: +1 800 553-NETS
+
+                E-mail: cs-snmp@cisco.com"
+        DESCRIPTION
+                "The Agent Capabilities for ENTITY-MIB."
+        REVISION "200206120000Z"
+        DESCRIPTION
+            "Initial version of this MIB module."
+        ::= { ciscoAgentCapability 9999 }
+
+ciscoEntityCapabilityV2R00 AGENT-CAPABILITIES
+
+PRODUCT-RELEASE "MGX8850 Release 2.00,
+                BPX SES Release 1.00"
+STATUS          current
+DESCRIPTION     "Agent capabilities for ENTITY-MIB."
+
+SUPPORTS ENTITY-MIB
+INCLUDES { entityPhysicalGroup,entityPhysical2Group  }
+
+VARIATION    entPhysicalName
+DESCRIPTION  "This Object is set to one of the following 
+             for entPhysicalClass = module(9)
+                 * Slot Number for the Module
+                 * Slot Number as seen in rear view of the
+                   chassis for the line module(Back cards).
+             for entPhysicalClass = chassis(1)
+                 * Chassis number(Shelf number)"
+
+VARIATION    entPhysicalMfgName
+DESCRIPTION  "This Object is set to PCB Part Number
+             800 Level if applicable. It contains
+             a zero-length string if 800 level
+             is not applicable."
+
+VARIATION    entPhysicalModelName
+DESCRIPTION  "This Object is set to PCB Part Number 
+             73 Level if applicable. It contains
+             a zero-length string if 73 Level is not 
+             applicable."
+
+VARIATION    entPhysicalAssetID
+ACCESS       not-implemented
+DESCRIPTION  "Not supported."
+
+    ::= { ciscoEntityCapability 1 }
+
+END
+

@@ -1,0 +1,744 @@
+--
+-- Sorrento Networks Private MIB for GigaMux Optical Service (GM-OSC) Card.
+--
+-- This MIB file is to be used with GM-OSC card version 3.3.01 or 3.3.02 or 3.4.00.
+-- Previous versions may not return all variables.
+--
+-- Revision 2.6  06/04/2002  mjagtap
+-- 1. Deprecated 'unit', 'managemet', 'client' and 'tftp' groups.
+--    Next firmware revision will NOT support these deprecated groups
+--    from this MIB.
+--    Instead, firmware versions 3.4.00 and up support these groups 
+--    from gmCommon.mib.
+-- 2. Removed TFTP related traps. Now supports these traps from gmCommon.mib.
+-- 3. Changed access permission of 'trapPriorityThreshold' to read-only.
+--
+-- Modification History
+--
+-- Revision 2.5  08/21/2001  mjagtap
+-- 1. Added tftp group and traps.
+--    tftp group is NOT supported by GM-OSC card version 3.3.00 and older.
+--
+-- Revision 2.4  01/14/2001  mjagtap
+-- 1. Changed bTxxLaserOutputLow to bTxLaserOutputLow in traps.
+--
+-- Revision 2.3  09/29/2000  mjagtap
+-- 1. Changed gigaMuxChannel to gigaMuxServiceChannel in traps.
+-- 2. Ported from CVS to Clearcase.
+--
+-- Revision 2.2  1999/10/08 17:25:20  mjagtap
+-- Supports GM-OSC card type.
+--
+-- SCCS ID  gmosc.mib Revision 2.1.1	      10/08/99
+--
+--
+-- Copyright 2001, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+
+	GMux-ServiceChannelCard-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxServiceChannel	OBJECT IDENTIFIER ::= { gigaNest 9 }
+		moduleA 	OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 1 }
+		moduleB 	OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 2 }
+		unit		OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 3 }
+		management	OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 4 }
+		client		OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 5 }
+		status		OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 6 }
+		tftp		OBJECT IDENTIFIER ::= { gigaMuxServiceChannel 7 }
+
+--
+--  moduleA group
+--
+--  These objects contain current settings and status for the
+--  upper module on the card.
+--
+
+	aTxLaserOn  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether the upper module A's laser
+			 is enabled or not."
+		::= { moduleA 1 }
+
+	aTxLaserOutput	OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether upper module A's laser has
+			 good output or not towards the MUX module."
+		::= { moduleA 2 }
+
+	aTxLaserTemp  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			high(3),
+			not-applicable(4)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's laser
+			 temperature is normal, too high or too low."
+		::= { moduleA 3 }
+
+	aTxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's laser has proper
+			 input electrical signal level or not."
+		::= { moduleA 4 }
+
+	
+
+--
+--  moduleB Status group
+--
+--  These objects contain current settings and status for the
+--  lower module on the channel card.
+--
+
+	bRxOpticalPower  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver has
+			 proper input optical signal level or not from
+			 the DEMUX module. "
+		::= { moduleB 1 }
+
+	bRxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver has
+			 proper output electrical signal level or not."
+		::= { moduleB 2 }
+
+	bRxAPDBias  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver is
+			 generating proper bias at the Avalanche
+			 PhotoDetector or not."
+		::= { moduleB 3 }
+--
+--
+--	Unit group
+--
+--
+
+	unitName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..8))
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Short name for the card."
+		::= { unit 1 }
+
+	unitDescription OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..40))
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Additional description information about
+			 the card, expanding upon the short name."
+		::= { unit 2 }
+
+	unitVersion OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"The software version number."
+		::= { unit 3 }
+
+	unitCommand OBJECT-TYPE
+		SYNTAX INTEGER
+			{
+			nothing(1),
+			warmResetNow(2),
+			resetAllCounters(3),
+			saveConfigurationNow(4)
+			}
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"Set this object to one of the following
+			 values to perform one of a variety of
+			 actions:
+			 nothing(1)		 - Do nothing.
+			 warmResetNow(2)	 - Causes a system
+						   restart.
+			 resetAllCounters(3)	 - Reset all
+						   statistics counters.
+			 saveConfigurationNow(4) - Stores active
+						   configuration into
+						   non-volatile flash
+						   memory.
+			 The default is nothing(1)."
+		::= { unit 4 }
+
+	unitConfigurationState OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			unchanged(1),
+			changed(2)
+		}
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Indicates the state of the active
+			 configuration as compared to that saved in
+			 flash memory.
+			 unchanged(1) - Flash is up-to-date
+			 changed(2)   - operating configuration differs
+					from that saved in the flash
+					memory."
+		::= { unit 5 }
+
+--
+--	Management group
+--
+--	Internet management (SNMP/TCP/IP) configuration options.
+--
+
+	internetAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"internetAddress is the IP address that is
+			 assigned to the card."
+		::= { management 1 }
+
+	subnetMask OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"subnetMask is the IP subnet mask that is
+			 assigned to the card."
+		::= { management 2 }
+
+	trapPriorityThreshold OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3),
+			none(4)
+		}
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Specifies the minimum priority of an alarm
+			 condition for which a trap will be generated.
+			 minor(1)    - all traps will be sent
+			 major(2)    - only critical and major traps
+			 critical(3) - only critical traps are sent
+			 none(4)     - no traps will be sent."
+		::= { management 3 }
+
+	trapDelay OBJECT-TYPE
+		SYNTAX INTEGER (0..255)
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"Specifies the delay between detection of a
+			 alarm condition and the sending of a trap.
+			 During this delay period, if the trap
+			 condition clears, then the trap will not be
+			 sent. This delay is used to avoid
+			 transmission of traps for momentary
+			 problems."
+		::= { management 4 }
+
+	clientAutoLearn OBJECT-TYPE
+		SYNTAX INTEGER	{
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"clientAutoLearn allows the card to
+			 automatically learn client SNMP addresses. If
+			 enabled, the card can automatically learn 16
+			 Client IP addresses and store them in the
+			 unitClientTable as dynamic. Addresses are
+			 learned from incoming SNMP messages. If set
+			 to disabled, only the addresses that are
+			 manually entered in the unitClientTable are
+			 available.
+			 The default is enabled(1)."
+		::= { management 5 }
+
+--
+--	Client Table
+--
+--	Contains the IP addresses of SNMP network management stations
+--	that will receive SNMP traffic.  The agent will only
+--	communicated with managers whose IP addresses are in the
+--	table.	Entries can be either learned automatically, from
+--	requests received by the card, or via configuration, by
+--	terminal or SNMP. See also the clientAutoLearn object in the
+--	management group.
+--
+
+	clientTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF ClientEntry
+		ACCESS not-accessible
+		STATUS deprecated
+		DESCRIPTION
+			"Client IP addresses of SNMP network
+			 management stations that should receive SNMP
+			 traffic generated by the card."
+		::= { client 1 }
+
+	clientEntry OBJECT-TYPE
+		SYNTAX ClientEntry
+		ACCESS not-accessible
+		STATUS deprecated
+		DESCRIPTION
+			""
+		INDEX	{ clientIndex }
+		::= { clientTable 1 }
+
+	ClientEntry ::=
+		SEQUENCE {
+			clientIndex
+				INTEGER,
+			clientAddress
+				IpAddress,
+			clientType
+				INTEGER
+		}
+
+	clientIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Number for this entry in the client table."
+		::= { clientEntry 1 }
+
+	clientAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"IP address for an SNMP network management
+			 station. Set the address to 0.0.0.0 to remove
+			 the entry."
+		::= { clientEntry 2 }
+
+	clientType OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			dynamic(1),
+			static(2),
+			unused(3)
+		     }
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Status of the entry:
+			 dynamic(1) - Auto-learned from an SNMP request
+			 static(2)  - Configured statically
+			 unused(3)  - As yet unusd entry."
+		::= { clientEntry 3 }
+
+--
+--      Status Group
+--
+--      Contains status of the Optical Service Channel
+--
+
+	localLinkStatus  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			failed(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"The state of Local Link for the Optical Service Channel module."
+		::= { status 1 }
+
+	remoteLinkStatus  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			failed(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"The state of Remote Link for the Optical Service Channel module."
+		::= { status 2 }
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+	SYNTAX IpAddress
+	ACCESS read-write
+	STATUS deprecated
+	DESCRIPTION
+		"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			no-action(1),
+			start-software-download(2)
+		}
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+		    "Get or Set download state.
+			no-action(1)			- no TFTP activity
+			start-software-download(2) 	- srtart software download"
+		::= { tftp 3 }
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+       aTxLaserOffTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOn changes state from 'yes' to 'no'."
+	    ::= 1
+
+       aTxLaserOnTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOn changes state from 'no' to 'yes'."
+	    ::= 2
+
+       aTxLaserOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOutput changes state from 'normal'
+		   to 'low'."
+	    ::= 3
+
+       aTxLaserOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aTxLaserOutput changes state from 'low'
+		   to 'normal'."
+	    ::= 4
+
+       aTxInputSignalLost TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aTxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 5
+
+       aTxInputSignalDetected TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aTxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 6
+
+       bTxLaserOffTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOn changes state from 'yes' to 'no'."
+	    ::= 7
+
+       bTxLaserOnTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOn changes state from 'no' to 'yes'."
+	    ::= 8
+
+       bTxLaserOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOutput changes state from 'normal'
+		   to 'low'."
+	    ::= 9
+
+       bTxLaserOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bTxLaserOutput changes state from 'low'
+		   to 'normal'."
+	    ::= 10
+
+       bTxInputSignalLost TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bTxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 11
+
+       bTxInputSignalDetected TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bTxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 12
+
+       aRxOpticalPowerLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxOpticalPower changes state from 'normal'
+		   to 'low'."
+	    ::= 13
+
+       aRxOpticalPowerNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxOpticalPower changes state from 'low'
+		   to 'normal'."
+	    ::= 14
+
+       aRxSignalOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 15
+
+       aRxSignalOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 16
+
+       aRxAPDBiasLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'normal'
+		   to 'low'."
+	    ::= 17
+
+       aRxAPDBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'low'
+		   to 'normal'."
+	    ::= 18
+
+       bRxOpticalPowerLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bRxOpticalPower changes state from 'normal'
+		   to 'low'."
+	    ::= 19
+
+       bRxOpticalPowerNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bRxOpticalPower changes state from 'low'
+		   to 'normal'."
+	    ::= 20
+
+       bRxSignalOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bRxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 21
+
+       bRxSignalOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bRxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 22
+
+       bRxAPDBiasLow TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when bRxAPDBias changes state from 'normal'
+		   to 'low'."
+	    ::= 23
+
+       bRxAPDBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxServiceChannel
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'low'
+		   to 'normal'."
+	    ::= 24
+
+	aTxLaserTempLow TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Module A Laser temperature is below normal."
+		::= 25
+
+	aTxLaserTempNormal TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Module A Laser temperature is normal."
+		::= 26
+
+	aTxLaserTempHigh TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Module A Laser temperature is above normal."
+		::= 27
+
+	bTxLaserTempLow TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Module B Laser temperature is below normal."
+		::= 28
+
+	bTxLaserTempNormal TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Module B Laser temperature is normal."
+		::= 29
+
+	bTxLaserTempHigh TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Module B Laser temperature is above normal."
+		::= 30
+
+	localLinkFailed TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Local Link failed."
+		::= 31
+	
+	localLinkNormal TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Local Link recovered."
+		::= 32
+	
+	remoteLinkFailed TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Remote Link failed."
+		::= 33
+	
+	remoteLinkNormal TRAP-TYPE
+		ENTERPRISE gigaMuxServiceChannel
+		DESCRIPTION
+			"Remote Link recovered."
+		::= 34
+
+END

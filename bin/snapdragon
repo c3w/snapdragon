@@ -1,0 +1,2 @@
+cd /data/snapdragon/bin
+/usr/sbin/snmptrapd -c /data/snapdragon/etc/snmptrapd.conf -M /usr/share/snmp/mibs:/data/snapdragon/mibs -m BGP4-MIB:CISCOTRAP-MIB:FOUNDRY-SN-ROOT-MIB:CERENT-454-MIB:GMUX-OC48-MIB:GNest-Manager-MIB:LUXN-MIB:ENTITY-MIB:ADVA-MIB:ADVANEW-MIB:FspR7-MIB

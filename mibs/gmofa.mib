@@ -1,0 +1,1655 @@
+--
+-- Sorrento Networks Private MIB for GMOA-1A (GigaMux Optical Amplifier) Card.
+--
+-- Revision 2.9   05thDec2002    ndhameja
+-- 1. Modified pump[1/2/3]SetTemperature OID description and changed 
+--    ACCESS to read-only from read-write.
+-- 2. Added '98' to powerSupplyOutput-V variables, which maps to 'N.A'.
+-- 3. Added traps to monitor caseTemperature.
+-- 4. Added OID caseTemperatureLowThreshold and outputPowerHighThreshold. 
+--
+--
+-- Modification History
+--
+-- Revision 2.8   10/18/2002    ndhameja
+-- 1. Enhanced DESCRIPTION of various objects.
+-- 2. Added 'not-applicable(999)' value to 'pump2Current', 'pump2Current',
+--    'pump1Power' and 'pump2Power' objects.
+--
+-- Revision 2.7   10/17/2002    ndhameja
+-- 1. Added not-applicable(99) to pump [1/2/3] LaserCurrentStatus.
+-- 2. Added not-applicable(999) to pump [1/2/3] LaserCurrent.
+-- 3. Added not-applicable(99) to pump [1/2/3] LaserTemperatureStatus.
+-- 4. Added not-applicable(999) to pump [1/2/3] LaserTemperature.
+--
+-- Revision 2.6   08/20/2002    ndhameja
+-- 1. Added traps & status variables for APR transitions.
+-- 2. Support for L-Band amplifier.
+-- 3. Added traps & status variables for LOS at the trunk receiver.
+--
+-- Revision 2.5   06/07/2002    mjagtap
+-- 1. Deprecated 'unit', 'managemet', 'client' and 'tftp' groups.
+--    Next firmware revision will NOT support these deprecated groups
+--    from this MIB.
+--    Firmware version 4.0.00 and up for T1, T2 T3 subtypes and 
+--    firmware version 5.0.00 and up for T5, T6 subtypes, support these groups 
+--    from gmCommon.mib.
+-- 2. Removed TFTP related traps. Now supports these traps from gmCommon.mib
+-- 3. Removed the Not applicable 'resetAllCounters(3)' value of 'unitCommand
+--    and changed 'saveConfigurationNow(4)' to 'saveConfigurationNow(3)'
+--    to make it compatible to gmCommon.mib.
+--
+-- Revision 2.4   08/21/2001    mjagtap
+-- 1. Changed tftpDownloadFailed trap description.
+-- 2. Changed tftpErrorCode to tftpStatus.
+--
+-- Revision 2.3   04/12/2000    ndhameja
+-- 1. Added Amplifier Type.
+-- 2. Added support for T5C, T6C amplifiers.
+-- 3. Added support for Power Monitor Calibration.
+-- 4. Added support for configuring the pump temperature.
+-- 5. Added TFTP group.
+-- 6. Added Performance Monitoring capability.
+-- 7. Changed threshold explanation for input power and output power.
+-- 
+-- Revision 2.2  1999/10/08 17:24:21  mjagtap
+-- Same as MIB with SCCS Id. : 2.1.14
+--
+-- SCCS ID  gmofa.mib Revision 2.1.14	4/23/99
+--
+-- This MIB file is to be used with GMOA-1A card version 3.3.00 or greater.
+-- Previous versions may not return all variables.
+--
+-- Copyright 2001, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+	GMux-OFACard-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, TimeTicks, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxOFA		OBJECT IDENTIFIER ::= { gigaNest 5 }
+		status		OBJECT IDENTIFIER ::= { gigaMuxOFA 1 }
+		configuration	OBJECT IDENTIFIER ::= { gigaMuxOFA 2 }
+		unit		OBJECT IDENTIFIER ::= { gigaMuxOFA 3 }
+		management	OBJECT IDENTIFIER ::= { gigaMuxOFA 4 }
+		client		OBJECT IDENTIFIER ::= { gigaMuxOFA 5 }
+		alarmPriority	OBJECT IDENTIFIER ::= { gigaMuxOFA 6 }
+		alarmThreshold	OBJECT IDENTIFIER ::= { gigaMuxOFA 7 }
+		pmAlarmThreshold	OBJECT IDENTIFIER ::= { gigaMuxOFA 8 }
+		tftp		OBJECT IDENTIFIER ::= { gigaMuxOFA 9 }
+
+--
+--	Status Group
+--
+--	Contains status of the Optical Fiber Amplifier
+--
+
+	amplifierOperStatus OBJECT-TYPE
+		SYNTAX INTEGER (1..31)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This bitmap object summarizes the current
+			 operational state of the amplifier. The
+			 value reported is a sum, it can represent
+			 multiple failure conditions simultaneously.
+			 Bit positions are:
+			 0   1d	 - amplifier is enabled/on (not shutdown)
+			 1   2d  - minor alarm condition present
+			 2   4d  - major alarm condition present
+			 3   8d  - critical alarm condition present
+			 4  16d  - amplifier failed."
+		::= { status 1 }
+
+	amplifierLastChange OBJECT-TYPE
+		SYNTAX TimeTicks
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The value of sysUpTime at the time the
+			 amplifier entered its current operational
+			 state."
+		::= { status 2 }
+
+	amplifierGain-dB OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Present gain of the amplifier."
+		::= { status 3 }
+
+	inputPowerStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the input power signal:
+			 normal(1)	- input power is normal
+			 minor(2)	- input signal lost or low
+			 major(3)	- low input signal
+			 critical(4)	- low input signal"
+		::= { status 4 }
+
+	inputPowerLevel OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates input power in dBm."
+		::= { status 5 }
+
+	outputPowerStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the output power signal."
+		::= { status 6 }
+
+	outputPowerLevel OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates output power in dBm."
+		::= { status 7 }
+
+	caseTemperatureStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the case temperature."
+		::= { status 8 }
+
+	caseTemperature OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Case temperature in degree Celsius."
+		::= { status 9 }
+
+	pump1LaserCurrentStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the pump 1 laser's current level.
+			 Applicable for T1, T2, T3, T6 amplifiers only."
+		::= { status 10 }
+
+	pump1LaserCurrent OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Pump 1 Laser Current in mA.
+			 Applicable for T1, T2, T3, T6 amplifiers only."
+		::= { status 11 }
+
+	pump2LaserCurrentStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the pump 2 laser's current level.
+			Applicable for T5, T6 amplifiers only."
+		::= { status 12 }
+
+	pump2LaserCurrent OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Pump 2 Laser Current in mA.
+			 Applicable for T5, T6 amplifiers only."
+		::= { status 13 }
+
+	pump1LaserTemperatureStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the laser temperature.
+			 Applicable for T1, T2, T3, T6 amplifiers only."
+		::= { status 14 }
+
+	pump2LaserTemperatureStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the laser temperature.
+			 Applicable for T5, T6 amplifiers only."
+		::= { status 15 }
+
+	powerSupplyStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the power supply output voltage.
+			 Applicable for T1, T2, T3 amplifiers only."
+		::= { status 16 }
+
+	powerSupplyOutput-V OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(98)
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Measured power supply output in volts.
+			 Applicable for T1, T2, T3 amplifiers only."
+		::= { status 17 }
+
+	gainLimitingStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			overdrive(2),
+			disabled(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of the automated gain limiting functions:
+			 normal(1)	- system operating normal
+			 disabled(2)	- gain limiting is disabled"
+		::= { status 18 }
+
+	pump3LaserCurrentStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Status of the pump 3 laser's current level.
+			 Applicable for T5, T6 amplifiers only ."
+		::= { status 19 }
+
+	pump3LaserCurrent OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Pump 3 Laser Current in mA.
+			 Applicable for T5, T6 amplifiers only."
+		::= { status 20 }
+
+	pump3LaserTemperatureStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			normal(1),
+			minor(2),
+			major(3),
+			critical(4),
+			not-applicable(99)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Status of the laser temperature.
+			 Applicable for T5, T6 amplifiers only."
+		::= { status 21 }
+	
+	pump1LaserTemperature OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Value of the laser1 temperature in degree Celsius.
+			 Applicable for T6 amplifiers only."
+		::= { status 22 }
+	
+	pump2LaserTemperature OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Value of the laser temperature in degree Celsius.
+			 Applicable for T5, T6 amplifiers only."
+		::= { status 23 }
+
+	pump3LaserTemperature OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Value of the laser temperature in degree Celsius.
+			 Applicable for T5, T6 amplifiers only."
+		::= { status 24 }
+
+	recvTrunkStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			light(1),
+			sensingAPR(2),
+			dark(3)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"The trunk receiver indicates if the input is 
+			 dark (no light), active (light) or in APR."
+		::= { status 25 }
+
+	aprStatus OBJECT-TYPE
+		SYNTAX INTEGER	{
+			active(1),
+			inactive(2)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Indicates if the module is currently in APR 
+			 state or not."
+		::= { status 26 }
+
+--
+--	Configuration Group
+--
+--	Contains operational configuration of the amplifier
+--
+
+	circuitId OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..20))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field can be used by a network
+			 management system to provide an end-to-end
+			 view of a single channel which is
+			 cross-connected through multiple
+			 multiplexers. Enter the same number into all
+			 modules which carry the same channel of
+			 traffic. Up to 20 alphanumeric characters can
+			 be entered."
+		::= { configuration 1 }
+
+	sequenceNumber OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"This optional field is used along with the
+			 CircuitId field to portray and end-to-end
+			 view of each channel which is cross-connected
+			 through multiplexers. Enter a two digit
+			 number, starting with 01 on the module
+			 interfacing to the customers equipment on the
+			 one end. Increment this number as the
+			 connection traverses other modules
+			 to the far end of the circuit."
+		::= { configuration 2 }
+
+	operationalControl OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(1),
+			shutdown(2),
+			eyesafe(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"normal(1)   - amplifier operational
+			 shutdown(2) - off
+			 eyesafe(3)  - output power is safe to hyman eye."
+		::= { configuration 3 }
+
+	operationalMode OBJECT-TYPE
+		SYNTAX INTEGER {
+			constant-current(1),
+			constant-pump-power(2),
+			constant-output-power(3),
+			constant-gain(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Operational Mode of amplifier.
+			 'constant-pump-power' mode is applicable for T1, T2, T3 amplifiers only."
+		::= { configuration 4 }
+
+	pump1Current OBJECT-TYPE
+		SYNTAX INTEGER{
+			not-applicable(999)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies laser current in mA.
+			 Applicable only in constant-current mode.
+			 Applicable for T1, T2, T3, T6 amplifiers only."
+		::= { configuration 5 }
+
+	pump1CurrentMax OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Maximum Pump 1 Current in mA.
+			 Applicable for T1, T2, T3 amplifiers only."
+		::= { configuration 6 }
+
+	pump2Current OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies laser current in mA.
+			 Applicable only in constant-current mode.
+			 Applicable for T5, T6 amplifiers only."
+		::= { configuration 7 }
+
+	pump2CurrentMax OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Maximum Pump 2 Current in mA.
+			 This parameter is not used."
+		::= { configuration 8 }
+
+	pump1Power OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Specifies laser 1 power in mW.
+			 Applicable only in constant-power mode.
+			 Applicable for T1, T2, T3 amplifiers only."
+		::= { configuration 9 }
+
+	pump1PowerMax OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Maximum laser 1 power in mW.
+			 Applicable for T1, T2, T3 amplifiers only."
+		::= { configuration 10 }
+
+	pump2Power OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Specifies laser power in mW.
+			 Applicable only in constant-power mode.
+			 Applicable for T1, T2 and T3 amplifiers only.
+			 This parameter is not used."
+		::= { configuration 11 }
+
+	pump2PowerMax OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Maximum laser power in mW.
+			 Applicable for T1, T2 and T3 amplifiers only."
+		::= { configuration 12 }
+
+	outputPower OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies amplifier output power in dBm.
+			 Applicable only in constant-output-power mode."
+		::= { configuration 13 }
+
+	outputPowerMax OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Maximum amplifier output power in dBm."
+		::= { configuration 14 }
+
+	amplifierConstantGain OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies desired gain in dB. Maximum gain, maximum
+			output gain, and input power must be taken into account
+			when setting Gain. Applicable only in constant-gain mode."
+		::= { configuration 15 }
+
+	amplifierConstantGainMax OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Maximum gain in dB. Maximum gain, maximum output gain,
+			 and input power must be taken into account when setting Gain.
+			 Applicable for T1, T2, T3 amplifiers only."
+		::= { configuration 16 }
+
+	inputMonitorLoss OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))	
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Amplifier input tap monitor loss (tap percentage %).
+			 The value '999.0' indicates not-applicable."
+		::= { configuration 17 }
+	
+	outputMonitorLoss OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))	
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Amplifier output tap monitor loss (tap percentage %).
+			 The value '999.0' indicates not-applicable."
+		::= { configuration 18 }
+
+	inputTPL OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))	
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Amplifier input additional loss.
+			 The value '999.0' indicates not-applicable."
+		::= { configuration 19 }
+
+	outputTPL OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))	
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Amplifier output additional loss.
+			 The value '999.0' indicates not-applicable."
+		::= { configuration 20 }
+
+	pump3Current OBJECT-TYPE
+		SYNTAX INTEGER	
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Specifies laser current in mA.
+			 Applicable only in constant-current mode.
+			 Applicable for T5, T6 amplifiers only ."
+		::= { configuration 21 }
+
+	pump3CurrentMax OBJECT-TYPE
+		SYNTAX INTEGER {
+			not-applicable(999)
+		}
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Maximum Pump 3 Current in mA.
+			 Applicable for T5, T6 amplifiers only ."
+		::= { configuration 22 }
+
+	pump1SetTemprature OBJECT-TYPE
+		SYNTAX INTEGER	
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Reports the configured operating laser temperature in (C).
+			 The Set temperature defines the normal working temperature.
+			 +5 and -5 C of the Set temperature, indicates the maximum 
+			 and minimum pump temperature.
+			 Applicable for T6 amplifiers only."
+		::= { configuration 23 }
+
+	pump2SetTemprature OBJECT-TYPE
+		SYNTAX INTEGER	
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Reports the configured operating laser temperature in (C).
+			 The Set temperature defines the normal working temperature.
+			 +5 and -5 C of the Set temperature, indicates the maximum 
+			 and minimum pump temperature.
+			 Applicable for T5, T6 amplifiers only."
+		::= { configuration 24 }
+
+	pump3SetTemprature OBJECT-TYPE
+		SYNTAX INTEGER	
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Reports the configured operating laser temperature in (C).
+			 The Set temperature defines the normal working temperature.
+			 +5 and -5 C of the Set temperature, indicates the maximum 
+			 and minimum pump temperature.
+			 Applicable for T5, T6 amplifiers only."
+		::= { configuration 25 }
+
+--
+--
+--	Unit group
+--
+--
+
+	unitName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..8))
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Short name for the card."
+		::= { unit 1 }
+
+	unitDescription OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..40))
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Additional description information about
+			 the card, expanding upon the short name."
+		::= { unit 2 }
+
+	unitVersion OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"The software version number."
+		::= { unit 3 }
+
+	unitCommand OBJECT-TYPE
+		SYNTAX INTEGER
+			{
+			nothing(1),
+			warmResetNow(2),
+			saveConfigurationNow(3)
+			}
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"Set this object to one of the following
+			 values to perform one of a variety of
+			 actions:
+			 nothing(1)		 - Do nothing.
+			 warmResetNow(2)	 - Causes a system
+						   restart.
+			 saveConfigurationNow(3) - Stores active
+						   configuration into
+						   non-volatile flash
+						   memory.
+			 The default is nothing(1)."
+		::= { unit 4 }
+
+	unitConfigurationState OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			unchanged(1),
+			changed(2)
+		}
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Indicates the state of the active
+			 configuration as compared to that saved in
+			 flash memory.
+			 unchanged(1) - Flash is up-to-date
+			 changed(2)   - operating configuration differs
+					from that saved in the flash
+					memory."
+		::= { unit 5 }
+	
+	amplifierType OBJECT-TYPE
+                SYNTAX INTEGER
+                {
+                        type1C(1),
+                        type2C(2),
+                        type3C(3),
+                        not-applicable(4),
+                        type1L(5),
+                        type2L(6),
+                        type3L(7),
+                        type5C(8),
+                        type6C(9),
+                        type5L(10),
+                        type6L(11)
+                }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Indicates type of the amplifier module.
+			     type1C(1)	- Type T1
+                             type2C(2)	- Type T2
+                             type3C(3)	- Type T3
+                             type5C(8)	- Type T5
+                             type6C(9)	- Type T6"
+                ::= { unit 6 } 	
+
+--
+--	Management group
+--
+--	Internet management (SNMP/TCP/IP) configuration options.
+--
+
+	internetAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"internetAddress is the IP address that is
+			 assigned to the card."
+		::= { management 1 }
+
+	subnetMask OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"subnetMask is the IP subnet mask that is
+			 assigned to the card."
+		::= { management 2 }
+
+	trapPriorityThreshold OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3),
+			none(4)
+		}
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"Specifies the minimum priority of an alarm
+			 condition for which a trap will be generated.
+			 minor(1)    - all traps will be sent
+			 major(2)    - only critical and major traps
+			 critical(3) - only critical traps are sent
+			 none(4)     - no traps will be sent."
+		::= { management 3 }
+
+	trapDelay OBJECT-TYPE
+		SYNTAX INTEGER (0..255)
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"Specifies the delay between detection of a
+			 alarm condition and the sending of a trap.
+			 During this delay period, if the trap
+			 condition clears, then the trap will not be
+			 sent. This delay is used to avoid
+			 transmission of traps for momentary
+			 problems."
+		::= { management 4 }
+
+	clientAutoLearn OBJECT-TYPE
+		SYNTAX INTEGER	{
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"clientAutoLearn allows the card to
+			 automatically learn client SNMP addresses. If
+			 enabled, the card can automatically learn 16
+			 Client IP addresses and store them in the
+			 unitClientTable as dynamic. Addresses are
+			 learned from incoming SNMP messages. If set
+			 to disabled, only the addresses that are
+			 manually entered in the unitClientTable are
+			 available.
+			 The default is enabled(1)."
+		::= { management 5 }
+
+--
+--	Client Table
+--
+--	Contains the IP addresses of SNMP network management stations
+--	that will receive SNMP traffic.  The agent will only
+--	communicated with managers whose IP addresses are in the
+--	table.	Entries can be either learned automatically, from
+--	requests received by the card, or via configuration, by
+--	terminal or SNMP. See also the clientAutoLearn object in the
+--	management group.
+--
+
+	clientTable OBJECT-TYPE
+		SYNTAX SEQUENCE OF ClientEntry
+		ACCESS not-accessible
+		STATUS deprecated
+		DESCRIPTION
+			"Client IP addresses of SNMP network
+			 management stations that should receive SNMP
+			 traffic generated by the card."
+		::= { client 1 }
+
+	clientEntry OBJECT-TYPE
+		SYNTAX ClientEntry
+		ACCESS not-accessible
+		STATUS deprecated
+		DESCRIPTION
+			""
+		INDEX	{ clientIndex }
+		::= { clientTable 1 }
+
+	ClientEntry ::=
+		SEQUENCE {
+			clientIndex
+				INTEGER,
+			clientAddress
+				IpAddress,
+			clientType
+				INTEGER
+		}
+
+	clientIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Number for this entry in the client table."
+		::= { clientEntry 1 }
+
+	clientAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"IP address for an SNMP network management
+			 station. Set the address to 0.0.0.0 to remove
+			 the entry."
+		::= { clientEntry 2 }
+
+	clientType OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			dynamic(1),
+			static(2),
+			unused(3)
+		     }
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Status of the entry:
+			 dynamic(1) - Auto-learned from an SNMP request
+			 static(2)  - Configured statically
+			 unused(3)  - As yet unused entry."
+		::= { clientEntry 3 }
+
+--
+--	Alarm Priority Group
+--
+--	Objects allow assignment of priority to each alarm condition.
+--	This priority setting affects how the alarm condition is
+--	identified (by LED) on the front panel of the OFA, and also
+--	can be used to control the sending of an SNMP trap.
+--
+
+	inputPowerLossPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is critical(3)."
+		::= { alarmPriority 1 }
+
+	inputPowerLowPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is minor(1)."
+		::= { alarmPriority 2 }
+
+	outputPowerLossPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is critical(3)."
+		::= { alarmPriority 3 }
+
+	outputPowerLowPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is minor(1)."
+		::= { alarmPriority 4 }
+
+	caseTemperaturePriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2)."
+		::= { alarmPriority 5 }
+
+	pump1LaserCurrentPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2)."
+		::= { alarmPriority 6 }
+
+	pump2LaserCurrentPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2)."
+		::= { alarmPriority 7 }
+
+	pump1LaserTemperaturePriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2)."
+		::= { alarmPriority 8 }
+
+	pump2LaserTemperaturePriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2)."
+		::= { alarmPriority 9 }
+
+	powerSupplyPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2)."
+		::= { alarmPriority 10 }
+
+	pump3LaserCurrentPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2).
+			 Applicable for T5 and T6 amplifiers only."
+		::= { alarmPriority 11 }
+
+	pump3LaserTemperaturePriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Specifies the priority of the alarm condition.
+			 The priority can be used to determine if
+			 alarm contacts are closed, or traps are sent
+			 if the state of this condition changes.
+			 Default is major(2).
+			 Applicable for T5 and T6 amplifiers only."
+		::= { alarmPriority 12 }
+
+	caseTemperatureThresholdPriority OBJECT-TYPE
+		SYNTAX INTEGER {
+			minor(1),
+			major(2),
+			critical(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the priority of the TCA condition.
+			 The priority can be used to determine if alarm 
+			 contacts are closed, or traps are sent if the 
+			 case temperature hi/lo thresholds are crossed.
+			 Default is minor(1)."
+		::= { alarmPriority 13 }
+
+--
+--	Alarm Threshold Group
+--
+--	Objects allow assignment of threshold values that are monitored
+--	for certain important operating parameters.  When the agent
+--	detects a parameter has drifted below or above the set threshold,
+--	a trap may be generated (depending upon its priority).
+--
+
+	inputPowerLowThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the input power level (dBm) that is
+			 deemed to be too low. When input power drops
+			 to this level, a trap may be generated.
+			 When input power increases from a low condition
+			 to this level, a trap may be generated.
+			 This value should be lower than that of
+			 inputPowerNormalThreshold. The default value
+			 of 0 disables this thresholding, but does not
+			 disable the input power loss trap."
+		::= { alarmThreshold 1 }
+
+	inputPowerNormalThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the input power level (dBm) that is
+			 deemed satisfactory. This value should be
+			 higher than that of inputPowerLowThreshold."
+		::= { alarmThreshold 2 }
+
+	outputPowerLowThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the output power level (dBm) that is
+			 deemed to be too low. When output power drops
+			 to this level, a trap may be generated.
+			 When output power increases from a low condition
+			 to this level, a trap may be generated.
+			 This value should be lower than that of
+			 outputPowerNormalThreshold. The default value
+			 of 0 disables this thresholding, but does not
+			 disable the output power loss trap."
+		::= { alarmThreshold 3 }
+
+	outputPowerNormalThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the output power level (dBm) that is
+			 deemed satisfactory. This value should be
+			 higher than that of outputPowerLowThreshold."
+		::= { alarmThreshold 4 }
+
+	caseTemperatureHighThreshold OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the Case Temperature (Celsius) that is
+			 deemed too high. When the temperature reaches
+			 this level, a trap may be generated. This
+			 value should be higher than that of
+			 caseTemperatureNormalThreshold."
+		::= { alarmThreshold 5 }
+
+	caseTemperatureNormalThreshold OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the Case Temperature (in Celsius) that is deemed
+			 satisfactory. When the case temperature drops from
+			 a high condition down to this level, a recovery trap 
+			 may be generated. This value should be lower than that 
+			 of caseTemperatureHighThreshold."
+		::= { alarmThreshold 6 }
+
+	inputPowerFaultThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the input power fault (dBm) that is
+			 deemed to be too low. When input power drops
+			 to this level, a trap may be generated. This
+			 value should be lower than that of
+			 inputPowerLowThreshold."
+		::= { alarmThreshold 7 }
+
+	outputPowerFaultThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the output power fault (dBm) that is
+			 deemed to be too low. When output power drops
+			 to this level, a trap may be generated. This
+			 value should be lower than that of
+			 outputPowerLowThreshold."
+		::= { alarmThreshold 8 }
+
+	caseTemperatureLowThreshold OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the Case Temperature (Celsius) that is
+			 deemed too low. When the temperature reaches
+			 this level, a trap may be generated. This
+			 value should be less than that of
+			 caseTemperatureNormalThreshold."
+		::= { alarmThreshold 9 }
+
+	outputPowerHighThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Sets the maximum output power value (dBm). User 
+			 request resulting in the output power exceeding 
+			 this threshold will be denied. This value should 
+			 be greater than that of outputPowerNormalThreshold."
+		::= { alarmThreshold 10 }
+
+--
+-- Performance Monitoring group
+--
+
+	actualGain OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Actual floating point gain in dB."
+		::= { pmAlarmThreshold 1 }
+
+	gainHiGenThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION 
+			"Gain High Generate Threshold.
+			If actual gain is greater that this threshold, 
+			gainHiGenTCA Threshold Cross Alarm is sent.
+			Value should be greater than gainHiClrThreshold."
+		::= { pmAlarmThreshold 2 }
+
+	gainHiClrThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION 
+			"Gain High Clear Threshold.
+			After exceeding gainHiGenThreshold, if actual gain 
+			falls below this threshold, 
+			gainHiTCA Threshold Cross Alarm is sent.
+			Value should be greater than the amplifierConstantGain."
+		::= { pmAlarmThreshold 3 }
+
+	gainLoClrThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION 
+			"Gain Low Clear Threshold.
+			After going below gainHiClearThreshold, if actual gain 
+			becomes greater than this threshold,  
+			gainHiGenTCA Threshold Cross Alarm is sent.
+			Value should be less than the amplifierConstantGain."
+		::= { pmAlarmThreshold 4 }
+
+	gainLoGenThreshold OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..7))
+ 		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION 
+			"Gain Low Generate Threshold.
+			If actual gain is lower than this threshold, 
+			gainLoGenTCA Threshold Cross Alarm is sent.
+			Value should be less than gainLoClrThreshold."
+		::= { pmAlarmThreshold 5 }
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+	SYNTAX IpAddress
+	ACCESS read-write
+	STATUS deprecated
+	DESCRIPTION
+		"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			no-action(1),
+			start-software-download(2)
+		}
+		ACCESS read-write
+		STATUS deprecated
+		DESCRIPTION
+		    "Get or Set download state.
+			no-action(1)			- no TFTP activity
+			start-software-download(2) 	- start software download"
+		::= { tftp 3 }
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS deprecated
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+
+--
+--
+--	OFA specific traps
+--
+--
+
+	inputPowerLossTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Input power lost - loss of signal (LOS)."
+		::= 1
+
+	inputPowerLowTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Input power dropped below threshold."
+		::= 2
+
+	inputPowerNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Input power recovered to normal level."
+		::= 3
+
+	outputPowerLossTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Output power lost (LOS)."
+		::= 4
+
+	outputPowerLowTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Output power level dropped below threshold."
+		::= 5
+
+	outputPowerNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Output power restored to normal level."
+		::= 6
+
+	caseTemperatureHiTCA TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Case temperature exceeds temperature high threshold."
+		::= 7
+
+	caseTemperatureNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Case temperature restored to normal."
+		::= 8
+
+	pump1LaserCurrentTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump1LaserCurrent entered an alarm state."
+		::= 9
+
+	pump1LaserCurrentNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump1LaserCurrent entered normal(1) state."
+		::= 10
+
+	pump2LaserCurrentTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump2LaserCurrent entered an alarm state."
+		::= 11
+
+	pump2LaserCurrentNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump2LaserCurrent entered normal(1) state."
+		::= 12
+
+	pump1LaserTemperatureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump1LaserTemperature entered an alarm state."
+		::= 13
+
+	pump1LaserTemperatureNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump1LaserTemperature entered normal(1) state."
+		::= 14
+
+	pump2LaserTemperatureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump2LaserTemperature entered an alarm state."
+		::= 15
+
+	pump2LaserTemperatureNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump2LaserTemperature entered normal(1) state."
+		::= 16
+
+	powerSupplyTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Power Supply output voltage is low."
+		::= 17
+
+	powerSupplyNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Power supply output voltage normal."
+		::= 18
+
+	gainHiGenTCA TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		VARIABLES { actualGain, gainHiGenThreshold }
+		DESCRIPTION
+			"Gain High Generate TCA."
+		::= 19
+
+	gainHiClrTCA TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		VARIABLES { actualGain, gainHiClrThreshold }
+		DESCRIPTION
+			"Gain High Clear TCA."
+		::= 20
+
+	gainLoClrTCA TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		VARIABLES { actualGain, gainLoClrThreshold }
+		DESCRIPTION
+			"Gain Low Clear TCA."
+		::= 21
+
+	gainLoGenTCA TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		VARIABLES { actualGain, gainLoGenThreshold }
+		DESCRIPTION
+			"Gain Low Generate TCA."
+		::= 22
+
+	pump3LaserCurrentTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump3LaserCurrent entered an alarm state."
+		::= 25
+
+	pump3LaserCurrentNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump3LaserCurrent entered normal(1) state."
+		::= 26
+	
+	pump3LaserTemperatureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump3LaserTemperature entered an alarm state."
+		::= 27
+
+	pump3LaserTemperatureNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"pump3LaserTemperature entered normal(1) state."
+		::= 28
+
+	recvTrunkInputPowerLossTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Input power lost at the trunk receiver- loss of signal (LOS)."
+		::= 29
+
+	recvTrunkinputPowerNormal TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Input power at the trunk receiver recovered to normal level."
+		::= 30
+
+	aprInactive TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"APR is inactive."
+		::= 31
+
+	aprActive TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"APR is active."
+		::= 32
+
+	caseTemperatureLoTCA TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Case temperature is below temperature low threshold."
+		::= 33
+
+	caseTemperatureHiTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Case temperature exceeds amplifier operating range."
+		::= 34
+
+	caseTemperatureLoTrap TRAP-TYPE
+		ENTERPRISE gigaMuxOFA
+		DESCRIPTION
+			"Case temperature below amplifier operating range."
+		::= 35
+
+END

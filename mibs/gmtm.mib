@@ -1,0 +1,1308 @@
+--
+-- Sorrento Networks Private MIB for GigaMux Timing Cards.
+--
+-- Second Release. 1.0.1 10/23/2001  Qian,Nanjian / Ma,Jin
+--
+-- This MIB file is to be used by GigaMux Timing Cards.
+--
+-- Copyright 2001, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+
+	GMux-TM-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215 
+		  unit, management, client, tftp, inventory 
+		  	FROM GMux-Common-MIB;
+
+osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest			OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxTiming		OBJECT IDENTIFIER ::= { gigaNest 25 }
+--	unit			    OBJECT IDENTIFIER ::= { gigaMuxTiming 1 }
+--	management		    OBJECT IDENTIFIER ::= { gigaMuxTiming 2 }
+--	client		        OBJECT IDENTIFIER ::= { gigaMuxTiming 3 }
+	status		        OBJECT IDENTIFIER ::= { gigaMuxTiming 4 }
+	perfmeas			OBJECT IDENTIFIER ::= { gigaMuxTiming 5 }
+	histphmeas			OBJECT IDENTIFIER ::= { gigaMuxTiming 6 }
+	histfreqrng			OBJECT IDENTIFIER ::= { gigaMuxTiming 7 }
+    configuration	    OBJECT IDENTIFIER ::= { gigaMuxTiming 8 }
+	trap			    OBJECT IDENTIFIER ::= { gigaMuxTiming 9 }
+	alarmconfig			OBJECT IDENTIFIER ::= { gigaMuxTiming 10}
+--	tftp			    OBJECT IDENTIFIER ::= { gigaMuxTiming 11 }
+--	inventory		    OBJECT IDENTIFIER ::= { gigaMuxTiming 12 }
+
+--
+--
+-- status Group
+--
+--
+
+-- (Timing Clock Module related parameters)
+	tmStatus 	OBJECT-TYPE
+		SYNTAX    INTEGER
+		
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+		"Indicates Timing Clock Module's general status:
+			BIT15: PLL UNLOCK, 1 is unlock,
+			BIT14: HOLDOVER, 1 is holdover,
+			BIT13: FREE RUN, 1 is free run,
+			BIT12: EXT.REF. 1 is external reference,
+			BIT11: LOLBC, 1 is loss of loop backed clock
+			BIT10: LOOC, 1 is loss of output clock signal
+			BIT9:BIT8:BIT7:
+				000: Configure to free run mode
+				001: Configure to external reference mode
+				011: Configure to holdover mode 
+			BIT6: clock mode control, 0 is auto_mode, 1 is manual mode
+			BIT5: Output signal control, 0 is disable, 1 is enable
+			BIT4: No interface card indicator, 1 means no card.
+			BIT3: DS1 Input interface card.
+			BIT2: E1(120 ohm) input interface card.
+			BIT1: E1(75 ohm) input interface card.
+			BIT0: reserved		
+		"
+		::= {status 1}
+
+
+-- (DS1/E1 Module status)
+	ds1e1Status	OBJECT-TYPE
+		SYNTAX    INTEGER
+		ACCESS     read-only
+		STATUS     mandatory
+		DESCRIPTION
+		"Indicates DS1/E1 module input status:
+				Bit0: 0, No Fault; 1, Input Signal Fault, LOS
+				Bit1: 0, No Fault; 1, Input Signal Fault, AIS
+				Bit2: 0, No Fault; 1, Internal PLL Unlocked
+				Bit3: 0, No Fault; 1, Input Signal Fault, OOF
+				Bit4: 0, No Fault; 1, Input Signal Fault, SSM Lost
+				Bit5: 0, No Fault; 1, MTIE Fault
+				Bit6: 0, No Fault, 1, Input Signal Fault, LOF
+				Bit7: 0, No Fault; 1, Input Signal Fault, BPV
+				Bit8: 0, No Fault; 1, Input Signal Fault, CRC
+				Bit9: 0, No Fault; 1, Reference Clock 1, LOS
+				Bit10: 0, No Fault; 1, Reference Clock 2, LOS (not in these	 release)"
+		::= {status 2}
+
+	curoPQL	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates the current output of Priority Quality Level(PQL) 
+		from DS1/E1 chip"
+		::= {status 3 }
+
+	curSSM	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates the Current SSM value, the actual SSM received 
+		on the inputs"  
+		::= {status 4 }
+		
+	tmClkMode 	OBJECT-TYPE
+		SYNTAX    INTEGER
+		{
+		  external(1 ),
+		  holdover(2),
+		  freerun(3 )
+		}
+		ACCESS  read-only
+		STATUS  mandatory
+		DESCRIPTION
+		"Indicates Timing Clock Modules clock mode change status"
+		::= {status 5}
+
+
+--
+--
+--This object provides access to DS1/E1 performance measurements 
+--
+--
+
+de1PerfMeasTable  OBJECT-TYPE
+		SYNTAX   SEQUENCE OF de1PerfMeasEntry
+		ACCESS     not-accessible
+		STATUS     mandatory
+		DESCRIPTION
+		"This object gives access to bunch of  attributes of  ds1/e1 performance measurement"
+		::= { perfmeas 1}
+
+de1PerfMeasEntry	OBJECT-TYPE
+		SYNTAX	   de1PerfMeasEntry
+		ACCESS     not-accessible
+		STATUS     mandatory
+		DESCRIPTION
+			""
+		INDEX	{perfmeasIndex}
+		::= {de1PerfMeasTable 1}
+
+de1PerfMeasEntry ::=
+		SEQUENCE {
+			perfmeasIndex
+				INTEGER,
+			curTime
+				INTEGER,
+			curPhase
+				INTEGER,
+			curFoffset
+				INTEGER,
+			mtie1sec
+				INTEGER,
+			mtie10sec
+				INTEGER,
+			mtie72sec
+				INTEGER,
+			tdev005sec
+				INTEGER,
+			tdev01sec
+				INTEGER,
+			tdev1sec
+				INTEGER,
+			tdev3sec
+				INTEGER,
+			tdev6sec
+				INTEGER
+}
+
+perfmeasIndex		OBJECT-TYPE
+	SYNTAX    INTEGER(1..30)
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION
+	"Number of this entry in the performance measurement table."
+	::={ de1PerfMeasEntry 1}
+
+
+	curTime		OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates Current Time in seconds"
+		::= { de1PerfMeasEntry 2  }
+
+	curPhase	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates Current Phase Measurement in nanoseconds"
+		::= { de1PerfMeasEntry 3  }
+
+	curFoffset	OBJECT-TYPE
+		SYNTAX   INTEGER (1..7)
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates Current Frequency Offset range
+		  <=1e-10 		    (1),
+  	 	  <=1e-9 & >1e-10	(2),
+		  <=1e-8 & >1e-9	(3),
+		  <=1e-7 & >1e-8	(4),
+		  <=1e-6 & >1e-7	(5),
+		  <=2e-6 & >1e-6	(6),
+		  <=3e-4 & >2e-6	(7)"
+		::= { de1PerfMeasEntry 4  }
+
+	mtie1sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates MTIE in nanoseconds, 1 second observation window, actual 	value"
+		::= { de1PerfMeasEntry 5  }
+
+	mtie10sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates MTIE in nanoseconds, 10 second observation window, actual value" 
+		::= { de1PerfMeasEntry 6  }
+
+	mtie72sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates MTIE in nanoseconds, 72 second observation window, actual value"
+		::= { de1PerfMeasEntry 7 }
+
+	tdev005sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TDEV in nanoseconds, 0.05 second integration window, actual value"
+		::= { de1PerfMeasEntry 8  }
+
+	tdev01sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TDEV in nanoseconds, 0.1 second integration window, actual value"
+		::= { de1PerfMeasEntry 9  }
+
+	tdev1sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TDEV in nanoseconds, 1 second integration window, actual 	value"
+		::= { de1PerfMeasEntry 10  }
+
+	tdev3sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TDEV in nanoseconds, 3 second integration window, actual 	value"
+		::= { de1PerfMeasEntry 11  }
+
+	tdev6sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TDEV in nanoseconds, 6 second integration window, actual 	value"
+		::= { de1PerfMeasEntry 12 }
+
+
+
+--
+--
+-- This object provides access to DS1/E1 historical phase measurements
+--
+--
+
+de1HistPhMeasTable  OBJECT-TYPE
+		SYNTAX   SEQUENCE OF de1HistPhMeasEntry
+		ACCESS     not-accessible
+		STATUS     mandatory
+		DESCRIPTION
+		"This object gives access to bunch of  attributes of  ds1/e1 historical phase  measurement"
+		::= { histphmeas 1}
+
+de1HistPhMeasEntry	OBJECT-TYPE
+		SYNTAX	de1HistPhMeasEntry
+		ACCESS     not-accessible
+		STATUS     mandatory
+		DESCRIPTION
+			""
+		INDEX	{histphmeasIndex}
+		::= {de1HistPhMeasTable 1}
+
+de1HistPhMeasEntry ::=
+		SEQUENCE {
+			histphmeasIndex
+				INTEGER,
+			tlm
+				INTEGER,
+			tlm60sec
+				INTEGER,
+			tlm50sec
+				INTEGER,
+			tlm40sec
+				INTEGER,
+			tlm30sec
+				INTEGER,
+			tlm20sec
+				INTEGER,
+			tlm10sec
+				INTEGER,
+			tlmCur
+				INTEGER
+}
+
+histphmeasIndex	OBJECT-TYPE
+	SYNTAX    INTEGER(1..30)
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION
+	"Number for this entry in the historical phase measuremant table"
+	::={de1HistPhMeasEntry 1}
+
+
+	tlm		OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates Time of the Last Measurement(TLM) in seconds"
+		::= { de1HistPhMeasEntry 2 }
+
+	tlm60sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TLM-60 second Phase Measurement in nanoseconds"
+		::= { de1HistPhMeasEntry 3  }
+
+	tlm50sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TLM-50 second Phase Measurement in nanoseconds"
+		::= { de1HistPhMeasEntry 4  }
+
+	tlm40sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TLM-40 second Phase Measurement in nanoseconds"
+		::= { de1HistPhMeasEntry 5  }
+
+	tlm30sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TLM-30 second Phase Measurement in nanoseconds"
+		::= { de1HistPhMeasEntry 6  }
+
+	tlm20sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TLM-20 second Phase Measurement in nanoseconds"
+		::= { de1HistPhMeasEntry 7  }
+
+	tlm10sec	OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TLM-10 second Phase Measurement in nanoseconds"
+		::= { de1HistPhMeasEntry 8  }
+
+	tlmCur		OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates Current Phase Measurement of TLM in nanoseconds"
+		::= { de1HistPhMeasEntry 9 }
+
+
+--
+--
+-- This object provides access to DS1/E1 historical frequency range
+--
+--
+
+de1HistFreqRngTable  OBJECT-TYPE
+		SYNTAX   SEQUENCE OF de1HistFreqRngEntry
+		ACCESS     not-accessible
+		STATUS     mandatory
+		DESCRIPTION
+		"This object gives access to bunch of  attributes of  ds1/e1 historical frequence range"
+		::= { histfreqrng 1}
+
+de1HistFreqRngEntry	OBJECT-TYPE
+		SYNTAX	de1HistFreqRngEntry
+		ACCESS     not-accessible
+		STATUS     mandatory
+		DESCRIPTION
+			""
+		INDEX	{histfreqrngIndex}
+		::= {de1HistFreqRngTable 1}
+
+de1HistFreqRngEntry  ::=
+		SEQUENCE{
+			 histfreqrngIndex
+				INTEGER,
+			tlm
+				INTEGER,
+			freqRange
+				INTEGER
+}  
+
+	histfreqrngIndex	OBJECT-TYPE
+	SYNTAX    INTEGER(1..30)
+	ACCESS     read-only
+	STATUS     mandatory
+	DESCRIPTION
+	"Number for this entry in the historical frequence range table"
+	::={de1HistFreqRngEntry 1}
+
+	tlm  OBJECT-TYPE
+		SYNTAX  INTEGER
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates the time of the last measurement."
+		::={ de1HistFreqRngEntry 2}
+
+	freqRange	OBJECT-TYPE
+		SYNTAX   INTEGER (1..7)
+		ACCESS   read-only
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates the byte values for the Historical Frequency Range
+			<=1e-10 		(1),  
+		  	<=1e-9 & >1e-10	(2),
+		  	<=1e-8 & >1e-9	(3),
+		  	<=1e-7 & >1e-8	(4),
+		  	<=1e-6 & >1e-7	(5),
+		  	<=2e-6 & >1e-6	(6),
+		  	<=3e-4 & >2e-6	(7) "
+		::= { de1HistFreqRngEntry 3  }
+
+
+--
+--
+-- Configuration Group
+--
+--
+
+-- (DS1/E1 module User provisionable parameters)
+	inputType	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  dS1-SF(1 ),
+		  dS1-ESF(2 ),
+		  e1-CAS(3 ),
+		  e1-CCS(4 ),
+		  uNFRAMED(5)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates user read/write input signal type. The default value is 2"
+		::= {configuration 1}
+	
+	ssmMonitor	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  disabled(1),
+		  enabled(2)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates SSM monitoring state. The default value is 2"
+		::= {configuration 2}
+		
+	sSMChE1	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  SaNo(1),
+		  Sa4(5),
+		  Sa5(6),
+		  Sa6(7),
+		  Sa7(8),
+		  Sa8(9)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates SSM Channel being selected. Only in E1 Input Type case
+		The default value is 5"
+		::= {configuration 3}
+	
+
+	divisor		OBJECT-TYPE
+		SYNTAX   INTEGER
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates user read/write divisor which being used by the chip
+		 Divisor used to divide the unframed frequence to 8kHz
+		 If it's framed input signal, the divisor value is fixed:
+		 In DS1 case, the default value is 193
+		 In E1 case, the default value is 256
+		 If it's unframed signal, the value can be changed
+		 0 can not be used to set to divisior"
+		::= {configuration 4}
+
+	inputPQL	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  ds1PRS(2),
+		  e1PRC(3),
+		  ds1STUe1STU(4),
+		  ds1ST2(5),
+		  ds1TNCe1TypeV(6),
+		  ds1ST3E(8),
+		  e1TypeVI(9),
+		  ds1ST3(10),
+		  e1SEC(11),
+		  ds1SMC(12),
+		  ds1ST4(13),
+		  ds1RES(14),
+		  ds1DUSe1DUS(15)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates user can read/write input signal Priority Quality Level
+		The Input PQL can only be used when no SSM being received. The default value
+		is 6"
+		::= {configuration 5}
+	
+	refPQL	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  ds1PRS(2),
+		  e1PRC(3),
+		  ds1STUe1STU(4),
+		  ds1ST2(5),
+		  ds1TNCe1TypeV(6),
+		  ds1ST3E(8),
+		  e1TypeVI(9),
+		  ds1ST3(10),
+		  e1SEC(11),
+		  ds1SMC(12),
+		  ds1ST4(13),
+		  ds1RES(14),
+		  ds1DUSe1DUS(15) 
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates user can read/write reference signal Priority Quality 
+		Level, default value is 6"
+		::= {configuration 6}
+
+	syncMode	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  syncModeOff(1),
+		  syncModeOn(2),
+		  syncModeAuto(3)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates the sync mode (clock recovery mode for DS1/E1 chip).
+		 The default value is 3"
+		::= {configuration 7}
+
+	gmtmAlmMask  OBJECT-TYPE
+		SYNTAX    INTEGER
+		ACCESS     read-only
+	  	STATUS     mandatory
+		DESCRIPTION
+		"Indicates alarm mask for Timing clock module:
+				Bit0: 0, DS1E1 LOS no mask; 1, masked
+				Bit1: 0, DS1E1 AIS no mask; 1, masked
+				Bit2: 0, DS1E1 Internal PLL Unlocked no mask; 1, alarm masked
+				Bit3: 0, DS1E1 OOF no mask; 1, alarm masked
+				Bit4: 0, DS1E1 SSM Lost no mask; 1, alarm masked
+				Bit5: 0, DS1E1 MTIE Fault no mask; 1, alarm masked
+				Bit6: 0, DS1E1 LOF no mask; 1, alarm masked
+				Bit7: 0, DS1E1 BPV no mask; 1, alarm masked
+				Bit8: 0, DS1E1 CRC no mask; 1, alarm masked
+				Bit9: 0, DS1E1 Reference Clock 1 LOS no mask; 1, alarm masked
+				Bit10: 0, TCM LOS2, No output from TCM, 1, alarm masked 
+                Bit11: 0, TCM LOS1, Loss of Loop Backed Clock, 1, alarm masked
+                Bit12: 0, TCM external mode change no mask; 1, event masked
+                Bit13: 0, TCM freerun mode change no mask; 1, event masked
+                Bit14: 0, TCM holdover mode change no mask; 1, event masked 
+                Bit15: 0, TCM PLL UNLOCK no mask, 1, alarm masked  
+         The default setting is all 0"
+		::= {configuration 8}
+
+	degPQLset	OBJECT-TYPE
+		SYNTAX   INTEGER
+		
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates output state and PQL during degraded performance: 
+		  bit0,1: MTIE  0--Output PQL is Unchanged 
+						1--Output PQL is Input PQL + 1(default)
+		                2--Output PQL is 15(DUS)  
+		  bit2,3: OOF   0--Output PQL is Unchanged
+						1--Output PQL is Input PQL + 1(default)
+		                2--Output PQL is 15
+		  bit4,5: BPV   0-- Output PQL is Unchanged
+						1--Output PQL is Input PQL + 1(default)
+	                	2--Output PQL is 15
+		  bit6,7: CRC	0-- Output PQL is Unchanged
+						1--Output PQL is Input PQL + 1(default)
+		                2--Output PQL is 15
+		 The default setting is 0x55"
+		::= {configuration 9 }
+	
+	clkModeCtrl	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+			auto(1),
+			manual(2)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TCM clock mode control: 1 is auto mode,2 is manual mode 
+		The default setting is 1"
+		::= {configuration 10 }
+		
+	clkModeSet	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+			freeRun(1),
+			external(2),
+			holdOver(3)
+		}
+		
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TCM clock mode setting:
+		 1 is Free Run mode,
+		 2 is External mode,
+		 3 is Hold over mode 
+		 The default setting is 2"
+		::= {configuration 11 }
+	
+	OutSigCtrl	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		 	off(1),
+		 	on(2)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Indicates TCM Output signal control: 1 is disable,2 is enable 
+		 The default setting is 1"
+		::= {configuration 12 }
+
+
+--(MTIE threshold setting and clearing)
+--	set1sec		OBJECT-TYPE
+--		SYNTAX   INTEGER(5..16384)
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--		"Indicates 1 second observation window set threshold in nanoseconds
+--		The default setting is 325"  
+--		::= {configuration 13 }
+--
+--	set10sec	OBJECT-TYPE
+--		SYNTAX   INTEGER(5..16384)
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--	"Indicates 10 second observation window set threshold in nanoseconds
+--	 The default setting is 325"
+--		::= {configuration 14 }
+--
+--	set72sec	OBJECT-TYPE
+--		SYNTAX   INTEGER(5..16384)
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--	"Indicates 72 second observation window set threshold in nanoseconds 
+--	 The default setting is 480"
+--		::= {configuration 15 }
+--
+--	clr1sec		OBJECT-TYPE
+--		SYNTAX   INTEGER(5..16384)
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--		"Indicates 1 second observation window clear threshold in nanoseconds
+--		 The default setting is 300 "
+--		::= {configuration 16 }
+--
+--	clr10sec	OBJECT-TYPE
+--		SYNTAX   INTEGER(5..16384)
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--		"Indicates 10 second observation window clear threshold in nanoseconds
+--		 The default setting is 300 "
+--		::= {configuration 17 }
+--
+--	clr72sec	OBJECT-TYPE
+--		SYNTAX   INTEGER(5..16384)
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--		"Indicates 72 second observation window clear threshold in nanoseconds
+--		 The default setting is 430 "
+--		::= {configuration 18 }
+--
+--	bistLvl		OBJECT-TYPE
+--		SYNTAX   INTEGER
+--		{
+--		  lvl0(1),
+--		  lvl1(2),
+--		  lvl2(3)
+--		}
+--		ACCESS   read-write
+--		STATUS   mandatory
+--		DESCRIPTION
+--		"Indicates Built-in Self-Test Level
+--		 1: Clears all status info and runs test level again.
+-- 		 2: Non-disruptive testing (default)
+-- 		 3: Disruptive testing"
+--		::= {configuration 19 }
+--
+--
+--
+-- trap Group
+--
+--
+
+
+	dS1E1LOSNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+--   		ACTIONS{ normal }
+		CLEARS{ 2 }
+    		MESG "Loss of Signal Cleared"
+		DESCRIPTION
+		"Generated when Loss of Signal change state from 'defect' or 'failure' to 'normal'." 
+		::= 1 
+
+	dS1E1LOSAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 1 }
+    		MESG "Loss of Signal"
+		DESCRIPTION
+		"Generated when Loss of Signal change state from 'normal' to 'failure'."
+		::= 2 
+
+	dS1E1AISNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 4 }
+    		MESG "Alarm Indication Cleared"
+		DESCRIPTION
+		"Generated when Alarm Indication Signal change state from 'defect' or 'failure' to 'normal'."
+		::= 3 
+
+	dS1E1DS1E1AISAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 3 }
+    		MESG "Alarm Indication Signal"
+		DESCRIPTION
+		"Generated when Alarm Indication Signal change state from 'normal' to 'failure'."
+		::= 4
+
+	dS1E1PLLunlockedNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 6 }
+    		MESG "PLL normal"
+		DESCRIPTION
+		"Generated when PLL unlocked change state from 'defect' or 'failure' to 'normal'."
+		::= 5 
+
+	dS1E1PLLunlockedAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 5 }
+    		MESG "PLL Failed"
+		DESCRIPTION
+		"Generated when PLL unlocked change state from 'normal' to 'failure'."
+		::= 6 
+ 
+
+	dS1E1OOFNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 8 }
+    		MESG "Out of Frame Cleared"
+		DESCRIPTION
+		"Generated when Out of Frame change state from 'defect' or 'failure' to 'normal'."
+		::= 7 
+
+	dS1E1OOFAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 7 }
+    		MESG "Out of Frame"
+		DESCRIPTION
+		"Generated when Out of Frame change state from 'normal' to 'failure'."
+		::= 8
+
+	dS1E1LossofSSMNormal	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 10 }
+    		MESG "Loss of SSM Cleared"
+		DESCRIPTION
+		"Generated when Loss of SSM change state from 'defect' or 'failure' to 'normal'."
+		::= 9 
+
+	dS1E1LossofSSMAlarm	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ major }
+		CLEARS{ 9 }
+    		MESG "Loss of SSM"
+		DESCRIPTION
+		"Generated when Loss of SSM change state from 'normal' to 'failure'."
+		::= 10 
+ 
+	dS1E1MTIEfaultNormal	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 12 }
+    		MESG "MTIE normal"
+		DESCRIPTION
+	"Generated when MTIE_fault change state from 'defect' or 'failure' to 'normal'."
+		::= 11 
+
+	dS1E1MTIEfaultAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ major }
+		CLEARS{ 11 }
+    		MESG "MTIE Failed"
+		DESCRIPTION
+		"Generated when MTIE_fault change state from 'normal' to 'failure'."
+		::= 12
+
+	dS1E1LOFNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 14 }
+    		MESG ""
+		DESCRIPTION
+		"Generated when Loss of Frame change state from 'defect' or 'failure' to 'normal'."
+		::= 13 
+
+	dS1E1LOFAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ major }
+		CLEARS{ 13 }
+    		MESG "Loss of Frame"
+		DESCRIPTION
+		"Generated when Loss of Frame change state from 'normal' to 'failure'."
+		::= 14
+
+	dS1E1BPVNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 16 }
+    		MESG "BPV normal"
+		DESCRIPTION
+		"Generated when BPV change state from 'defect' or 'failure' to 	'normal'"
+		::= 15 
+
+	dS1E1BPVAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ major }
+		CLEARS{ 15 }
+    		MESG "BPV Failed"
+		DESCRIPTION
+		"Generated when BPV change state from 'normal' to 'failure'."
+		::= 16 
+ 
+	dS1E1CRCNormal		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 18 }
+    		MESG "Cyclic Redundancy Check Normal"
+		DESCRIPTION
+		"Generated when Cyclic Redundancy Check change state from 'defect' or 'failure' to 'normal'."
+		::= 17 
+
+	dS1E1CRCAlarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ major }
+		CLEARS{ 17 }
+    		MESG "Cyclic Redundancy Check Failed"
+		DESCRIPTION
+		"Generated when Cyclic Redundancy Check change state from 'normal' to 'failure'."
+		::= 18
+ 
+	dS1E1RefClk1LOSNormal  	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 20 }
+    		MESG "DS1/E1 Reference Clock 1 LOS Cleared"
+		DESCRIPTION
+		"DS1/E1 REFERNCE Clock 1 LOS is in 'normal' state"
+		::= 19
+
+
+	dS1E1RefClk1LOSAlarm	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ minor }
+		CLEARS{ 19 }
+    		MESG "DS1/E1 Reference Clock 1 LOS"
+		DESCRIPTION
+		"Generated when DS1/E1 REFERNCE Clock 1 LOS change from 'normal' to 'failure' state"
+		::= 20
+
+	dS1E1RefClk2Normal	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 22 }
+    		MESG "DS1/E1 Reference Clock 2 LOS Cleared"
+		DESCRIPTION
+		"DS1/E1 REFERNCE Clock 2 LOS is in 'normal' state"
+		::= 21
+
+	dS1E1RefClk2Alarm		TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ minor }
+		CLEARS{ 21 }
+    		MESG "DS1/E1 Reference Clock 2 LOS"
+		DESCRIPTION
+		"Generated when DS1/E1 REFERNCE Clock 2 LOS change from 'normal' to 'failure' state"
+		::= 22
+
+	tCMInPllUnlockNormal	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 24 }
+    		MESG "TCM input PLL_UNLOCK normal"
+		DESCRIPTION
+		"TCM input PLL_UNLOCK is in normal state"
+		::= 23
+
+
+	tCMInPllUnlockAlarm	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 23 }
+    		MESG "TCM input PLL_UNLOCK Failed"
+		DESCRIPTION
+		"TCM input PLL_UNLOCK changes from normal to failure state"
+		::= 24
+
+	lOLBCNormal  TRAP-TYPE
+		ENTERPRISE	   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 26 }
+    		MESG "Loop Back Clock Normal"
+		DESCRIPTION
+		"Loss of Loop Backed Clock is in normal state"
+		::= 25
+
+	lOLBCAlarm   TRAP-TYPE
+		ENTERPRISE     gigaMuxTiming
+   		ACTIONS{ major }
+		CLEARS{ 25 }
+    		MESG "Loss of Loop Back Clock"
+		DESCRIPTION
+		"Loss of Loop Backed Clock changes from normal to failure state"
+		::= 26 
+		
+	lOOCNormal	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 28 }
+    		MESG "Output Signal Normal"
+		DESCRIPTION
+		"Output Signal state is in 'normal' state"
+		::= 27 
+
+	lOOCAlarm	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 27 }
+    		MESG "Output Signal Failed"
+		DESCRIPTION
+		"Output Signal state from 'normal' to 'failure' state"
+		::= 28
+		
+	iFCardMissNormal	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ normal }
+		CLEARS{ 30 }
+    		MESG "Interface Card Presents"
+		DESCRIPTION
+		"Interface card state is in 'normal' state"
+		::= 29 
+
+	iFCardMissAlarm	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+   		ACTIONS{ critical }
+		CLEARS{ 29 }
+    		MESG "Interface Card Missing or Failed"
+		DESCRIPTION
+		"Interface card state from 'normal' to 'failure' state"
+		::= 30
+		
+	tftpDownloadFailed TRAP-TYPE
+		ENTERPRISE gigaMuxTiming
+		DESCRIPTION
+			"TFTP download operation failed.
+			 tftpStatus is the error code."
+		::= 54
+
+	tftpDownloadSuccessful TRAP-TYPE
+		ENTERPRISE gigaMuxTiming
+		DESCRIPTION
+			"TFTP download operation was successful.
+			 Card will automatically reset and boot up with new image."
+		::= 55
+
+	clkModeHldOvr	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		"Generated when clock mode to 'holdover'."
+		::= 101 
+
+	clkModeFreeRun	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		"Generated when clock mode change to 'free run'."
+		::= 102 
+
+	clkModeExtRef	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		"Generated when clock mode change state to 'external reference'."
+		::= 103
+	
+	iFCardDs1In	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		" Interface card is DS1 Input type"
+		::= 104
+		
+	 iFCardE1In120	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		" Interface card is E1 Input 120 ohm type"
+		::= 105 
+		
+	 iFCardE1In75	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		" Interface card is E1 Input 75 ohm type"
+		::= 106
+
+	ssmChange	TRAP-TYPE
+		ENTERPRISE   gigaMuxTiming
+		DESCRIPTION
+		"Generated when DS1/E1 module input SSM changed."
+		::= 107
+
+
+--
+--
+--alarmconfig Group
+--
+--
+
+de1InLos	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1E1 module input LOS ALARM"
+		::= {alarmconfig 1}
+
+de1InAis	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input AIS ALARM"
+		::= {alarmconfig 2}
+
+de1InPllUnlock	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input PLL_UNLOCK ALARM"
+		::= {alarmconfig 3}
+
+de1InOof	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input OOF ALARM"
+		::= {alarmconfig 4}
+
+de1InSsmLost	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input SSM_LOST ALARM"
+		::= {alarmconfig 5}
+
+de1InMtieFlt	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input MTIE_FLT ALARM"
+		::= {alarmconfig 6}
+
+de1InLof	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input LOF ALARM"
+		::= {alarmconfig 7}
+
+de1IBrv	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input BRV ALARM"
+		::= {alarmconfig 8}
+
+de1InCrc	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input CRC ALARM"
+		::= {alarmconfig 9}
+
+de1InRef1Los	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of DS1/E1 module input Reference1 LOS ALARM"
+		::= {alarmconfig 10}
+
+tcmInPllUnlock	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of Timing Clock Module input PLL_UNLOCK ALARM"
+		::= {alarmconfig 11}
+
+
+tcmOutLolbc 	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of Timing Clock Module output LOLBC ALARM"
+		::= {alarmconfig 12}
+
+tcmOutLooc   	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of Timing Clock Module output LOOC ALARM"
+		::= {alarmconfig 13}
+		
+tcmIfMissing   	OBJECT-TYPE
+		SYNTAX   INTEGER
+		{
+		  minor(1),
+		  major(2),
+		  critical(3)
+		}
+		ACCESS   read-write
+		STATUS   mandatory
+		DESCRIPTION
+		"Specifies severity level of Timing Clock Interface card missing ALARM"
+		::= {alarmconfig 14}
+
+END
+
+
+
+
+

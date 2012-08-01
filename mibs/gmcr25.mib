@@ -1,0 +1,2979 @@
+--
+-- Sorrento Networks Private MIB for GMCR-25, OC48 Transponder Card.
+--
+--
+-- This MIB file is to be used with GMCR-25 card version 1.0.1 
+-- or greater. Previous versions may not return all variables.
+--
+-- Revision 1.0.1	11/11/2001	Ajay Sarkar
+-- Initial Release.
+-- Revision 1.0.2	12/14/2001	Chung Wong
+-- Added timing source selection
+-- Revision 1.0.2.1	12/18/2001	Chung Wong
+-- Modified timing source and related traps
+-- Revision 1.0.2.2	12/19/2001	Chung Wong
+-- Not zero as clock selection values
+-- Revision 1.0.2.3	12/20/2001	Chung Wong
+-- Added AutoClkEntryID { status 38 }
+-- Revision 1.0.2.4	1/8/2002	Chung Wong
+-- Added localclkmanualstatus and lineclkmanualstatus 
+-- Revision 1.0.2.5	1/21/2002	Chung Wong (with changes from LongZ)
+-- Removed loc, sd and sf.  Renamed 'clk' to 'timing', etc.
+-- Added timingmodestatus, pmreginitlocalall, pmreginitlineall, pmreginitphyall
+-- Revision 1.0.2.6 3/15/2002 Chung Wong
+-- Changed loopback terms to LocalTerminalLoopback and LineTerminalLoopback
+-- Removed facility loopbacks
+-- Revision 1.0.2.7 3/26/2002 Chung Wong
+-- Added traps ExternalTimingReferenceAFailed, ExternalTimingReferenceANormal,
+--   LocalThruLineLoopTimingFailed, LocalThruLineLoopTimingNormal, 
+--   LineThruLocalLoopTimingFailed, LineThruLocalLoopTimingNormal
+-- (Added ExtTimingSrcA to status group - commented out)
+-- Added LocalThruLineLoopTimingStatus and LineThruLocalLoopTimingStatus
+-- Revision 1.0.2.8 5/28/2002 Chung Wong
+-- Added LocalTxPowerConfig, LineTxPowerConfig, LocalTxPowerStatus and
+--   LineTxPowerStatus
+--
+-- Copyright 2001, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification, including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of 
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+
+
+	GMUX-OC48-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+osicomTechnologies		OBJECT IDENTIFIER ::= { enterprises 2522 }
+gigaNest			OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+gigaMuxOC48			OBJECT IDENTIFIER ::= { gigaNest 26 }
+status	 			OBJECT IDENTIFIER ::= { gigaMuxOC48 1 }
+alarmconfig		 	OBJECT IDENTIFIER ::= { gigaMuxOC48 2 }
+unit				OBJECT IDENTIFIER ::= { gigaMuxOC48 3 }
+management			OBJECT IDENTIFIER ::= { gigaMuxOC48 4 }
+client				OBJECT IDENTIFIER ::= { gigaMuxOC48 5 }
+pmability			OBJECT IDENTIFIER ::= { gigaMuxOC48 6 }
+pmlocaltoline			OBJECT IDENTIFIER ::= { gigaMuxOC48 7 }
+pmdailylocaltoline		OBJECT IDENTIFIER ::= { gigaMuxOC48 8 }
+pmlinetolocal			OBJECT IDENTIFIER ::= { gigaMuxOC48 9 }
+pmdailylinetolocal		OBJECT IDENTIFIER ::= { gigaMuxOC48 10 }
+physicalpm			OBJECT IDENTIFIER ::= { gigaMuxOC48 11 }
+threshold			OBJECT IDENTIFIER ::= { gigaMuxOC48 12 }
+tftp				OBJECT IDENTIFIER ::= { gigaMuxOC48 13 }
+inventory			OBJECT IDENTIFIER ::= { gigaMuxOC48 14 }
+
+
+
+
+--
+--  Status group
+--
+-- These objects contain current settings and status for the
+-- GMCR-25 card.
+--
+
+--	locstatuslocaltoline OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			normal(1),
+--			failure(2)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--			"Indicates Loss of Clock (LOC) status for Local to Line mode/PM."
+--		::= { status 1 }
+--
+--	locstatuslinetolocal OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			normal(1),
+--			failure(2)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--			"Indicates Loss of Clock (LOC) status for Line to Local mode/PM."
+--		::= { status 2 }
+--
+
+	opticalpowertx OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Optical Power Transmitted (OPT) in mW."
+		::= { status 3 }
+
+laserbiascurrent OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Bias Current (LBIAS) in mAMP."
+		::= { status 4 }
+
+lasertemp OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Temperature in celcius."
+		::= { status 5 }
+
+
+
+loslocaltoline OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Loss of Signal (LOS) from local to line."
+		::= { status 6 }
+
+loslinetolocal OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Loss of Signal (LOS) from line to local."
+		::= { status 7 }
+
+
+loflocaltoline OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Loss of Frame (LOF) from local to line."
+		::= { status 8 }
+
+loflinetolocal OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Loss of Frame (LOF) from line to local."
+		::= { status 9 }
+
+
+--sflocaltoline OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			normal(1),
+--			defect(2),
+--			failure(3)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--		"Indicates the status of Signal Fail (SF) from local to line."
+--		::= { status 10 }
+--
+--sflinetolocal OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			normal(1),
+--			defect(2),
+--			failure(3)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--		"Indicates the status of Signal Fail (SF) from line to local."
+--		::= { status 11 }
+--
+--sdlocaltoline OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			normal(1),
+--			defect(2),
+--			failure(3)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--		"Indicates the status of Signal Degrade (SD) from local to line."
+--		::= { status 12 }
+--
+--sdlinetolocal OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			normal(1),
+--			defect(2),
+--			failure(3)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--		"Indicates the status of Signal Degrade (SD) from line to local."
+--		::= { status 13 }
+--
+
+
+opticalpowerrecv OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the Optical Power Received (OPR) in mW." 
+		::= { status 14 }
+
+date OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(8))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the current date of the NE." 
+		::= { status 15 }
+
+time OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(8))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the current time of the NE." 
+		::= { status 16 }
+
+channelnumber OBJECT-TYPE
+		SYNTAX INTEGER(0..63)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the channel number of the particular card type." 
+		::= { status 17 }
+
+cardtype OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(0..10))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the card type." 
+		::= { status 18 }
+
+
+opticalpowertxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			low(2),
+			high(3),
+			failed(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Optical Power Transmitted Status."
+		::= { status 19 }
+
+laserbiascurrenttxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal (1),
+			high(2),
+			failed(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Bias Current status."
+		::= { status 20 }
+
+lasertemptxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			low(2),
+			high(3),
+			failed(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Temperature Status."
+		::= { status 21 }
+
+
+opticalpowerrxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			low(2),
+			high(3),
+			failed(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the Optical Power Received (OPR) Status." 
+		::= { status 22 }
+
+ledstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			Failedboth(1), -- RED for both LED
+			FailedEqup(2),  -- RED for Equp and GREEN for Sig In
+			FailedSigIn(3), -- GREEN for Equp and RED for Sig In
+			Normalboth(4)   -- GREEN for both
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the LED status for both Equipment and Sig In LED." 
+		::= { status 23}
+
+alarmstatuslocal OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			on(1), 
+			off(0)   
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the ALARM status for LOS,LOF,LOC,SF and SD for local to line." 
+		::= { status 24 }
+
+
+alarmstatusline OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			on(1), 
+			off(0)   
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the ALARM status for LOS,LOF,LOC,SF and SD for line to local." 
+		::= { status 25 }
+
+-- LBC0
+laserbiascurrenttx0 OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of the Laser Bias Current (LBC0)."
+		::= { status 26 }
+
+-- OPT0
+opticalpowertx0 OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of average optical output power
+			 of the transmitter, or the Optical Power Transmitted (OPT0)"
+		::= { status 27 }
+
+-- OPR0
+opticalpowerrx0 OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of average optical power
+			 of the received signal, or the Optical Power Received (OPR0)"
+		::= { status 28 }
+
+
+-- Local clock source selection
+timingmode OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			auto(2),
+			enforced(1)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Mode to select clock source (both local and line interface): 
+                           2 auto selection, using priority list, 
+                           1 manual selection."
+                ::= { status 29 }
+
+timingautosel OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			ETL(2),
+			TEL(1)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Priority list of auto selection of clock source 
+                         (both local and line interface): 
+                           2 EXT, Through, Local, 
+                           1 Through, EXT, Local."
+                ::= { status 30 }
+
+localtimingautoentry OBJECT-TYPE
+                SYNTAX INTEGER
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Priority list entry currently selected by hardware for the
+                         local interface, starting from 1; 0 = Not Applicable."
+                ::= { status 31 }
+
+localtimingforcedsel OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			THRU(1),
+			LOOP(2),
+			EXT(3)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Manual selection of clock source for the local interface: 
+                           1 Through Timing (default),
+                           2 Loop Timing,
+                           3 External Timing."
+                ::= { status 32 }
+
+-- NOT USED Line clock source selection
+--lineclkmode OBJECT-TYPE
+--                SYNTAX INTEGER
+--		{
+--			auto(1),
+--			manual(0)
+--		}
+--                ACCESS read-write
+--                STATUS mandatory
+--                DESCRIPTION
+--                        "Mode to select clock source for the line interface: 
+--                           1 auto selection, using priority list, 
+--                           0 manual selection."
+--                ::= { status 33 }
+
+-- NOT USED lineclkautosel OBJECT-TYPE
+--                SYNTAX INTEGER
+--		{
+--			BTL(1),
+--			TBL(0)
+--		}
+--                ACCESS read-write
+--                STATUS mandatory
+--                DESCRIPTION
+--                        "Priority list of auto selection of clock source for the 
+--                         line interface: 
+--                           1 BITS, Through, Local, 
+--                           0 Through, BITS, Local."
+--                ::= { status 34 }
+
+linetimingautoentry OBJECT-TYPE
+                SYNTAX INTEGER
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Priority list entry currently selected by hardware for the
+                         line interface, starting from 1; 0 = Not Applicable."
+                ::= { status 35 }
+
+linetimingforcedsel OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			THRU(1),
+			LOOP(2),
+			EXT(3)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Manual selection of clock source for the line interface: 
+                           1 Through Timing (default),
+                           2 Loop Timing,
+                           3 External Timing."
+                ::= { status 36 }
+
+exttimingsrc OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			failure(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates status of timing card."
+		::= { status 37 }
+
+AutoTimingEntryID OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			EXT(1),
+			THRU(2),
+                        LOCAL(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Used to indentify auto mode priority entry name, 
+                         exclusively for traps AutoClkSelectionLocalChanged 
+                         and AutoClkSelectionLineChanged.  1 always returned
+                         with query." 
+		::= { status 38 }
+
+localtimingforcedstatus OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			normal(1),
+			failure(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of FORCED clock selection on local interface." 
+		::= { status 39 }
+
+linetimingforcedstatus OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			normal(1),
+			failure(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of FORCED clock selection on line interface." 
+		::= { status 40 }
+
+timingmodestatus OBJECT-TYPE
+    SYNTAX INTEGER
+    {
+      enabled(1),
+			disabled(2)
+		}
+    ACCESS read-write
+    STATUS mandatory
+    DESCRIPTION
+    "To enable or disable the timing/clock provisioning.  It should be set to
+     disabled(2) if timing card is not used.
+     The default is disabled(2)."
+    ::= { status 41 }
+
+-- ExtTimingSrcA OBJECT-TYPE
+-- 		SYNTAX INTEGER
+-- 		{
+-- 			normal(1),
+-- 			failure(2)
+-- 		}
+-- 		ACCESS read-only
+-- 		STATUS mandatory
+-- 		DESCRIPTION
+-- 			"Indicates status of timing card A."
+-- 		::= { status 42 }
+
+LocalThruLineLoopTimingStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			failure(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates status of Local THRU timing (same as Line LOOP)."
+		::= { status 43 }
+
+LineThruLocalLoopTimingStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			failure(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates status of Line THRU timing (same as Local LOOP)."
+		::= { status 44 }
+
+LocalTxPowerConfig OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ON(1),
+			OFF(2),
+      APS(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"To set the Local TX power configuration."
+		::= { status 45 }
+
+LineTxPowersConfig OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ON(1),
+			OFF(2),
+      APS(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"To set the Line TX power configuration."
+		::= { status 46 }
+
+LocalTxPowerStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ON(1),
+			OFF(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates status of Local TX power status."
+		::= { status 47 }
+
+LineTxPowerStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			ON(1),
+			OFF(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates status of Line TX power status."
+		::= { status 48 }
+
+
+
+--
+--  alarmconfig group
+--
+--  These objects contain severity/priority settings for GMCR-35 ALARMS/TRAPS, 
+--  which indicates.
+--
+
+localarmlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Clock  
+                       (LOC) ALARM."
+                ::= { alarmconfig 1 }
+
+localarmlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Clock  
+                       (LOC) ALARM."
+                ::= { alarmconfig 2 }
+
+losalarmlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Signal  
+                       (LOS) ALARM."
+                ::= { alarmconfig 3 }
+
+losalarmlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Signal  
+                       (LOS) ALARM."
+                ::= { alarmconfig 4 }
+
+
+
+lofalarmlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Frame  
+                       (LOF) ALARM."
+                ::= { alarmconfig 5 }
+
+
+lofalarmlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Frame  
+                       (LOF) ALARM."
+                ::= { alarmconfig 6 }
+
+
+sdalarmlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+    		ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Signal Degrade (SD)-ALARM."
+                ::= { alarmconfig 7 }
+
+sdalarmlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+    		ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Signal Degrade (SD)-ALARM."
+                ::= { alarmconfig 8 }
+
+sfalarmlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+    		ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Signal Fail (SF)-ALARM."
+                ::= { alarmconfig 9 }
+
+sfalarmlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+    		ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Signal Fail (SF)-ALARM."
+                ::= { alarmconfig 10 }
+
+
+--
+--      Unit group
+--
+        unitName OBJECT-TYPE
+                SYNTAX DisplayString (SIZE (0..8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Short name for the card."
+                ::= { unit 1 }
+
+        unitDescription OBJECT-TYPE
+                SYNTAX DisplayString (SIZE (0..40))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Additional description information about
+                         the card, expanding upon the short name."
+                ::= { unit 2 }
+
+        unitVersion OBJECT-TYPE
+                SYNTAX DisplayString (SIZE (0..16))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "The software version number."
+                ::= { unit 3 }
+
+        unitCommand OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					nothing(1),
+					warmResetNow(2),
+					resetAllCounters(3),
+					saveConfigurationNow(4)
+				}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Set this object to one of the following
+                         values to perform one of a variety of
+                         actions:
+                         nothing(1)              - Do nothing.
+                         warmResetNow(2)         - Causes a system
+                                                   restart.
+                         resetAllCounters(3)     - Reset all
+                                                   statistics counters.
+                         saveConfigurationNow(4) - Stores active
+                                                   configuration into
+                                                   non-volatile flash
+                                                   memory.
+                         The default is nothing(1)."
+                ::= { unit 4 }
+
+        unitConfigurationState OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					unchanged(1),
+					changed(2)
+				}
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Indicates the state of the active
+                         configuration as compared to that saved in
+                         flash memory.
+                         unchanged(1) - Flash is up-to-date
+                         changed(2)   - operating configuration differs
+                                        from that saved in the flash
+                                        memory."
+                ::= { unit 5 }
+
+
+
+--
+--      Management group
+--
+--      Internet management (SNMP/TCP/IP) configuration options.
+--
+
+        internetAddress OBJECT-TYPE
+                SYNTAX IpAddress
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "internetAddress is the IP address that is
+                         assigned to the card."
+                ::= { management 1 }
+
+        subnetMask OBJECT-TYPE
+                SYNTAX IpAddress
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "subnetMask is the IP subnet mask that is
+                         assigned to the card."
+                ::= { management 2 }
+
+        trapPriorityThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					minor(1),
+					major(2),
+					critical(3),
+					none(4)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                
+
+
+DESCRIPTION
+                        "Specifies the minimum priority of an alarm
+			 	 condition for which a trap will be generated.
+                         minor(1)    - all traps will be sent
+                         major(2)    - only critical and major traps
+                         critical(3) - only critical traps are sent
+                         none(4)     - no traps will be sent."
+                ::= { management 3 }
+
+        trapDelay OBJECT-TYPE
+                SYNTAX INTEGER (0..255)
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Specifies the delay between detection of a
+                         alarm condition and the sending of a trap.
+                         During this delay period, if the trap
+                         condition clears, then the trap will not be
+                         sent. This delay is used to avoid
+                         transmission of traps for momentary
+                         problems."
+                ::= { management 4 }
+
+        clientAutoLearn OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					enabled(1),
+					disabled(2)
+				}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "clientAutoLearn allows the card to
+                         automatically learn client SNMP addresses. If
+                         enabled, the card can automatically learn 16
+                         Client IP addresses and store them in the
+                         unitClientTable as dynamic. Addresses are
+                         learned from incoming SNMP messages. If set
+                         to disabled, only the addresses that are
+                         manually entered in the unitClientTable are
+                         available.
+                         The default is enabled(1)."
+                ::= { management 5 }
+
+
+
+
+
+
+
+
+
+--
+--      Client Table
+--
+--      Contains the IP addresses of SNMP network management stations
+--      that will receive SNMP traffic.  The agent will only
+--      communicated with managers whose IP addresses are in the
+--      table.  Entries can be either learned automatically, from
+--      requests received by the card, or via configuration, by
+--      terminal or SNMP. See also the clientAutoLearn object in the
+--      management group.
+--
+
+        clientTable OBJECT-TYPE
+                SYNTAX SEQUENCE OF ClientEntry
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "Client IP addresses of SNMP network
+                         management stations that should receive SNMP
+                         traffic generated by the card."
+                ::= { client 1 }
+
+        clientEntry OBJECT-TYPE
+                SYNTAX ClientEntry
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { clientIndex }
+                ::= { clientTable 1 }
+
+        ClientEntry ::=
+                SEQUENCE 
+				{
+					clientIndex
+						INTEGER,
+					clientAddress
+						IpAddress,
+					clientType
+						INTEGER
+				}
+
+        clientIndex OBJECT-TYPE
+                SYNTAX INTEGER
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the client table."
+                ::= { clientEntry 1 }
+
+        clientAddress OBJECT-TYPE
+                SYNTAX IpAddress
+                ACCESS read-write
+                STATUS mandatory
+               
+
+
+ DESCRIPTION
+                        "IP address for an SNMP network management
+                         station. Set the address to 0.0.0.0 to remove
+                         the entry."
+                ::= { clientEntry 2 }
+
+        clientType OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					dynamic(1),
+					static(2),
+					unused(3)
+				}
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Status of the entry:
+                         dynamic(1) - Auto-learned from an SNMP request
+                         static(2)  - Configured statically
+                         unused(3)  - As yet unusd entry."
+                ::= { clientEntry 3 }
+
+
+--
+--
+--  pmability-it specifies the ability/mode in which the card can be set
+--
+--
+
+
+        pmmonitor OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					disable(1),
+					enable(2)
+				}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Status of the entry:
+                         disable(1) - This mode disable the PM monitoring 
+                                      functionality.
+                         enable(2)  - This mode enable the PM monitoring 
+                                      functionality."
+                ::= { pmability 1 }
+
+
+
+pmmode OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			sonet(1),
+			sdh(2)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Status of the entry:
+                         sonet(1) - This enables the INDUS chip to run in SONET 
+                                    mode.
+                         sdh(2)  - This enables the INDUS chip to run in SDH 
+    				   mode."
+                ::= { pmability 2 }
+
+
+pmreginitlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the current 15 minutes registers to zero (0), the 
+		 user should set a value 1 to 5 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+--		 1 will reset only CVS
+--		 2 will reset only ESS
+--	         3 will reset only SESS
+--		 4 will reset only SEFSS
+--		 5 will reset CVS,ESS,SESS,SEFSS
+                ::= { pmability 3 }
+
+
+pmreginitdailylocaltoline OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the daily registers to zero (0), the user should   
+ 		 set a value 1 to 5 to reset the registers, in case of read the 
+ 		 value is always zero (0) ."
+--		 1 will reset only CVS-Daily
+--		 2 will reset only ESS-Daily
+--	         3 will reset only SESS-Daily
+--		 4 will reset only SEFSS-Daily
+--		 5 will reset CVS-DAILY,ESS-Daily,SESS-Daily,SEFSS-Daily
+                ::= { pmability 4 }
+
+
+loopbackmode OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			LocalTerminalLoopback(1),
+			LineTerminalLoopback(2),
+--			Transcivertrunkloopback(3),
+--			Transpondertrunkloopback(4),
+			Passthrumode(5)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                "Status of the entry:
+                   LocalTerminalLoopback(1)- terminal loopback in the Transciver.
+                   LineTerminalLoopback(2)- terminal loopback in the Transponder.
+                   Passthrumode(5)- Pass thru mode configuration." 
+                ::= { pmability 5 }
+
+
+pmreginitlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the current section-15 minutes registers to zero (0), the 
+		 user should set a value 1 to 5 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+--		 1 will reset only CVS
+--		 2 will reset only ESS
+--	         3 will reset only SESS
+--		 4 will reset only SEFSS
+--		 5 will reset CVS,ESS,SESS,SEFSS
+                ::= { pmability 6 }
+
+
+pmreginitdailylinetolocal OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the daily registers to zero (0), the user should   
+ 		 set a value 1 to 5 to reset the registers, in case of read the 
+ 		 value is always zero (0) ."
+--		 1 will reset only CVS-Daily
+--		 2 will reset only ESS-Daily
+--	         3 will reset only SESS-Daily
+--		 4 will reset only SEFSS-Daily
+--		 5 will reset CVS-Daily,ESS-Daily,SESS-Daily,SEFSS-Daily
+                ::= { pmability 7 }
+
+
+phypmreginit OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the current physical-15 minutes registers to zero (0), 
+		 user should set a value 1 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+                ::= { pmability 8 }
+
+pmreginitlocalall OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets ALL Local digital registers (15-min and daily) to zero (0), 
+		 user should set a value 1 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+                ::= { pmability 9 }
+
+pmreginitlineall OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets ALL Line digital registers (15-min and daily) to zero (0), 
+		 user should set a value 1 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+                ::= { pmability 10 }
+
+pmreginitphyall OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets ALL physical 15 minutes registers to zero (0), 
+		 user should set a value 1 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+                ::= { pmability 11 }
+
+
+--
+--
+--  Threshold settings for PM Parameters
+--
+--
+
+opthigh OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of Optical Power 
+  		Transmitted (OPT) High limit in db."
+                ::= { threshold 1 }
+
+
+optlow OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of Optical Power 
+  		  Transmitted (OPT) Low limit in db."
+                ::= { threshold 2 }
+
+
+oprhigh OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of Optical Power 
+ 		 Received (OPR) High limit in db."
+                ::= { threshold 3 }
+
+
+
+oprlow OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of Optical Power 
+  		  Received (OPR) Low limit in db."
+                ::= { threshold 4 }
+
+lbc OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+ 		"User can read/write the threshold value of Laser Bias 
+ 		 Current (LBC) in mAmp."
+                ::= { threshold 5 }
+
+
+ltemphigh OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of Laser Temperature  
+ 		 (LTEM) High limit in celcius."
+                ::= { threshold 6 }
+
+
+ltemplow OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of Laser Bias 
+ 		 Current (LTEM) Low limit in celcius."
+                ::= { threshold 7 }
+
+
+cvslocaltoline OBJECT-TYPE
+                SYNTAX INTEGER (1..58982400)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of B1-Error (CVS-
+ 		 Code Section Violation) for Local to line PM."
+                ::= { threshold 8 }
+
+cvslinetolocal OBJECT-TYPE
+                SYNTAX INTEGER (1..58982400)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of B1-Error (CVS-
+ 		 Code Section Violation) for Line to Local PM."
+                ::= { threshold 9 }
+
+esslocaltoline OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of ESS (Errored 
+  		  Seconds) for Local to Line PM."
+                ::= { threshold 10 }
+
+
+esslinetolocal OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of ESS (Errored 
+  		  Seconds) for Line to Local PM."
+                ::= { threshold 11 }
+
+sesslocaltoline OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SESS (Severely 
+ 		 Errored Seconds) for Local to Line PM."
+                ::= { threshold 12 }
+
+
+sesslinetolocal OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SESS (Severely 
+ 		 Errored Seconds) for Line to Local PM."
+                ::= { threshold 13 }
+
+sefsslocaltoline OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SEFSS (Severely 
+	         Errored Frame Seconds) for Local to Line PM."
+                ::= { threshold 14 }
+
+sefsslinetolocal OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SEFSS (Severely 
+	         Errored Frame Seconds) for Line to Local PM."
+                ::= { threshold 15 }
+
+cvsdailylocaltoline OBJECT-TYPE
+                SYNTAX INTEGER (1..5662310400)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the daily threshold value of B1-Error (CVS-
+ 		 Code Section Violation) for local to Line PM."
+                ::= { threshold 16 }
+
+
+cvsdailylinetolocal OBJECT-TYPE
+                SYNTAX INTEGER (1..5662310400)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of daily B1-Error (CVS-
+ 		 Code Section Violation) for Line to Local PM."
+                ::= { threshold 17 }
+
+essdailylocaltoline OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of daily ESS (Errored 
+  		 Seconds) for Local to Line PM."
+                ::= { threshold 18 }
+
+essdailylinetolocal OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of daily ESS (Errored 
+  		 Seconds) for Line to Local PM."
+                ::= { threshold 19 }
+
+sessdailylocaltoline OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of daily SESS (Severely 
+  		  Errored Seconds) for Local to Line PM."
+                ::= { threshold 20 }
+
+sessdailylinetolocal OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of daily SESS (Severely 
+  		  Errored Seconds) for Line to Local PM."
+                ::= { threshold 21 }
+
+sefssdailylocaltoline OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of daily SEFSS (Severely 
+ 		 Errored Frame Seconds) for Local to Line PM."
+                ::= { threshold 22 }
+
+
+sefssdailylinetolocal OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of daily SEFSS (Severely 
+ 		 Errored Frame Seconds) Line to Local PM."
+                ::= { threshold 23 }
+
+sfthresholdlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+    {
+		1EXP-3 (3),
+		1EXP-4 (4), 
+		1EXP-5 (5)
+    }	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of SF (Signal Fail) for
+		  Local to Line PM."
+                ::= { threshold 24 }
+
+sfthresholdlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+    {
+		1EXP-3 (3),
+		1EXP-4 (4), 
+		1EXP-5 (5)
+    }	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of SF (Signal Fail) for
+		  Line to Local PM."
+                ::= { threshold 25 }
+
+
+sdthresholdlocaltoline OBJECT-TYPE
+                SYNTAX INTEGER
+    {
+		1EXP-5 (5),
+		1EXP-6 (6),
+		1EXP-7 (7),
+		1EXP-8 (8),
+		1EXP-9 (9)
+    }	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		"User can read/write the threshold value of SD (Signal Degrade) for
+		 Local to Line PM."
+                ::= { threshold 26 }
+
+
+sdthresholdlinetolocal OBJECT-TYPE
+                SYNTAX INTEGER
+    {
+		1EXP-5 (5),
+		1EXP-6 (6),
+		1EXP-7 (7),
+		1EXP-8 (8),
+		1EXP-9 (9)
+    }	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		"User can read/write the threshold value of SD (Signal Degrade) for
+		 Line to Local PM."
+                ::= { threshold 27 }
+
+
+
+--
+-- This object provides access to 15-min Section PM Parameters for Local to Line
+--
+
+
+      
+        pmparameterlocal OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParamlocal
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Parameter."
+                ::= { pmlocaltoline 1 }
+
+        pmparamlocal OBJECT-TYPE
+                SYNTAX PMParamlocal
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoLocal }
+                ::= { pmparameterlocal 1 }
+
+        PMParamlocal ::=
+                SEQUENCE 
+				{
+					RegNoLocal
+						INTEGER,
+					DateLocal
+						DisplayString(SIZE(0..8)),
+					TimeLocal
+						DisplayString (SIZE (0..8)),
+					CVSLocal
+						DisplayString(SIZE(0..20)),
+					ESSLocal
+						DisplayString(SIZE(0..20)),
+					SESSLocal
+						DisplayString(SIZE(0..20)),
+					SEFSSLocal
+						DisplayString(SIZE(0..20)),
+					PMFlagLocal
+						INTEGER
+				}
+
+				--Cvs15minute (1 + RegNo * 4), 
+				--Ess15minute (2 + RegNo * 4),
+				--Sess15minute (3 + RegNo * 4),
+				--Sefss15minute (4 + RegNo * 4)
+				-- RegNo ranges 0-32	
+				-- 1-132 is for localtoline 		
+
+
+  RegNoLocal OBJECT-TYPE
+                SYNTAX INTEGER(1..33)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it’s 
+                         uniquely identifies the variable."
+                ::= { pmparamlocal 1 }
+
+
+    DateLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparamlocal 2 }
+
+
+   TimeLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparamlocal 3 }
+
+
+CVSLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS value corresponding to the register for local to line PM."
+                ::= { pmparamlocal 4 }
+
+ESSLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS value corresponding to the register for local to line PM."
+                ::= { pmparamlocal 5 }
+
+SESSLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS value corresponding to the register for local to line PM."
+                ::= { pmparamlocal 6 }
+
+SEFSSLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS value corresponding to the register for local to line PM."
+                ::= { pmparamlocal 7 }
+
+PMFlagLocal  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparamlocal 8 }
+
+ 
+
+--
+-- This object provides access to Digital PM Parameters-Daily for Local to Line
+--
+
+
+        pmparameterdailylocal OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParamdailylocal
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Daily Parameter."
+                ::= { pmdailylocaltoline 1 }
+
+        pmparamdailylocal OBJECT-TYPE
+                SYNTAX PMParamdailylocal
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoDLocal }
+                ::= { pmparameterdailylocal 1 }
+
+        PMParamdailylocal ::=
+                SEQUENCE 
+				{
+					RegNoDLocal
+						INTEGER,
+					DateDLocal
+						DisplayString(SIZE(0..8)),
+					TimeDLocal
+						DisplayString (SIZE (0..8)),
+					CVSDLocal
+						DisplayString(SIZE(0..20)),
+					ESSDLocal
+						DisplayString(SIZE(0..20)),
+					SESSDLocal
+						DisplayString(SIZE(0..20)),
+					SEFSSDLocal
+						DisplayString(SIZE(0..20)),
+					PMFlagDLocal
+						INTEGER
+				}
+
+				--CvsDaily (1 + RegNo * 4), 
+				--EssDaily (2 + RegNo * 4),
+				--SessDaily (3 + RegNo * 4),
+				--SefssDaily (4 + RegNo * 4)
+				-- RegNo ranges 0-1		
+
+
+  RegNoDLocal OBJECT-TYPE
+                SYNTAX INTEGER(1..2)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it’s 
+                         uniquely identifies the variable."
+                ::= { pmparamdailylocal 1 }
+
+
+    DateDLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparamdailylocal 2 }
+
+
+   TimeDLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparamdailylocal 3 }
+
+
+CVSDLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS Daily value corresponding to 
+			 the register for local to line PM."
+                ::= { pmparamdailylocal 4 }
+
+ESSDLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS Daily value corresponding to 
+			 the register for local to line PM."
+                ::= { pmparamdailylocal 5 }
+
+SESSDLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS Daily value corresponding to
+		 	 the register for local to line PM."
+                ::= { pmparamdailylocal 6 }
+
+SEFSSDLocal OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS Daily value corresponding to 
+		 	 the register for local to line PM."
+                ::= { pmparamdailylocal 7 }
+
+PMFlagDLocal  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparamdailylocal 8 }
+
+
+--
+-- This object provides access to 15-min Section PM Parameters for line to local PM
+--
+
+
+      
+        pmparameterline OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParamline
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Parameter."
+                ::= { pmlinetolocal 1 }
+
+        pmparamline OBJECT-TYPE
+                SYNTAX PMParamline
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoLine }
+                ::= { pmparameterline 1 }
+
+        PMParamline ::=
+                SEQUENCE 
+				{
+					RegNoLine
+						INTEGER,
+					DateLine
+						DisplayString(SIZE(0..8)),
+					TimeLine
+						DisplayString (SIZE (0..8)),
+					CVSLine
+						DisplayString(SIZE(0..20)),
+					ESSLine
+						DisplayString(SIZE(0..20)),
+					SESSLine
+						DisplayString(SIZE(0..20)),
+					SEFSSLine
+						DisplayString(SIZE(0..20)),
+					PMFlagLine
+						INTEGER
+				}
+
+				--Cvs15minute (1 + RegNo * 4), 
+				--Ess15minute (2 + RegNo * 4),
+				--Sess15minute (3 + RegNo * 4),
+				--Sefss15minute (4 + RegNo * 4)
+				-- RegNo ranges 0-32	
+				-- 1-132 is  for linetolocal		
+
+
+  RegNoLine OBJECT-TYPE
+                SYNTAX INTEGER(1..33)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it’s 
+                         uniquely identifies the variable."
+                ::= { pmparamline 1 }
+
+
+    DateLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparamline 2 }
+
+
+   TimeLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparamline 3 }
+
+
+CVSLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS value corresponding to the register for line to local PM."
+                ::= { pmparamline 4 }
+
+ESSLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS value corresponding to the register for line to local PM."
+                ::= { pmparamline 5 }
+
+SESSLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS value corresponding to the register for line to local PM."
+                ::= { pmparamline 6 }
+
+SEFSSLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS value corresponding to the register for line to local PM."
+                ::= { pmparamline 7 }
+
+PMFlagLine  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparamline 8 }
+
+ 
+
+--
+-- This object provides access to Digital PM Parameters-Daily for Line to Local
+--
+
+
+        pmparameterdailyline OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParamdailyline
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Daily Parameter."
+                ::= { pmdailylinetolocal 1 }
+
+        pmparamdailyline OBJECT-TYPE
+                SYNTAX PMParamdailyline
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoDLine }
+                ::= { pmparameterdailyline 1 }
+
+        PMParamdailyline ::=
+                SEQUENCE 
+				{
+					RegNoDLine
+						INTEGER,
+					DateDLine
+						DisplayString(SIZE(0..8)),
+					TimeDLine
+						DisplayString (SIZE (0..8)),
+					CVSDLine
+						DisplayString(SIZE(0..20)),
+					ESSDLine
+						DisplayString(SIZE(0..20)),
+					SESSDLine
+						DisplayString(SIZE(0..20)),
+					SEFSSDLine
+						DisplayString(SIZE(0..20)),
+					PMFlagDLine
+						INTEGER
+				}
+
+				--CvsDaily (1 + RegNo * 4), 
+				--EssDaily (2 + RegNo * 4),
+				--SessDaily (3 + RegNo * 4),
+				--SefssDaily (4 + RegNo * 4)
+				-- RegNo ranges 0-1		
+
+
+  RegNoDLine OBJECT-TYPE
+                SYNTAX INTEGER(1..2)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it’s 
+                         uniquely identifies the variable."
+                ::= { pmparamdailyline 1 }
+
+
+    DateDLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparamdailyline 2 }
+
+
+   TimeDLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparamdailyline 3 }
+
+
+CVSDLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS Daily value corresponding to
+			 the register for line to local PM."
+                ::= { pmparamdailyline 4 }
+
+ESSDLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS Daily value corresponding to 
+			 the register for line to local PM."
+                ::= { pmparamdailyline 5 }
+
+SESSDLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS Daily value corresponding to
+			 the register for line to local PM."
+                ::= { pmparamdailyline 6 }
+
+SEFSSDLine OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS Daily value corresponding to
+			 the register for line to local PM."
+                ::= { pmparamdailyline 7 }
+
+PMFlagDLine  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparamdailyline 8 }
+
+
+
+--
+-- This object provides access to all the 15-Minute Physical PM Parameters
+--
+
+
+        physical OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMphysical
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Daily Parameter."
+                ::= { physicalpm 1 }
+
+        physicalparam OBJECT-TYPE
+                SYNTAX PMphysical
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoA }
+                ::= { physical 1 }
+
+        PMphysical ::=
+                SEQUENCE 
+				{
+					RegNoA
+						INTEGER,
+					DateA
+						DisplayString(SIZE(0..8)),
+					TimeA
+						DisplayString (SIZE (0..8)),
+					OPT
+						DisplayString(SIZE(0..20)),
+					OPR
+						DisplayString(SIZE(0..20)),
+					LBC
+						DisplayString(SIZE(0..20)),
+					LTEM
+						DisplayString(SIZE(0..20)),
+					PMFlagA
+						INTEGER
+								
+				}
+
+				--OPT (1 + RegNo * 4), 
+				--OPR (2 + RegNo * 4),
+				--LBC (3 + RegNo * 4),
+				--LTEM (4 + RegNo * 4)
+				-- RegNo ranges 0-32	
+
+
+  RegNoA OBJECT-TYPE
+                SYNTAX INTEGER(1..33)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it’s 
+                         uniquely identifies the variable."
+                ::= { physicalparam 1 }
+
+
+    DateA OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { physicalparam 2 }
+
+
+   TimeA OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { physicalparam 3 }
+
+
+OPT OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the Laser Power corresponding to the register."
+                ::= { physicalparam 4 }
+
+OPR OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the Received optical power corresponding to the register."
+                ::= { physicalparam 5 }
+
+LBC OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the Laser Bias current corresponding to the register."
+                ::= { physicalparam 6 }
+
+LTEM OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the Laser Temperature corresponding to the register."
+                ::= { physicalparam 7 }
+
+PMFlagA  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { physicalparam 8 }
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+	SYNTAX IpAddress
+	ACCESS read-write
+	STATUS mandatory
+	DESCRIPTION
+		"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+
+		SYNTAX INTEGER  
+
+		{
+
+			no-action(1),
+
+			start-software-download(2)
+
+		}
+
+		ACCESS read-write
+
+		STATUS mandatory
+
+		DESCRIPTION
+
+		    "Get or Set download state.
+
+			no-action(1)			- no TFTP activity
+
+			start-software-download(2) 	- srtart software download"
+
+		::= { tftp 3 }
+
+
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+
+
+--
+--
+-- Inventory information Group
+--
+--
+
+	hardwareRevision OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..5))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Hardware Revision for this circuit pack.
+			 Format is nn.nn
+			 (n = 0..9)"
+		::= { inventory 1 }
+
+	gmCLEICode OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..10))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Common Language Equipment Identification (CLEI) code
+			 for this circuit pack.
+			 Format is alpha-numeric ASCII string."
+		::= { inventory 2 }
+
+
+	serialNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..11))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Serial Number for this circuit pack.
+			 Format is $$$$$$$$$$$
+			 where $ is printable character."
+		::= { inventory 3 }
+
+	partNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..11))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Part Number for this circuit pack.
+			 Format is nn-nnnnn-nn
+			 where 	n = 0..9"
+		::= { inventory 4 }
+
+	mfgDate OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..12))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Manufacturing Date for this circuit pack.
+			 Format is mm/dd/yyyy"
+		::= { inventory 5 }
+   
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+LOCALARMLOCALTOLINE 	TRAP-TYPE
+	     		ENTERPRISE gigaMuxOC48
+	    		ACTIONS {critical}
+			CLEARS {2}
+	    		MESG "Input Clock-Failed:ALARM, Local"
+	    		DESCRIPTION
+		  	"Generated when LOC state from 'No'
+		   	to 'Yes' for local to line."
+	    		::= 1
+
+LOCNormalLOCALTOLINE	 TRAP-TYPE
+	    		ENTERPRISE gigaMuxOC48
+	   		 ACTIONS {normal}
+			CLEARS {1}
+	    		MESG "Input Clock-Normal/Clear, Local."
+	    		DESCRIPTION
+		  	"Generated when Loss of Clock (LOC) changes state from 'Yes' or 
+               		'failure' to 'normal' for local to line."
+	    		::= 2
+
+LOCALARMLINETOLOCAL 	TRAP-TYPE
+	     		ENTERPRISE gigaMuxOC48
+	    		ACTIONS {critical}
+			CLEARS {4}
+	    		MESG "Input Clock-Failed:ALARM, Line"
+	    		DESCRIPTION
+		  	"Generated when LOC state from 'No'
+		   	to 'Yes' for line to local."
+	    		::= 3
+
+LOCNormalLINETOLOCAL	 TRAP-TYPE
+	    		ENTERPRISE gigaMuxOC48
+	   		 ACTIONS {normal}
+			CLEARS {3}
+	    		MESG "Input Clock-Normal/Clear, Line."
+	    		DESCRIPTION
+		  	"Generated when Loss of Clock (LOC) changes state from 'Yes' or 
+               		'failure' to 'normal for line to local'."
+	    		::= 4
+
+ 
+LOSALARMLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+            CLEARS {6, 9, 10, 13, 14, 17, 18, 30, 31, 34}
+	    MESG "Loss of Signal(LOS)-FAILED:ALARM, Local."
+	    DESCRIPTION
+		  "Generated when Loss of Signal (LOS) changes state from 'normal'
+		   to 'failed' for local to line."
+	    ::= 5
+
+LOSNormalLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {5}
+	    MESG "Loss of Signal(LOS)-Normal/Clear, Local."
+	    DESCRIPTION
+		  "Generated when Loss of Signal (LOS) changes state from 'Yes' or 
+               'failure' to 'normal' for local to line."
+	    ::= 6
+
+LOSALARMLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {8, 11, 12, 15, 16, 19, 20, 34, 40, 44}
+	    MESG "Loss of Signal(LOS)-FAILED:ALARM, Line."
+	    DESCRIPTION
+		  "Generated when Loss of Signal (LOS) changes state from 'normal'
+		   to 'failed' for line to local."
+	    ::= 7
+
+LOSNormalLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {7}
+	    MESG "Loss of Signal(LOS)-Normal/Clear, Line."
+	    DESCRIPTION
+		  "Generated when Loss of Signal (LOS) changes state from 'Yes' or 
+               'failure' to 'normal' for line to local."
+	    ::= 8
+
+
+LOFALARMLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {10, 13, 14, 17, 18, 30, 31, 34, 40, 44}
+	    MESG "Loss of Frame(LOF)-FAILED:ALARM., Local."
+	    DESCRIPTION
+		  "Generated when Loss of Frame (LOF) changes state from 'normal'
+		   to 'failed' for local to line."
+	    ::= 9
+
+LOFNormalLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {9}
+	    MESG "Loss of Frame(LOF)-Normal/Clear, Local."
+	    DESCRIPTION
+		  "Generated when Loss of Frame (LOF) changes state from 'Yes' or 
+               'failure' to 'normal' for local to line."
+	    ::= 10
+
+LOFALARMLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {12, 15, 16, 19, 20, 34, 40, 44, 46}
+	    MESG "Loss of Frame(LOF)-FAILED:ALARM, Line."
+	    DESCRIPTION
+		  "Generated when Loss of Frame (LOF) changes state from 'normal'
+		   to 'failed' for line to local."
+	    ::= 11
+
+LOFNormalLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {11}
+	    MESG "Loss of Frame(LOF)-Normal/Clear, Line."
+	    DESCRIPTION
+		  "Generated when Loss of Frame (LOF) changes state from 'Yes' or 
+               'failure' to 'normal' for line to local."
+	    ::= 12
+
+
+SDALARMLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {14, 30, 31, 34, 40, 44, 46}
+	    MESG "Signal Degrade (SD)-FAILED:ALARM, Local."
+	    DESCRIPTION
+		  "Generated when Signal Degrade (SD) changes state from 'normal'
+		   to 'failed' for local to line."
+	    ::= 13
+
+SDNormalLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {13}
+	    MESG "Signal Degrade (SD)-Normal/Clear, Local."
+	    DESCRIPTION
+		  "Generated when Signal Degrade (SD) changes state from 'Yes' or 
+               'failure' to 'normal' for local to line."
+	    ::= 14
+
+SDALARMLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {16, 34, 40, 44, 46}
+	    MESG "Signal Degrade (SD)-FAILED:ALARM, Line."
+	    DESCRIPTION
+		  "Generated when Signal Degrade (SD) changes state from 'normal'
+		   to 'failed' for line to local."
+	    ::= 15
+
+SDNormalLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {15}
+	    MESG "Signal Degrade (SD)-Normal/Clear, Line."
+	    DESCRIPTION
+		  "Generated when Signal Degrade (SD) changes state from 'Yes' or 
+               'failure' to 'normal' for line to local."
+	    ::= 16
+
+
+SFALARMLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {18, 13, 14, 30, 31, 34, 40, 44, 46}
+	    MESG "Signal Fail (SF)-FAILED:ALARM, Local."
+	    DESCRIPTION
+		  "Generated when Signal Fail (SF) changes state from 'normal'
+		   to 'failed' for local to line."
+	    ::= 17
+
+SFNormalLOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {17}
+	    MESG "Signal Fail (SF)-Normal/Clear, Local."
+	    DESCRIPTION
+		  "Generated when Signal Fail (SF) changes state from 'Yes' or 
+               'failure' to 'normal' for local to line."
+	    ::= 18
+
+SFALARMLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {20, 15, 16, 34, 40, 44, 46}
+	    MESG "Signal Fail (SF)-FAILED:ALARM, Line."
+	    DESCRIPTION
+		  "Generated when Signal Fail (SF) changes state from 'normal'
+		   to 'failed' for line to local."
+	    ::= 19
+
+SFNormalLINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {19}
+	    MESG "Signal Fail (SF)-Normal/Clear, Line."
+	    DESCRIPTION
+		  "Generated when Signal Fail (SF) changes state from 'Yes' or 
+               'failure' to 'normal' for line to local."
+	    ::= 20
+
+
+LBCALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {22, 25}
+	    MESG "Laser Bias (LBC)-FAILED:ALARM."
+	    DESCRIPTION
+		  "Generated when Laser Bias (LBC) changes state from 'normal'
+		   to 'failed'."
+	    ::= 21
+
+LBCNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+     	    CLEARS {25}
+	    MESG "Laser Bias (LBC)-Normal/Clear."
+	    DESCRIPTION
+		  "Generated when Laser Bias (LBC) changes state from 'Yes' or 
+               'failure' to 'normal'."
+	    ::= 22
+
+LTEMALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {24}
+	    MESG "Laser Temp (LTEM)-FAILED:ALARM."
+	    DESCRIPTION
+		  "Generated when Laser Temp (LTEM) changes state from 'normal'
+		   to 'failed'."
+	    ::= 23
+
+LTEMNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {23}
+	    MESG "Laser Temp (LTEM)-Normal/Clear."
+	    DESCRIPTION
+		  "Generated when Laser Temp (LTEM) changes state from 'Yes' or 
+               'failure' to 'normal'."
+	    ::= 24
+
+
+LBCHighTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {22}
+	    MESG "Laser Bias High-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Bias changes state from 'normal'
+		   to 'High'."
+	    ::= 25
+
+LTEMHighTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {27}
+	    MESG "Laser Temp High-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Temp changes state from 'normal'
+		   to 'High'."
+	    ::= 26
+
+LTEMLowTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {26}
+	    MESG "Laser Temp Low-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Temp changes state from 'normal'
+		   to 'Low'."
+	    ::= 27
+
+
+OPTHighTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {29}
+	    MESG "Laser Power High-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Output Power changes state from 'normal'
+		   to 'high'."
+	    ::= 28
+
+OPTLowTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {28}
+	    MESG "Laser Power Low-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Output Power changes state from 'normal'
+		   to 'Low'."
+	    ::= 29
+
+OPRHighTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {31}
+	    MESG "OPR High -TCA."
+	    DESCRIPTION
+		  "Generated when Received Power changes state from 'normal'
+		   to 'high'."
+	    ::= 30
+
+OPRLowTCA TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    CLEARS {30}
+	    MESG "OPR Low -TCA."
+	    DESCRIPTION
+		  "Generated when Received Power changes state from 'normal'
+		   to 'Low'."
+	    ::= 31
+
+
+15minuteTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "15-Minute TRAP."
+	    DESCRIPTION
+		  "Generated every time at the end of 15 minute according to the NE 
+                   real clock."
+			    ::= 32
+
+DailyTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "Daily TRAP."
+	    DESCRIPTION
+		  "Generated every time at the end of 24 hours according to the NE 
+               	   real clock."
+			    ::= 33
+
+
+CVS15MINTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "CVS 15-Minute -TCA, Local."
+	    DESCRIPTION
+	      "Generated when CVS accumulation crosses the 
+               threshold limit for the 15 minute duration for local to line PM." 
+			    ::= 34
+
+CVS15MINTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "CVS 15-Minute -TCA, Line."
+	    DESCRIPTION
+	      "Generated when CVS accumulation crosses the 
+               threshold limit for the 15 minute duration for line to local PM." 
+			    ::= 35
+
+ESS15MINTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "ESS 15-Minute -TCA, Local."
+	    DESCRIPTION
+	      "Generated when ESS accumulation crosses the 
+               threshold limit for the 15 minute duration for local to line PM." 
+			    ::= 36
+
+ESS15MINTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "ESS 15-Minute -TCA, Line."
+	    DESCRIPTION
+	      "Generated when ESS accumulation crosses the 
+               threshold limit for the 15 minute duration for line to local PM." 
+			    ::= 37
+
+
+SESS15MINTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SESS 15-Minute -TCA, Local."
+	    DESCRIPTION
+	      "Generated when SESS accumulation crosses the 
+               threshold limit for the 15 minute duration for local to line PM."
+			    ::= 38
+
+SESS15MINTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SESS 15-Minute -TCA, Line."
+	    DESCRIPTION
+	      "Generated when SESS accumulation crosses the 
+               threshold limit for the 15 minute duration for line to local PM."
+			    ::= 39
+
+
+SEFSS15MINTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SEFSS 15-Minute -TCA, Local."
+	    DESCRIPTION
+	      "Generated when SEFSS accumulation crosses the 
+               threshold limit for the 15 minute duration for local to line PM."
+			    ::= 40
+
+SEFSS15MINTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SEFSS 15-Minute -TCA, Line."
+	    DESCRIPTION
+	      "Generated when SEFSS accumulation crosses the 
+               threshold limit for the 15 minute duration for line to local PM."
+			    ::= 41
+
+
+CVSDAILYTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "CVS Daily -TCA, Local."
+	    DESCRIPTION
+	      "Generated when CVS accumulation crosses the 
+               threshold limit for 24 hour duration for local to line PM."
+			    ::= 42
+
+CVSDAILYTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "CVS Daily -TCA, Line."
+	    DESCRIPTION
+	      "Generated when CVS accumulation crosses the 
+               threshold limit for 24 hour duration for line to local PM."
+			    ::= 43
+
+
+ESSDAILYTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "ESS Daily -TCA, Local."
+	    DESCRIPTION
+   		"Generated when ESS accumulation crosses the 
+                 threshold limit for 24 hour duration for local to line PM."
+			    ::= 44
+
+ESSDAILYTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "ESS Daily -TCA, Line."
+	    DESCRIPTION
+   		"Generated when ESS accumulation crosses the 
+                 threshold limit for 24 hour duration for line to local PM."
+			    ::= 45
+
+
+SESSDAILYTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SESS Daily -TCA, Local."
+	    DESCRIPTION
+		  "Generated when SESS accumulation crosses the 
+                   threshold limit for 24 hour duration for local to line PM."
+			    ::= 46
+
+SESSDAILYTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SESS Daily -TCA, Line."
+	    DESCRIPTION
+		  "Generated when SESS accumulation crosses the 
+                   threshold limit for 24 hour duration for line to local PM."
+			    ::= 47
+
+SEFSSDAILYTCALOCALTOLINE TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SEFSS Daily -TCA, Local."
+	    DESCRIPTION
+		  "Generated when SEFSS accumulation crosses the 
+                   threshold limit for 24 hour duration for local to line PM."
+			    ::= 48
+
+SEFSSDAILYTCALINETOLOCAL TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {warning}
+	    MESG "SEFSS Daily -TCA, Line."
+	    DESCRIPTION
+		  "Generated when SEFSS accumulation crosses the 
+                   threshold limit for 24 hour duration for line to local PM."
+			    ::= 49
+
+OPTALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {51}
+	    MESG "Laser Power (OPT)-FAILED:ALARM."
+	    DESCRIPTION
+		  "Generated when Laser Power (OPT) changes state from 'normal'
+		   to 'failed'."
+	    ::= 50
+
+OPTNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {50}
+	    MESG "Laser Power (OPT)-Normal/Clear."
+	    DESCRIPTION
+		  "Generated when Laser Power (OPT) changes state from 'Yes' or 
+               'failure' to 'normal'."
+	    ::= 51
+
+OPRALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {critical}
+	    CLEARS {53}
+	    MESG "Optical Power Received (OPR)-FAILED:ALARM."
+	    DESCRIPTION
+		  "Generated when Optical Power Received (OPR) changes state from 'normal'
+		   to 'failed'."
+	    ::= 52
+
+OPRNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    CLEARS {52}
+	    MESG "Optical Power Received (OPR)-Normal/Clear."
+	    DESCRIPTION
+		  "Generated when Optical Power Received (OPR) changes state from 'Yes' or 
+               'failure' to 'normal'."
+	    ::= 53
+
+LocalTimingForcedSelectionFailed TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {major}
+	    MESG "Local Clock Manual selection failed."
+	    DESCRIPTION
+		  "Generated when manually selected clock source for the local 
+                   interface has changed."
+	    ::= 54
+
+LineTimingForcedSelectionFailed TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {major}
+	    MESG "Line Clock Manual selection failed."
+	    DESCRIPTION
+		  "Generated when manually selected clock source for the line 
+                   interface has changed."
+	    ::= 55
+
+ExternalTimingReferenceFailed TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {major}
+	    MESG "Timing card failed."
+	    DESCRIPTION
+		  "Generated when timing card failed."
+	    ::= 56
+
+ExternalTimingReferenceNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    MESG "Timing card available."
+	    DESCRIPTION
+		  "Generated when timing card becomes available from failed status."
+	    ::= 57
+
+-- 58 and 59 reserved for TimingCard A!
+-- ExternalTimingReferenceAFailed TRAP-TYPE
+-- 	    ENTERPRISE gigaMuxOC48
+-- 	    ACTIONS {major}
+-- 	    MESG "Timing card failed."
+-- 	    DESCRIPTION
+-- 		  "Generated when timing card failed."
+-- 	    ::= 58
+
+-- ExternalTimingReferenceANormal TRAP-TYPE
+-- 	    ENTERPRISE gigaMuxOC48
+-- 	    ACTIONS {normal}
+-- 	    MESG "Timing card available."
+-- 	    DESCRIPTION
+-- 		  "Generated when timing card becomes available from failed status."
+-- 	    ::= 59
+--
+
+tftpDownloadFailed TRAP-TYPE
+		ENTERPRISE gigaMuxOC48
+		VARIABLES { tftpStatus }
+		ACTIONS {major}
+		CLEARS {55}
+		MESG "TFTP download failed"
+		DESCRIPTION
+			"TFTP download operation failed.
+			 tftpStatus is the error code."
+		::= 60
+
+tftpDownloadSuccessful TRAP-TYPE
+		ENTERPRISE gigaMuxOC48
+		ACTIONS {normal}
+		CLEARS {54}
+		MESG "TFTP download successful"
+		DESCRIPTION
+			"TFTP download operation was successful.
+			 Card will automatically reset and boot up with new image."
+		::= 61
+
+LocalTimingForcedSelectionNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    MESG "Local Clock Manual selection normal."
+	    DESCRIPTION
+		  "Generated when manually selected clock source for the local 
+                   interface has changed back to normal."
+	    ::= 62
+
+LineTimingForcedSelectionNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    MESG "Line Clock Manual selection normal."
+	    DESCRIPTION
+		  "Generated when manually selected clock source for the line 
+                   interface has changed back to normal."
+	    ::= 63
+
+AutoTimingSelectionLocalChanged TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+      VARIABLES { AutoTimingEntryID }
+	    ACTIONS {normal}
+	    MESG "Clock source changed in AUTO selection mode."
+	    DESCRIPTION
+		  "Generated when clock source from the priority list 
+                   has changed on the local interface."
+	    ::= 64
+
+AutoTimingSelectionLineChanged TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+      VARIABLES { AutoTimingEntryID }
+	    ACTIONS {normal}
+	    MESG "Clock source changed in AUTO selection mode."
+	    DESCRIPTION
+		  "Generated when clock source from the priority list 
+                   has changed on the line interface."
+	    ::= 65
+
+LocalThruLineLoopTimingFailed TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {major}
+	    MESG "Local THRU (same as Line LOOP) timing failed."
+	    DESCRIPTION
+		  "Generated when Local THRU or Line LOOP timing failed."
+	    ::= 66
+
+LocalThruLineLoopTimingNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    MESG "Local THRU (same as Line LOOP) timing normal."
+	    DESCRIPTION
+		  "Generated when Local THRU or Line LOOP timing changed to normal."
+	    ::= 67
+
+LineThruLocalLoopTimingFailed TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {major}
+	    MESG "Line THRU (same as Local LOOP) timing failed."
+	    DESCRIPTION
+		  "Generated when Line THRU or Local LOOP timing failed."
+	    ::= 68
+
+LineThruLocalLoopTimingNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC48
+	    ACTIONS {normal}
+	    MESG "Line THRU (same as Local LOOP) timing normal."
+	    DESCRIPTION
+		  "Generated when Line THRU or Local LOOP timing changed to normal."
+	    ::= 69
+
+       END

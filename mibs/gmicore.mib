@@ -1,0 +1,167 @@
+--
+-- Sorrento Networks Private MIB for iCore Cards.
+--
+--
+-- This MIB file is to be used with iCore cards version 1.0.0 
+-- or greater. 
+--
+-- Revision 1.0.0	04/15/2002	Chung Wong
+-- Initial version
+--
+-- Copyright 2002, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification, including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of 
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+
+
+	GMUX-iCore-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+osicomTechnologies  OBJECT IDENTIFIER ::= { enterprises 2522 }
+gigaNest            OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+gigaMuxiCore        OBJECT IDENTIFIER ::= { gigaNest 31 }
+moduleInfo          OBJECT IDENTIFIER ::= { gigaMuxiCore 1 }
+portConf            OBJECT IDENTIFIER ::= { gigaMuxiCore 2 }
+
+--
+--
+-- Module information Group
+--
+--
+
+moduleID OBJECT-TYPE
+		     SYNTAX DisplayString (SIZE (0..16))
+		     ACCESS read-only
+		     STATUS mandatory
+		     DESCRIPTION
+			     "Module ID (i.e. card type name)"
+		     ::= { moduleInfo 1 }
+
+--
+-- port information
+--
+
+pcparameter     OBJECT-TYPE
+                SYNTAX SEQUENCE OF PortConfParam
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                "This object gives access to port configuration info."
+                ::= { portConf 1 }
+
+pcparam         OBJECT-TYPE
+                SYNTAX PortConfParam
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                ""
+                INDEX   { pcEntryNo }
+                ::= { pcparameter 1 }
+
+                PortConfParam ::=
+                    SEQUENCE 
+                {
+                  pcEntryNo
+                    INTEGER,
+                  portName
+                    DisplayString(SIZE(0..20)),
+                  wavelength
+                    DisplayString(SIZE(0..25)),
+                  insertionLoss
+                    DisplayString(SIZE(0..25))
+               }
+
+               -- pcEntryNo ranges 1-10 on all module types.
+               -- Since not all iCore cards have the same numbers 
+               -- of entries, unused entries have the value 
+               -- ".. N/A .." (Not Applicable).
+               -- GMMD:       10 entries
+               -- GMAD:       4 entries
+               -- GMER/B-C/L: 8 entries
+               -- GMRB-C/L:   4 entries 
+               -- GMFTi-C:    6 entries
+               -- GMFTi-CL:   10 entries
+               -- GMBP:       8 entires
+
+pcEntryNo       OBJECT-TYPE
+                SYNTAX INTEGER(1..10)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                "Number for this entry in the Insertion Loss table."
+                ::= { pcparam 1 }
+
+portName        OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+    		        DESCRIPTION
+                "Port name."
+                ::= { pcparam 2 }
+
+wavelength      OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..25))
+                ACCESS read-only
+                STATUS mandatory
+    		        DESCRIPTION
+                "Wavelength(s) assigned to this port."
+                ::= { pcparam 3 }
+
+insertionLoss   OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..25))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                "Value of the path Insertion Loss."
+                ::= { pcparam 4}
+
+
+--
+--
+--  Enterprise specific traps
+--
+-- 
+--
+
+tftpDownloadFailed TRAP-TYPE
+		ENTERPRISE gigaMuxiCore
+		VARIABLES { tftpStatus }
+		ACTIONS {major}
+		MESG "tftp download failed. Status:$1"
+		DESCRIPTION
+			"TFTP download operation failed.
+			 tftpStatus is the error code."
+		::= 1
+
+tftpDownloadSuccessful TRAP-TYPE
+		ENTERPRISE gigaMuxiCore
+		ACTIONS {normal}
+		MESG "tftp download was successful."
+		DESCRIPTION
+			"TFTP download operation was successful.
+			 Card will automatically reset and boot up with new image."
+		::= 2
+
+       END

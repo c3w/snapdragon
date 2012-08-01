@@ -1,0 +1,78 @@
+#!/bin/sh
+
+SENDMAIL_BIN="/usr/lib/sendmail"
+EMAIL_INBOX="snapdragon"
+IMPRINT_LOG="/data/snapdragon/logs/imprint.log"
+IMPRINT_DIR="/data/snapdragon/imprints"
+IMPRINT_ALERT="/data/snapdragon/logs/imprint.alert"
+AFFECTED_DIR="/data/snapdragon/affected"
+HISTORY_DIR="/data/snapdragon/history"
+LINKSTATE_FILE="/data/snapdragon/etc/linkstates"
+DATE_STR=$(date)
+
+#MD5_ORIG=$(md5sum ${IMPRINT_LOG}|awk '{print $1}')
+#sleep 10
+#MD5_NEW=$(md5sum ${IMPRINT_LOG}|awk '{print $1}')
+#
+#if [ ${MD5_ORIG} != ${MD5_NEW} ]; then {
+#exit;
+#}; fi
+
+### FINGERPRINT LOGIC
+cd ${IMPRINT_DIR}
+  for imprint_area in *; do {
+    cd ${imprint_area}
+      for imprint in *; do {
+        nomatch=0;
+	for keyword in $(cat ${imprint}); do {
+        if ( ! grep -i ${keyword} ${IMPRINT_LOG}>/dev/null ); then {
+	export nomatch=1;
+	}; fi	
+	export IMPRINT_FILE=${imprint}
+	export IMPRINT_AREA=${imprint_area}
+	}; done
+	if [ ${nomatch} == 0 ]; then {
+	  for linkstate in $(cat ${LINKSTATE_FILE}); do {
+	    if ( grep -i ${linkstate} ${IMPRINT_LOG}>/dev/null ); then {
+		export LINKSTATE=${linkstate}
+	    }; fi
+	    }; done
+	}; fi
+	if [ ${LINKSTATE}x != ""x ]; then {
+
+iF=${IMPRINT_FILE}
+
+cat > ${IMPRINT_ALERT} << EOF
+From: {snapdragon} <snapdragon@ipncore.com>
+Subject: ${iF} ${LINKSTATE}
+
+customers affected:
+EOF
+cat ${AFFECTED_DIR}/${iF} >> ${IMPRINT_ALERT}
+
+cat >> ${IMPRINT_ALERT} <<EOF
+
+flap-5 history:
+EOF
+if [ -f ${HISTORY_DIR}/${iF} ]; then {
+	tail -5 ${HISTORY_DIR}/${iF} >> ${IMPRINT_ALERT}
+}; fi
+
+cat >> ${IMPRINT_ALERT} <<EOF
+
+keywords matched:
+EOF
+cat ${IMPRINT_DIR}/${IMPRINT_AREA}/${IMPRINT_FILE} >> ${IMPRINT_ALERT}
+echo ${LINKSTATE} >> ${IMPRINT_ALERT}
+
+	echo "${DATE_STR} ${LINKSTATE}" >> ${HISTORY_DIR}/${iF}
+	${SENDMAIL_BIN} ${EMAIL_INBOX} < ${IMPRINT_ALERT}
+	export LINKSTATE="";
+	rm -f ${IMPRINT_LOG}
+	exit;
+	}; fi
+	
+}; done
+cd ..
+}; done	
+rm -f ${IMPRINT_LOG}

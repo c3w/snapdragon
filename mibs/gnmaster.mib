@@ -1,0 +1,1047 @@
+--
+-- Sorrento Networks Private MIB for the GigaMux Management Card.
+--
+--
+-- Revision 2.7	06/03/2002	mjagtap
+-- 1. Added 'inventory' group.
+--
+-- Modification History
+--
+-- Revision 2.6	02/28/2001	mjagtap
+-- 1. Added slotCardType as second variable in cardDetected,
+--    cardRemoved traps.
+-- 2. Added tftp group and traps.
+--
+-- Revision 2.5	01/14/2001	ndhameja
+-- 1. Credit for Sorrento Networks.
+-- 2. Removed SNMPc specific messages.
+--
+-- Revision 2.4  2000/03/01 22:47:24  mjagtap
+-- Credit for Sorrento Networks.
+--
+-- Revision 2.3  2000/03/01 22:34:19  mjagtap
+-- fanStatus group and alarms added.
+--
+-- Revision 2.2  1999/12/21 17:08:20  mjagtap
+-- Same as SCCS ID:2.1.13
+--
+-- SCCS ID  gnmaster.mib Revision 2.1.13	12/14/99
+--
+--
+-- This MIB file is to be used with GigaMux Management Card version 2.3.00
+-- or greater. Previous versions may not return all variables.
+--
+-- Copyright 2000, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks 
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento 
+-- Networks' products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of Sorrento 
+-- Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+
+	GNest-Manager-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		enterprises, IpAddress
+			FROM RFC1155-SMI
+		DisplayString
+			FROM RFC1213-MIB
+		OBJECT-TYPE
+			FROM RFC-1212
+		TRAP-TYPE
+			FROM RFC-1215;
+
+	osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaNestManager		OBJECT IDENTIFIER ::= { gigaNest 1 }
+		nestStatus	OBJECT IDENTIFIER ::= { gigaNestManager 1 }
+		slotStatus	OBJECT IDENTIFIER ::= { gigaNestManager 2 }
+		slotConfig	OBJECT IDENTIFIER ::= { gigaNestManager 3 }
+		unit		OBJECT IDENTIFIER ::= { gigaNestManager 4 }
+		management	OBJECT IDENTIFIER ::= { gigaNestManager 5 }
+		client		OBJECT IDENTIFIER ::= { gigaNestManager 6 }
+		fanStatus	OBJECT IDENTIFIER ::= { gigaNestManager 7 }
+		tftp		OBJECT IDENTIFIER ::= { gigaNestManager 8 }
+		inventory	OBJECT IDENTIFIER ::= { gigaNestManager 9 }
+
+--
+--
+--	Manager card Status group
+--
+--	Contains some Nest summary information.
+--	Notably, temperature and power supply status.
+--
+--
+
+	nestAlarmStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"nestAlarmStatus indicates whether any alarms
+			 are present on this GigaNest or used to clear alarm."
+		::= { nestStatus 1 }
+
+	nestTemperatureCelsius OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"nestTemperature is the temperature in
+			 Celsius inside of the GigaNest."
+		::= { nestStatus 2 }
+
+	rack1Power1Pos12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack1Power1Pos12v describes the status of
+			 the +12 volt supply on rack 1, power supply 1."
+		::= { nestStatus 3 }
+
+	rack1Power1Neg12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack1Power1Neg12v describes the status of
+			 the -12 volt supply on rack 1, power supply 1."
+		::= { nestStatus 4 }
+
+	rack1Power2Pos12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack1Power2Pos12v describes the status of
+			 the +12 volt supply on rack 1, power supply 2."
+		::= { nestStatus 5 }
+
+	rack1Power2Neg12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack1Power2Neg12v describes the status of
+			 the -12 volt supply on rack 1, power supply 2."
+		::= { nestStatus 6 }
+
+	rack2Power1Pos12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack2Power1Pos12v describes the status of
+			 the +12 volt supply on rack 2, power supply 1."
+		::= { nestStatus 7 }
+
+	rack2Power1Neg12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack2Power1Neg12v describes the status of
+			 the -12 volt supply on rack 2, power supply 1."
+		::= { nestStatus 8 }
+
+	rack2Power2Pos12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack2Power2Pos12v describes the status of
+			 the +12 volt supply on rack 2, power supply 2."
+		::= { nestStatus 9 }
+
+	rack2Power2Neg12v OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			alarm(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"rack2Power2Neg12v describes the status of
+			 the -12 volt supply on rack 2, power supply 2."
+		::= { nestStatus 10 }
+
+--
+--
+--	Card/Slot Status group
+--
+--	This is a table, one entry per slot, containing some summary
+--	information about the state of the card in the slot.
+--
+--
+
+	slotStatusTable OBJECT-TYPE
+		SYNTAX	SEQUENCE OF SlotStatusEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Card/Slot status summary."
+		::= { slotStatus 1 }
+
+	slotStatusEntry OBJECT-TYPE
+		SYNTAX	SlotStatusEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Entry for each slot in the rack."
+		INDEX	{ slotCardSlot }
+		::= { slotStatusTable 1 }
+
+	SlotStatusEntry ::=
+		SEQUENCE
+		{
+			slotCardSlot
+				INTEGER,
+			slotCardName
+				DisplayString,
+			slotCardType
+				DisplayString,
+			slotCardStatus
+				INTEGER
+		}
+
+	slotCardSlot OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The physical slot number, 1..16."
+		::= { slotStatusEntry 1 }
+
+	slotCardName OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"An optional 8 character mnemonic identifying
+			 the card. See slotConfigTable/cardName."
+		::= { slotStatusEntry 2 }
+
+	slotCardType OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Describes the type of card in the slot."
+		::= { slotStatusEntry 3 }
+
+	slotCardStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			accessible(1),
+			detected(2),
+			empty(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The management state of the card in the slot.
+			 accessable(1) - SNMP/telnet is operational.
+			 detected(2)   - A channel card is present, but
+					 communication has not yet been
+					 established.
+			 empty(3)      - No card is active in the slot."
+		::= { slotStatusEntry 4 }
+
+--
+--
+--	Card/Slot Configuration group
+--
+--	Each card in the GigaNest requires an IP address in order
+--	to permit its SNMP management. This table contains the IP
+--	addresses which will be assigned to the card residing in
+--	each slot of the rack.
+--
+--
+
+	slotConfigTable OBJECT-TYPE
+		SYNTAX	SEQUENCE OF SlotConfigEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Card/Slot configuration of GigaNest."
+		::= { slotConfig 1 }
+
+	slotConfigEntry OBJECT-TYPE
+		SYNTAX	SlotConfigEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Describes a card configuration for a
+			 GigaNest slot."
+		INDEX	{ slotIndex }
+		::= { slotConfigTable 1 }
+
+	SlotConfigEntry ::=
+		SEQUENCE {
+			slotIndex
+				INTEGER,
+			slotIpAddress
+				IpAddress,
+			cardName
+				DisplayString
+		   }
+
+	slotIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The physical slot number, 1..16."
+		::= { slotConfigEntry 1 }
+
+	slotIpAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"The IP address for the card in this slot."
+		::= { slotConfigEntry 2 }
+
+	cardName OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..8))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"An optional 8 character mnemonic which is
+			 hopefully useful in describing the card in
+			 this slot."
+		::= { slotConfigEntry 3 }
+
+--
+--
+--	Unit group
+--
+--	Miscellaneous objects which provide the SNMP manager
+--	some useful functions available via the console/telnet
+--	interface.
+--
+--
+
+	unitFirmwareRevision OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"unitFirmwareRevision indicates the version
+			 number of the GigaNest Manager firmware."
+		::= { unit 1 }
+
+	unitResetCommand OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			noAction(1),
+			warmResetNow(2),
+			defaultResetNow(3),
+			restart-and-BootP(4),
+			restart-and-Download(5)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"unitResetCommand resets the GigaNest Manager.
+			 noAction(1)	 - No action taken.
+			 warmResetNow(2) - Causes a warm restart of
+					   the GigaNest Manager.
+			 defaultResetNow(3)
+			                 - Set default configuration and
+			                   then warm restart.
+			 restart-and-BootP(4)
+			                 - Warm restart and then use BootP
+			                   to download new operational
+			                   software.
+			 restart-and-Download(5)
+			                 - Warm restart and then use TFTP
+			                   to download new operational
+			                   software.
+			 The default is noAction(1)."
+		::= { unit 2 }
+
+	saveConfigToFlash OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			saveConfigurationNow(1),
+			noCommand(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"When set to saveConfigurationNow, the current
+			 unit configuration will be stored into
+			 non-volatile (flash) memory. If this is not
+			 done, then after the next system restart, the
+			 previously saved configuration is used."
+		::= { unit 3 }
+
+	unitNestConfig OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oneFullDensity(1),
+			oneHalfDensity(2),
+			twoHalfDensity(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Selects method of numbering slots:
+			 oneFullDensity(1) - One nest, all slots used, 1..16.
+			 oneHalfDensity(2) - One nest, odd slots used.
+			 twoHalfDensity(2) - Two nests odd slots used, 1..8
+					     in top, 9..16 in bottom.
+			 The default is oneFullDensity(1)."
+		::= { unit 4 }
+
+	unitConfigChanged OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			no(1),
+			yes(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"When set to yes(2), this object indicates that
+			 some element of the configuration has been
+			 changed but is not saved into non-volatile
+			 storage. Setting saveConfigToFlash to 1 will
+			 save the configuration and reset this object
+			 to no(1)."
+		::= { unit 5 }
+
+	unitAlarmContacts OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			disabled(1),
+			nestAlarmsOnly(2),
+			nestAlarms-and-ChannelCardTraps(3)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Determines what events will trip the alarm contacts:
+			 disabled(1)       - Contacts inoperative.
+			 nestAlarmsOnly(2) - Power supply and temperature.
+			 nestAlarms-and-ChannelCardTraps(3)
+			                   - Traps sent by channel cards can
+			                     trigger contacts.
+			 The default is nestAlarmsOnly(2)."
+		::= { unit 6 }
+
+	unitTempThreshold OBJECT-TYPE
+		SYNTAX INTEGER (10..99)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Temperature in Celsius which triggers an over-
+			 temperature alarm condition."
+		::= { unit 7 }
+
+--
+--
+--	Management group
+--
+--	Internet management (SNMP/TCP/IP) configuration options.
+--
+--
+
+	internetAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"internetAddress is the IP address that is
+			 assigned to the GigaNest Manager. Warning:
+			 Changing the internetAddress of the
+			 card will disrupt SNMP communications."
+		::= { management 1 }
+
+	subnetMask OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"subnetMask is the subnet mask that is
+			 assigned to the GigaNest Manager."
+		::= { management 2 }
+
+	clientAutoLearn OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			enabled(1),
+			disabled(2)
+		     }
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"clientAutoLearn allows the GigaNest
+			 Manager to automatically learn client SNMP
+			 addresses.
+
+			 If enabled, the GigaNest Manager can
+			 automatically learn 16 Client IP addresses
+			 and store them in the unitClientTable as
+			 dynamic. Addresses are learned from incoming
+			 SNMP messages.
+
+			 If set to disabled, only the addresses that
+			 are manually entered in the unitClientTable
+			 are available.
+
+			 The default is enabled(1)."
+		::= { management 3 }
+
+--
+--
+--	Client Group
+--
+--	Client IP addresses of SNMP network management stations that
+--	will receive SNMP traffic generated by the GigaNest Manager.
+--
+--
+
+	clientTable OBJECT-TYPE
+		SYNTAX	SEQUENCE OF ClientEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Client IP addresses of SNMP network
+			 management stations that should receive SNMP
+			 traffic generated by the GigaNest Manager."
+		::= { client 1 }
+
+	clientEntry OBJECT-TYPE
+		SYNTAX	ClientEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Displays the entry number (1 to 16) for an
+			 entry in the client IP address."
+		INDEX	{ clientIndex }
+		::= { clientTable 1 }
+
+	ClientEntry ::=
+		SEQUENCE
+		{
+			clientIndex
+				INTEGER,
+			clientAddress
+				IpAddress,
+			clientType
+				INTEGER
+		}
+
+	clientIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Client Index displays the sequential entry
+			 number (1 to 16) for this entry in the client
+			 table."
+		::= { clientEntry 1 }
+
+	clientAddress OBJECT-TYPE
+		SYNTAX IpAddress
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Client IP address for an SNMP network
+			 management station. Set the address to
+			 0.0.0.0 to remove the entry."
+		::= { clientEntry 2 }
+
+	clientType OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			dynamic(1),
+			static(2),
+			unused(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Client Type displays type of entry in the
+			 client table.	This field is Dynamic (auto
+			 learned), Static (entered), or Unused."
+		::= { clientEntry 3 }
+
+--
+--
+--      Fan Status group
+--
+
+	fanStatusTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF FanStatusEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"Fan Status of GigaNest."
+		::= { fanStatus 1 }
+
+	fanStatusEntry OBJECT-TYPE
+		SYNTAX  FanStatusEntry
+		ACCESS  not-accessible
+		STATUS  mandatory
+		DESCRIPTION
+			"Describes Fan status for a GigaNest slot."
+		INDEX   { fanIndex }
+		::= { fanStatusTable 1 }
+
+	FanStatusEntry ::=
+		SEQUENCE {
+			fanIndex
+				INTEGER,
+			shelfNumber
+				INTEGER,
+			fanID
+				DisplayString,
+			fan-Status
+				INTEGER
+		}
+        
+	fanIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The fan number 1..6."
+		::= { fanStatusEntry 1 }
+
+	shelfNumber OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The shelf number 1..2."
+		::= { fanStatusEntry 2 }
+
+	fanID OBJECT-TYPE
+		SYNTAX DisplayString	(SIZE (0..1))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The fan ID A..C in a shelf."
+		::= { fanStatusEntry 3 }
+
+	fan-Status OBJECT-TYPE
+		SYNTAX INTEGER {
+			normal(1),
+			failed(2),
+			not-applicable(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Fan Status."
+		::= { fanStatusEntry 4 }
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+	SYNTAX IpAddress
+	ACCESS read-write
+	STATUS mandatory
+	DESCRIPTION
+		"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			no-action(1),
+			start-software-download(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		    "Get or Set download state.
+			no-action(1)			- no TFTP activity
+			start-software-download(2) 	- srtart software download"
+		::= { tftp 3 }
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+
+--
+-- Inventory information Group
+--
+
+	hardwareRevision OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..5))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Hardware Revision for this circuit pack.
+			 Format is nn.nn
+			 (n = 0..9)"
+		::= { inventory 1 }
+
+	gmCLEICode OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..10))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Common Language Equipment Identification (CLEI) code
+			 for this circuit pack.
+			 Format is alpha-numeric ASCII string."
+		::= { inventory 2 }
+
+
+	serialNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..11))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Serial Number for this circuit pack.
+			 Format is nnnnnn-mmyy
+			 where 	n = 0..9
+				mm = month of manufacturing
+				yy = year of manufacturing"
+		::= { inventory 3 }
+
+	partNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..11))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Part Number for this circuit pack.
+			 Format is nn-nnnnn-nn
+			 where 	n = 0..9"
+		::= { inventory 4 }
+
+	mfgDate OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..10))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Manufacturing Date for this circuit pack.
+			 Format is mm/dd/yyyy"
+		::= { inventory 5 }
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+       rackTempAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when nestTemperatureCelsius becomes too high."
+	    ::= 1
+
+       rackTempNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when nestTemperatureCelsius recovers."
+	    ::= 2
+
+       rack1Power1Pos12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power1Pos12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 3
+
+       rack1Power1Pos12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power1Pos12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 4
+
+       rack1Power1Neg12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power1Neg12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 5
+
+       rack1Power1Neg12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power1Neg12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 6
+
+       rack1Power2Pos12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power2Pos12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 7
+
+       rack1Power2Pos12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power2Pos12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 8
+
+       rack1Power2Neg12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power2Neg12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 9
+
+       rack1Power2Neg12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack1Power2Neg12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 10
+
+       rack2Power1Pos12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power1Pos12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 11
+
+       rack2Power1Pos12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power1Pos12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 12
+
+       rack2Power1Neg12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power1Neg12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 13
+
+       rack2Power1Neg12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power1Neg12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 14
+
+       rack2Power2Pos12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power2Pos12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 15
+
+       rack2Power2Pos12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power2Pos12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 16
+
+       rack2Power2Neg12vAlarm TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power2Neg12v changes state from
+		   'normal' to 'alarm'"
+	    ::= 17
+
+       rack2Power2Neg12vNormal TRAP-TYPE
+	    ENTERPRISE gigaNestManager
+	    DESCRIPTION
+		  "Generated when rack2Power2Neg12v changes state from
+		   'alarm' to 'normal'"
+	    ::= 18
+
+	cardDetected TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		VARIABLES { slotCardSlot, slotCardType }
+		DESCRIPTION
+			"Generated when a card is detected and
+			 has established communications with the
+			 manager.
+
+			 slotCardSlot is the slot number,
+			 slotCardType is the card type."
+		::= 19
+
+	cardRemoved TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		VARIABLES { slotCardSlot, slotCardType }
+		DESCRIPTION
+			"Generated when a card that was previously
+			 operational has become inoperative or was
+			 removed from the nest.
+
+			 slotCardSlot is the slot number
+			 slotCardType is the card type."
+		::= 20
+
+	shelf1FanAFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf 1 Fan A Failed."
+		::= 21
+
+	shelf1FanANormal TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf 1 Fan A Normal."
+		::= 22
+
+	shelf1FanBFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:1 Fan:B Failed."
+		::= 23
+
+	shelf1FanBNormal TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:1 Fan:B Normal."
+		::= 24
+
+	shelf1FanCFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:1 Fan:C Failed."
+		::= 25
+
+	shelf1FanCNormal TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:1 Fan:C Normal."
+		::= 26
+
+	shelf2FanAFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf 2 Fan A Failed."
+		::= 27
+
+	shelf2FanANormal TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf 2 Fan A Normal."
+		::= 28
+
+	shelf2FanBFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:2 Fan:B Failed."
+		::= 29
+
+	shelf2FanBNormal TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:2 Fan:B Normal."
+		::= 30
+
+	shelf2FanCFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:2 Fan:C Failed."
+		::= 31
+
+	shelf2FanCNormal TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"Shelf:2 Fan:C Normal."
+		::= 32
+
+	tftpDownloadFailed TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		VARIABLES { tftpStatus }
+		DESCRIPTION
+			"TFTP download operation failed.
+			tftpStatus is the error code."
+		::= 33
+
+	tftpDownloadSuccessful TRAP-TYPE
+		ENTERPRISE gigaNestManager
+		DESCRIPTION
+			"TFTP download operation was successful.
+			Card will automatically reset and boot up with new image."
+		::= 34
+
+END

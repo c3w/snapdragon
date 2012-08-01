@@ -1,0 +1,1428 @@
+--
+-- Sorrento Networks Enterprise MIB implemented by GigaMux Circuit packs
+-- supporting SONET/SDH protocol.
+--
+-- Revision 1.0   07/01/2002  mjagtap
+--
+-- This MIB file is implemented by various GigaMux circuit packs supporting
+-- SONET/SDH protocol.
+--
+-- Copyright 2002, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors, end-users, and other interested
+-- parties a non-exclusive license to use this Specification in connection with
+-- the management of Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+
+	GMux-SONETCircuitPack-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, TimeTicks, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies		OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest			OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxSONETCircuitPack		OBJECT IDENTIFIER ::= { gigaNest 23 }
+		pmConfiguration		OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 1 }
+		physicalNominal		OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 2 }
+		physicalCurrent		OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 3 }
+		physicalInterval	OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 4 }
+		alarmPriority		OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 5 }
+		physicalThreshold	OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 6 }
+		threshold		OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 7 }
+		clearCounters		OBJECT IDENTIFIER ::= { gigaMuxSONETCircuitPack 8 }
+
+
+--
+-- PM Configuration
+--
+
+	channelNumber OBJECT-TYPE
+		SYNTAX INTEGER (1..32)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"ITU DWDM Channel Number."
+		::= { pmConfiguration 1 }
+
+
+	pmCapability OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			disabled(1),
+			enabled(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Used to enable or disable Performance Monitoring Capability."
+		::= { pmConfiguration 2 }
+
+	pmMode OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			sonet(1),
+			sdh(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Select protocol for Performance Monitoring.
+				sonet(1) - Operate the circuit pack in SONET mode.
+				sdh(2)   - Operate the circuit pack in SDH mode."
+		::= { pmConfiguration 3 }
+
+	systemDate OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Calender Date. yyyy-mm-dd"
+		::= { pmConfiguration 4 }
+
+	systemTime OBJECT-TYPE
+		SYNTAX TimeTicks
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Time of Day"
+		::= { pmConfiguration 5 }
+
+--
+-- Transponder Physical layer Constants
+--
+	physicalNominalOPT OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of average optical output power of the
+			 transmitter, or the Optical Power Transmitted (OPT)
+			 in microWatts."
+		::= { physicalNominal 1 }
+
+	physicalNominalOPR OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of average optical output power
+			 of the received signal, or the Optical Power Received (OPR) in dBm."
+		::= { physicalNominal 2 }
+
+	physicalNominalLBC OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of the Laser Bias Current (LBC) in mA."
+		::= { physicalNominal 3 }
+
+--
+-- Transponder Physical layer current status
+--
+	physicalCurrentState OBJECT-TYPE
+		SYNTAX INTEGER (1..254)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This bitmap object summarizes the current
+			 state state of the physical layer parameters.
+			 The value reported is a sum, it can represent
+			 multiple failure conditions simultaneously.
+			 Bit positions are:
+			 0   1d	 - No Physical Layer Defect,
+			 1   2d	 - OPT below snOPTLowThreshold,
+			 2   4d  - OPT above snOPTHighThreshold,
+			 3   8d	 - OPR below snOPRLowThreshold,
+			 4  16d  - OPR above snOPRHighThreshold,
+			 5  32d	 - LBC above snLBCHighThreshold,
+			 6  64d	 - LTEMP below snLTEMPLowThreshold,
+			 7 128d  - LTEMP above snLTEMPHighThreshold."
+		::= { physicalCurrent 1 }
+
+	physicalNormalizedOPT OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the OPT.
+			The normalized value of OPT, expressed as an integer percentage,
+			is the monitored parameter:
+				physicalNormalizedOPT = (OPT/physicalNominalOPT) * 100 % 
+			This parameter is recorded once during first minute of current
+			15 minute interval."
+		::= { physicalCurrent 2 }
+
+	physicalNormalizedOPR OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the OPR.
+			The normalized value of OPR, expressed as an integer percentage,
+			is the monitored parameter:
+				physicalNormalizedOPR = (OPR/physicalNominalOPR) * 100 %  
+			This parameter is recorded once during first minute of current
+			15 minute interval."
+		::= { physicalCurrent 3 }
+
+	physicalNormalizedLBC OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the Laser Bias Current (LBC).
+			 The normalized value of the LBC, expressed as an integer percentage,
+			 is the monitored parameter:
+				physicalNormalizedLBC = (LBC/physicalNominalLBC) * 100 % 
+			This parameter is recorded once during first minute of current
+			15 minute interval."
+		::= { physicalCurrent 4 }
+
+	physicalLTEMP OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the Laser Temperature (LTEMP).
+			Value is in degree Celsius.
+			This parameter is recorded once during first minute of current
+			15 minute interval."
+		::= { physicalCurrent 5 }
+
+	clearAndUpdateCurrentPhysicalRegister OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearAndUpdateRegister(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear and Update Physical Layer Current register."
+		::= { physicalCurrent 6 }
+
+	clearPhysicalHistoryRegisters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearAndUpdateRegister(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear and Update Physical Layer Historyregisters."
+		::= { physicalCurrent 7 }
+
+--
+-- Physical Layer Interval History Table
+--
+
+	physicalIntervalTable OBJECT-TYPE
+		SYNTAX  SEQUENCE OF PhysicalIntervalEntry
+		ACCESS  not-accessible
+		STATUS mandatory
+		DESCRIPTION
+			"The SONET/SDH Physical Layer Interval table."
+		 ::= { physicalInterval 1 }
+
+	physicalIntervalEntry OBJECT-TYPE
+		SYNTAX  PhysicalIntervalEntry
+		ACCESS  not-accessible
+		STATUS mandatory
+		DESCRIPTION
+			"An entry in the SONET/SDH Physical Layer Interval table."
+		INDEX   { physicalIntervalNumber }
+		 ::= { physicalIntervalTable 1 }
+
+	PhysicalIntervalEntry ::=
+		SEQUENCE
+		{
+			physicalIntervalNumber
+					INTEGER,
+				intervalDate
+					DisplayString,
+				intervalTime
+					TimeTicks,					
+			physicalIntervalOPT
+					INTEGER,
+			physicalIntervalOPR
+					INTEGER,
+			physicalIntervalLBC
+					INTEGER,
+			physicalIntervalLTEMP
+					INTEGER,
+			physicalIntervalDataFlag
+					INTEGER,			
+			physicalIntervalStatus
+					INTEGER
+		}
+
+	physicalIntervalNumber OBJECT-TYPE
+		SYNTAX  INTEGER (1..32)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"A number between 1 and 32, which identifies the
+			interval for which the set of statistics is available.
+			The interval identified by 1 is the most recently
+			completed 15 minute interval, and the interval identified
+			by N is the interval immediately preceding the one
+			identified by N-1."
+		::= { physicalIntervalEntry 1 }
+
+	intervalDate OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..10))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Current calender date.
+			 Format is yyyy-mm-dd"
+		::= { physicalIntervalEntry 2 }
+
+	intervalTime OBJECT-TYPE
+		SYNTAX TimeTicks
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Current calender date.
+			 Format is mm/dd/yyyy"
+		::= { physicalIntervalEntry 3 }
+
+	physicalIntervalOPT OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the OPT.
+			 The normalized value of OPT, expressed as an integer percentage,
+			 is the monitored parameter:
+				physicalIntervalOPT = (OPT/physicalNominalOPT) * 100 %
+			 This parameter is recorded once during first minute of this		
+			 15 minute interval."
+		::= { physicalIntervalEntry 4 }
+
+	physicalIntervalOPR OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Th is parameter is a measure of the OPR.
+			 The normalized value of OPR, expressed as an integer percentage,
+			 is the monitored parameter:
+				physicalIntervalNormalizedOPR = (OPR/physicalNominalOPR) * 100 %
+			 This parameter is recorded once during first minute of this
+			 15 minute interval."
+		::= { physicalIntervalEntry 5 }
+
+	physicalIntervalLBC OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the Laser Bias Current (LBC).
+			 The normalized value of the LBC, expressed as an integer percentage,
+			 is the monitored parameter:
+				physicalIntervalNormalizedLBC = (LBC/physicalNominalLBC) * 100 %
+			 This parameter is recorded once during first minute of this
+			 15 minute interval."
+		::= { physicalIntervalEntry 6 }
+
+	physicalIntervalLTEMP OBJECT-TYPE
+		SYNTAX INTEGER (1..255)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This parameter is a measure of the Laser Temperature(LBC).
+			 Value is in degree Celsius.
+			 This parameter is recorded once during first minute of this
+			 15 minute interval."
+		::= { physicalIntervalEntry 7 }
+
+	physicalIntervalDataFlag OBJECT-TYPE
+		SYNTAX INTEGER {
+			valid(1),
+			invalid(2)
+		}
+		ACCESS  read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This variable indicates whether the physical layer
+			 data for this interval is valid."
+		::= { physicalIntervalEntry 8 }
+
+	physicalIntervalStatus OBJECT-TYPE
+		SYNTAX INTEGER (1..254)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"This bitmap object summarizes the current
+			 state state of the physical layer parameters.
+			 The value reported is a sum, it can represent
+			 multiple failure conditions simultaneously.
+			 Bit positions are:
+			 0   1d	 - No Physical Layer Defect,
+			 1   2d	 - OPT below snOPTLowThreshold,
+			 2   4d  - OPT above snOPTHighThreshold,
+			 3   8d	 - OPR below snOPRLowThreshold,
+			 4  16d  - OPR above snOPRHighThreshold,
+			 5  32d	 - LBC above snLBCHighThreshold,
+			 6  64d	 - LTEMP below snLTEMPLowThreshold,
+			 7 128d  - LTEMP above snLTEMPHighThreshold."
+		::= { physicalIntervalEntry 9 }
+
+--
+--  alarmPriority
+--
+
+	alarmPriorityThreshold OBJECT-TYPE
+		SYNTAX INTEGER {
+			none(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Specifies the minimum priority of a trap
+			 for which an audio-visual indication will be generated
+			 on Operations System (OS) side when the trap is received.
+				 none(1)     - no trap can cause audio-visual indication
+				 minor(2)    - critical, major and minor traps can cause
+					       audio-visual indication
+				 major(3)    - only critical and major traps can cause
+					       audio-visual indication
+				 critical(4) - only critical traps can cause
+					       audio-visual indication."
+		::= { alarmPriority 1 }
+
+	isTrapAlarmed OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			no(1),
+			yes(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Used as a variable in Variable Binding List of traps in this MIB.
+			 Indicates whether the trap should cause audio-visual indication
+			 on OS side.
+				no(1)  - If priority of trap is less than alarmPriorityThreshold,
+					 the value of this variable attached in the variable
+					 binding list of the trap, is set to 2, to indicate that
+					 this trap can NOT cause audio-visual indication
+					 on OS side.
+				yes(2) - If priority of a trap is greater than or equal to
+					 alarmPriorityThreshold, the value of this variable
+					 attached in the variable binding list of the trap,
+					 is set to 1, to indicate that this trap can cause
+					 audio-visual indication on NMS OS side."
+		::= { alarmPriority 2 }
+
+    --
+    -- Failure Priority
+    --
+
+	snLOSFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snLOSFailureTrap alarm.
+			The default value is critical(4)."
+		::= { alarmPriority 3 }
+
+	snLOFFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snLOFFailureTrap alarm.
+			The default value is critical(4)."
+		::= { alarmPriority 4 }
+
+	snLOSyncFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snLOSyncFailureTrap alarm.
+			The default value is critical(4)."
+		::= { alarmPriority 5 }
+
+	snAISLFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snAISLFailureTrap alarm.
+			The default value is not-reported(1)."
+		::= { alarmPriority 6 }
+
+	snRDILFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snRDILFailureTrap alarm.
+			The default value is not-reported(1)."
+		::= { alarmPriority 7 }
+
+	snSDFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snSDFailureTrap alarm.
+			The default value is critical(4)."
+		::= { alarmPriority 8 }
+
+	snSFFailureTrapPrio OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			not-reported(1),
+			minor(2),
+			major(3),
+			critical(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+ 			"Priority of snSFFailureTrap alarm.
+			The default value is critical(4)."
+		::= { alarmPriority 9 }
+
+
+    --
+    --  Physical Parameter Thresholds for High Speed Side Transponder
+    --
+
+	snOPTHighThreshold OBJECT-TYPE
+		SYNTAX INTEGER (101..255)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"High threshold for OPT.
+			 Value is percentage of physicalNominalOPT.
+			 The default value is 110."
+		::= { physicalThreshold 1 }
+
+	snOPTLowThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..99)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Low threshold for OPT.
+			 Value is percentage of the physicalNominalOPT.
+			 The default value is 90."
+		::= { physicalThreshold 2 }
+
+	snOPRHighThreshold OBJECT-TYPE
+		SYNTAX INTEGER (40..110)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"High threshold for OPR.
+			 Value is percentage of physicalNominalOPR.
+			 The default value is 110."
+		::= { physicalThreshold 3 }
+
+	snOPRLowThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..99)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Low threshold for OPR.
+			 Value is percentage of physicalNominalOPR.
+			 The default value is 90."
+		::= { physicalThreshold 4 }
+
+	snLBCHighThreshold OBJECT-TYPE
+		SYNTAX INTEGER (101..255)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"High threshold for LBC.
+			 Value is percentage of physicalNominalLBC.
+			 The default value is 150."
+		::= { physicalThreshold 5 }
+
+	snLTEMPHighThreshold OBJECT-TYPE
+		SYNTAX INTEGER (26..35)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"High threshold for LTEMP.
+			 Value is in degree Celsius.
+			 The default value is 35."
+		::= { physicalThreshold 6 }
+
+	snLTEMPLowThreshold OBJECT-TYPE
+		SYNTAX INTEGER (15..24)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Low threshold for LTEMP.
+			 Value is in degree Celsius.
+			 The default value is 15."
+		::= { physicalThreshold 7 }
+
+--
+-- Thresholdgroup
+--
+
+    --
+    -- Threshold Table with a row per BitRate
+    --
+
+	thresholdTable OBJECT-TYPE
+	  SYNTAX  SEQUENCE OF ThresholdEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Threshold Configuration for various parameters ."
+		::= { threshold 1 }
+
+
+	thresholdEntry OBJECT-TYPE
+		SYNTAX	ThresholdEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Displays the entry number for an
+			 entry in the thresholdTable."
+		INDEX	{ portIndex }
+		::= { thresholdTable 1 }
+
+	ThresholdEntry ::=
+		SEQUENCE {
+			portIndex
+				      INTEGER,
+			snSDThreshold
+				      INTEGER,
+			snSFThreshold
+				      INTEGER,
+
+			snCVS15minThreshold 
+				      INTEGER,
+			snESS15minThreshold 
+				      INTEGER,
+			snSESS15minThreshold 
+				      INTEGER,
+			snSEFSS15minThreshold 
+				      INTEGER,
+			snCVSDailyThreshold 
+				      INTEGER,
+			snESSDailyThreshold 
+				      INTEGER,
+			snSESSDailyThreshold 
+				      INTEGER,
+			snSEFSSDailyThreshold 
+				      INTEGER,
+
+			snCVL15minThreshold 
+				      INTEGER,
+			snESL15minThreshold 
+				      INTEGER,
+			snSESL15minThreshold 
+				      INTEGER,
+			snUASL15minThreshold 
+				      INTEGER,
+			snCVLDailyThreshold 
+				      INTEGER,
+			snESLDailyThreshold 
+				      INTEGER,
+			snSESLDailyThreshold 
+				      INTEGER,
+			snUASLDailyThreshold 
+				      INTEGER
+		   }
+
+	portIndex OBJECT-TYPE
+		SYNTAX INTEGER 
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Port Index."
+		::= { thresholdEntry 1 }
+
+	snSDThreshold OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oneEXP-5(5), 
+			oneEXP-6(6),
+			oneEXP-7(7),
+			oneEXP-8(8),
+			oneEXP-9(9)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"B2 error rate threshold for SD.
+			 The default value is oneEXP-5(5)"
+		::= { thresholdEntry 2 }
+
+	snSFThreshold OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oneEXP-3(3), 
+			oneEXP-4(4),
+			oneEXP-5(5)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION "B2 error rate threshold for SF.
+			 The default value is oneEXP-3(3)"
+		::= { thresholdEntry 3 }
+
+    --
+    -- Section Layer 15 minute Thresholds
+    --
+	snCVS15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..60000)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for CV-S for 15 minute interval.
+			 The default value is 8254."
+		::= { thresholdEntry 4 }
+
+	snESS15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..899)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for ES-S for 15 minute interval.
+			 The default value is 3."
+		::= { thresholdEntry 5 }
+
+	snSESS15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..899)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for SES-S for 15 minute interval.
+			 The default values for various bit rates are :
+				OC3   : 7
+				OC12  : 20
+				OC48  : 70
+				OC192 : 210 "
+		::= { thresholdEntry 6 }
+
+	snSEFSS15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..899)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for SEFS-S for 15 minute interval.
+			 The default value is 3."
+		::= { thresholdEntry 7 }
+
+    --
+    -- Section Layer Daily Thresholds
+    --
+
+	snCVSDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..4000000)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for CV-S for 1 day interval.
+			 The default value is 8254."
+		::= { thresholdEntry 8 }
+
+	snESSDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..86399)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for ES-S for 1 day interval.
+			 The default value is 7."
+		::= { thresholdEntry 9 }
+
+	snSESSDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..86399)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for SES-S for 1 day interval.
+			 The default values for various bit rates are :
+				OC3   : 70
+				OC12  : 200
+				OC48  : 700
+				OC192 : 2100 "
+		::= { thresholdEntry 10 }
+
+	snSEFSSDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..86399)
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Threshold for SEFS-S for 1 day interval.
+			 The default value is 7."
+		::= { thresholdEntry 11 }
+
+    --
+    -- Line Layer 15 minute Thresholds
+    --
+
+    -- ??? Check default values and range
+
+	snCVL15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..60000)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for CV-L for 15 minute interval.
+			 The default value is 8254."
+		::= { thresholdEntry 12}
+
+	snESL15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..899)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for ES-L for 15 minute interval.
+			 The default value is 3."
+		::= { thresholdEntry 13}
+
+	snSESL15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..899)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for SES-L for 15 minute interval.
+			 The default values for various bit rates are :
+				OC3   : 7
+				OC12  : 20
+				OC48  : 70
+				OC192 : 210"
+		::= { thresholdEntry 14}
+
+	snUASL15minThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..899)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for SEFS-L for 15 minute interval.
+			 The default value is 3."
+		::= { thresholdEntry 15 }
+
+    --
+    -- Line Layer Daily Thresholds
+    --
+
+	snCVLDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..4000000)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for CV-L for 1 day interval.
+			 The default value is  8254."
+		::= { thresholdEntry 16 }
+
+	snESLDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..86399)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for ES-L for 1 day interval.
+			 The default value is 7."
+		::= { thresholdEntry 17 }
+
+	snSESLDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..86399)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for SES-L for 1 day interval.
+			 The default values for various bit rates are :
+				OC3   : 70
+				OC12  : 200
+				OC48  : 700
+				OC192 : 2100 "
+		::= { thresholdEntry 18 }
+
+	snUASLDailyThreshold OBJECT-TYPE
+		SYNTAX INTEGER (1..86399)
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Threshold for SEFS-L for 1 day interval.
+			 The default value is 7."
+		::= { thresholdEntry 19 }
+
+--
+-- clearCounters Group
+--
+
+    --
+    -- clearCountersTable to clear counters of specific port.
+    --
+
+	clearCountersTable OBJECT-TYPE
+	  SYNTAX  SEQUENCE OF ClearCountersEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Threshold Configuration for various parameters ."
+		::= { clearCounters 1 }
+
+	clearCountersEntry OBJECT-TYPE
+		SYNTAX	ClearCountersEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Displays the entry number for an
+			 entry in the clearCountersTable."
+		INDEX	{ clearCounterPortIndex }
+		::= { clearCountersTable 1 }
+
+	ClearCountersEntry ::=
+		SEQUENCE {
+			clearCounterPortIndex
+				      INTEGER,
+			clearSectionLayerCurrent15minCounters
+				      INTEGER,
+			clearSectionLayerCurrentDailyCounters
+				      INTEGER,
+			clearLineLayerCurrent15minCounters
+				      INTEGER,
+			clearLineLayerCurrentDailyCounters
+				      INTEGER,
+			clearAllLayersCurrent15minCounters
+				      INTEGER,
+			clearAllLayersCurrentDailyCounters
+				      INTEGER,
+
+			clearSectionLayerHistory15minCounters
+				      INTEGER,
+			clearSectionLayerHistoryDailyCounters
+				      INTEGER,
+			clearLineLayerHistory15minCounters
+				      INTEGER,
+			clearLineLayerHistoryDailyCounters
+				      INTEGER,
+			clearAllLayersHistory15minCounters
+				      INTEGER,
+			clearAllLayersHistoryDailyCounters
+				      INTEGER
+		   }
+
+	clearCounterPortIndex OBJECT-TYPE
+		SYNTAX INTEGER 
+		ACCESS read-only
+		STATUS optional
+		DESCRIPTION
+			"Port Index"
+		::= { clearCountersEntry 1 }
+
+	clearSectionLayerCurrent15minCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear current 15 minute counters for Section Layer only."
+		::= { clearCountersEntry 2 }
+
+	clearSectionLayerCurrentDailyCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear current Daily counters for Section Layer only."
+		::= { clearCountersEntry 3 }
+
+	clearLineLayerCurrent15minCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear current 15 minute counters for Line Layer only."
+		::= { clearCountersEntry 4 }
+
+	clearLineLayerCurrentDailyCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear current Daily counters for Line Layer only."
+		::= { clearCountersEntry 5 }
+
+	clearAllLayersCurrent15minCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear current 15 minute counters for all applicable Layers,
+			 except for Physical Layer."
+		::= { clearCountersEntry 6 }
+
+	clearAllLayersCurrentDailyCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear current Daily counters for all applicable Layers,
+			 except for Physical Layer."
+		::= { clearCountersEntry 7 }
+
+	clearSectionLayerHistory15minCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear 15 minute history counters for Section Layer only."
+		::= { clearCountersEntry 8 }
+
+	clearSectionLayerHistoryDailyCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear Daily history counters for Section Layer only."
+		::= { clearCountersEntry 9 }
+
+	clearLineLayerHistory15minCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear 15 minute history counters for Line Layer only."
+		::= { clearCountersEntry 10 }
+
+	clearLineLayerHistoryDailyCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear Daily history counters for Line Layer only."
+		::= { clearCountersEntry 11 }
+
+	clearAllLayersHistory15minCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear 15 minute history counters for all applicable Layers,
+			 except for Physical Layer."
+		::= { clearCountersEntry 12 }
+
+	clearAllLayersHistoryDailyCounters OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			noAction(1),
+			clearCounters(2)
+		}
+		ACCESS read-write
+		STATUS optional
+		DESCRIPTION
+			"Clear Daily history counters for all applicable Layers,
+			 except for Physical Layer."
+		::= { clearCountersEntry 13 }
+
+--
+-- Enterprise Specific Traps
+--
+    --
+    --  Failure and Clear Traps
+    --
+	snLOSFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snLOSFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"LOS Failure"
+		::= 1
+
+	snLOSClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"LOS Failure Cleared"
+		::= 2
+
+	snLOFFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snLOFFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"LOF Failure"
+		::= 3
+
+	snLOFClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"LOF Failure Cleared"
+		::= 4
+
+	snLOSyncFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snLOSyncFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"LOSync Failure"
+		::= 5
+
+	snLOSyncClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"LOSync Failure Cleared"
+		::= 6
+
+	snAISL-AISMSFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snAISLFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"AIS-L/AIS-MS Failure"
+		::= 7
+
+	snAISL-AISMSClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"AIS-L/AIS-MS Failure Cleared"
+		::= 8
+
+	snRDIL-RDIMSFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snRDILFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"RDI-L/RDI-MS Failure"
+		::= 9
+
+	snRDIL-RDIMSClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"RDI-L/RDI-MS Failure Cleared"
+		::= 10
+
+	snSDFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSDFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"SD Failure"
+		::= 11
+
+	snSDClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"SD Failure Cleared"
+		::= 12
+
+	snSFFailureTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSFFailureTrapPrio, isTrapAlarmed }
+		DESCRIPTION
+			"SF Failure"
+		::= 13
+
+	snSFClearTrap TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex }
+		DESCRIPTION
+			"SF Failure Cleared"
+		::= 14
+
+    --
+    --  SONET Physical Layer TCAs
+    --
+	snOPTHighTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snOPTHighThreshold, physicalNormalizedOPT }
+		DESCRIPTION
+			"OPT High TCA"
+		::= 15
+
+	snOPTLowTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snOPTLowThreshold, physicalNormalizedOPT }
+		DESCRIPTION
+			"OPT Low TCA"
+		::= 16
+
+	snOPTTCAClear TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		DESCRIPTION
+			"OPT Normal"
+		::= 17
+
+	snOPRHighTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snOPRHighThreshold, physicalNormalizedOPR }
+		DESCRIPTION
+			"OPR High TCA"
+		::= 18
+
+	snOPRLowTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snOPRLowThreshold, physicalNormalizedOPR }
+		DESCRIPTION
+			"OPR Low TCA"
+		::= 19
+
+	snOPRTCAClear TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		DESCRIPTION
+			"OPR Normal"
+		::= 20
+
+	snLBCHighTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snLBCHighThreshold, physicalNormalizedLBC }
+		DESCRIPTION
+			"LBC High TCA"
+		::= 21
+
+	snLBCTCAClear TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		DESCRIPTION
+			"LBC Normal"
+		::= 22
+
+	snLTEMPHighTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snLTEMPHighThreshold, physicalNormalizedLTEMP }
+		DESCRIPTION
+			"LTEMP High TCA"
+		::= 23
+
+	snLTEMPLowTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { snLTEMPHighThreshold, physicalNormalizedLTEMP }
+		DESCRIPTION
+			"LTEMP Low TCA"
+		::= 24
+
+	snLTEMPTCAClear TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		DESCRIPTION
+			"LTEMP Normal"
+		::= 25
+
+    --
+    --  Section Layer 15 minute TCAs
+    --
+	snCVS-BIPRS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snCVS15minThreshold, sonetSectionCurrentCVs }
+		DESCRIPTION
+			"CV-S/BIP-RS 15 minute TCA"
+		::= 26
+
+	snESS-ESRS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snESS15minThreshold, sonetSectionCurrentESs }
+		DESCRIPTION
+			"ES-S/ES-RS 15 minute TCA"
+		::= 27
+
+	snSESS-SESRS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSESS15minThreshold, sonetSectionCurrentSESs }
+		DESCRIPTION
+			"SES-S/SES-RS 15 minute TCA"
+		::= 28
+
+	snSEFSS-SEFSRS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSEFSS15minThreshold, sonetSectionCurrentSEFSs }
+		DESCRIPTION
+			"SEFS-S/SEFS-RS 15 minute TCA"
+		::= 29
+
+    --
+    --  Section Layer Daily TCAs
+    --
+	snCVS-BIPRSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snCVSDailyThreshold, sonetSectionDailyCVs }
+		DESCRIPTION
+			"CVS-S/BIP-RS Daily TCA"
+		::= 30
+
+	snESS-ESRSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snESSDailyThreshold, sonetSectionDailyESs }
+		DESCRIPTION
+			"ES-S/ES-RS Daily TCA"
+		::= 31
+
+	snSESS-SESRSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSESSDailyThreshold, sonetSectionDailySESs }
+		DESCRIPTION
+			"SES-S/SES-RS Daily TCA"
+		::= 32
+
+	snSEFSS-SEFSRSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSEFSSDailyThreshold, sonetSectionDailySEFSs }
+		DESCRIPTION
+			"SEFS-S/SEFS-RS Daily TCA"
+		::= 33
+
+    --
+    --  Line Layer 15 minute TCAs
+    --
+	snCVL-BIPMS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snCVL15minThreshold, sonetLineCurrentCVs }
+		DESCRIPTION
+			"CV-L/BIP-MS 15 minute TCA"
+		::= 34
+
+	snESL-ESMS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snESL15minThreshold, sonetLineCurrentESs }
+		DESCRIPTION
+			"ES-L/ES-MS 15 minute TCA"
+		::= 35
+
+	snSESL-SESMS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSESL15minThreshold, sonetLineCurrentSESs }
+		DESCRIPTION
+			"SES-L/SES-MS 15 minute TCA"
+		::= 36
+
+	snUASL-UASMS15minTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snUASL15minThreshold, sonetLineCurrentSEFSs }
+		DESCRIPTION
+			"SEFS-L/UAS-MS 15 minute TCA"
+		::= 37
+
+    --
+    --  Line Layer Daily TCAs
+    --
+	snCVL-BIPMSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snCVLDailyThreshold, sonetLineDailyCVs }
+		DESCRIPTION
+			"CVL-L/BIP-MS Daily TCA"
+		::= 38
+
+	snESL-ESMSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snESLDailyThreshold, sonetLineDailyESs }
+		DESCRIPTION
+			"ES-L/ES-MS Daily TCA"
+		::= 39
+
+	snSESL-SESMSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snSESLDailyThreshold, sonetLineDailySESs }
+		DESCRIPTION
+			"SES-L/SES-MS Daily TCA"
+		::= 40
+
+	snUASL-UASMSDailyTCA TRAP-TYPE
+		ENTERPRISE gigaMuxSONETCircuitPack
+		VARIABLES { portIndex, snUASLDailyThreshold, sonetLineDailySEFSs }
+		DESCRIPTION
+			"UAS-L/UAS-MS Daily TCA"
+		::= 41
+
+END

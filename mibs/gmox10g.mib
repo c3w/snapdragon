@@ -1,0 +1,2243 @@
+--
+-- Sorrento Networks Private MIB for GMCR-35, OC192 Transponder Card.
+--
+-- This MIB file is to be used with GMCR-35 card version 2.0.0 
+-- or greater. Previous versions may not return all variables.
+--
+-- Revision 1.0.0	01/15/2001	Ajay Sarkar
+-- Initial Release.
+-- Revision 2.0.0	10/04/2001 
+-- rearrangement on ALARMs and TCAs; added managementPlatform(gigaView/TL1);
+-- added LBC0, OPT0 and OPR0; normalized LBC, OPT and OPR;
+-- added inventory group 
+-- added pm15min, pmdaily and analogpm for GigaView
+-- Revision 2.0.1	01/18/2002 
+-- changes from LongZ for GigaView
+-- changed rxLOCNormal/rxLOCFailedALARM to txLOCNormal/txLOCFailedALARM
+-- added pmreginitall to reset ALL PM registers
+-- Revision 2.0.2	06/12/2002 
+-- removed laserloc, lossofclockrx, TRAPs txLOCNormal and txLOCFailedALARM
+--
+-- Copyright 2000, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification, including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of 
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+
+
+	GMUX-OC192-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+gigaMuxOC192		OBJECT IDENTIFIER ::= { gigaNest 10 }
+status	 		OBJECT IDENTIFIER ::= { gigaMuxOC192 1 }
+alarmconfig		OBJECT IDENTIFIER ::= { gigaMuxOC192 2 }
+unit			OBJECT IDENTIFIER ::= { gigaMuxOC192 3 }
+management		OBJECT IDENTIFIER ::= { gigaMuxOC192 4 }
+client			OBJECT IDENTIFIER ::= { gigaMuxOC192 5 }
+pmability		OBJECT IDENTIFIER ::= { gigaMuxOC192 6 }
+pm			OBJECT IDENTIFIER ::= { gigaMuxOC192 7 }
+threshold		OBJECT IDENTIFIER ::= { gigaMuxOC192 8 }
+tftp			OBJECT IDENTIFIER ::= { gigaMuxOC192 9 }
+inventory		OBJECT IDENTIFIER ::= { gigaMuxOC192 10 }
+pm15min			OBJECT IDENTIFIER ::= { gigaMuxOC192 11 }
+pmdaily			OBJECT IDENTIFIER ::= { gigaMuxOC192 12 }
+analogpm		OBJECT IDENTIFIER ::= { gigaMuxOC192 13 }
+-- analogpmdaily		OBJECT IDENTIFIER ::= { gigaMuxOC192 14 }
+
+
+
+
+
+--
+--  Status group
+--
+-- These objects contain current settings and status for the
+-- GMCR-35 card.
+--
+
+--	laserloc OBJECT-TYPE
+--		SYNTAX INTEGER
+--		{
+--			Yes(1),
+--			No(0)
+--		}
+--		ACCESS read-only
+--		STATUS mandatory
+--		DESCRIPTION
+--			"Indicates Laser Loss of Clock (LOC) status."
+--		::= { status 1 }
+
+-- change to NORMALIZED
+	opticalpowertx OBJECT-TYPE
+		--SYNTAX INTEGER (1..255)
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Normailized Optical Power Transmitted (OPT)."
+		::= { status 2 }
+
+-- change to NORMALIZED
+laserbiascurrenttx OBJECT-TYPE
+		--SYNTAX INTEGER (1..255)
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Normallized Laser Bias Current (LBC)."
+		::= { status 3 }
+
+lasertemptx OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Temperature in celcius."
+		::= { status 4 }
+
+-- lossofclockrx OBJECT-TYPE
+-- 		SYNTAX INTEGER
+-- 		{
+-- 			normal(1),
+-- 			defect(2),
+-- 			failure(3)
+-- 		}
+-- 		ACCESS read-only
+-- 		STATUS mandatory
+-- 		DESCRIPTION
+-- 		"Indicates the status of Loss of Clock (LOC) in the received OC-192 frame."
+-- 		::= { status 5 }
+
+
+lossofsignalrx OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Loss of Signal (LOS) in the received OC-192 frame."
+		::= { status 6 }
+
+
+lossofframerx OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Loss of Frame (LOF) in the received OC-192 frame."
+		::= { status 7 }
+
+-- outofframerx OBJECT-TYPE
+-- 		SYNTAX INTEGER
+-- 		{
+-- 			normal(1),
+-- 			defect(2),
+-- 			failure(3)
+-- 
+-- 		}
+-- 		ACCESS read-only
+-- 		STATUS mandatory
+-- 		DESCRIPTION
+-- 		"Indicates the status of Out of Frame (OOF) in the received OC-192 frame."
+-- 		::= { status 8 }
+
+
+
+-- aisrx OBJECT-TYPE
+-- 		SYNTAX INTEGER
+-- 		{
+-- 			normal(1),
+-- 			defect(2),
+-- 			failure(3)
+-- 
+-- 		}
+-- 		ACCESS read-only
+-- 		STATUS mandatory
+-- 		DESCRIPTION
+-- 		"Indicates the status of Alarm Indication Signal (AIS) in the received OC-
+-- 192 frame."
+-- 		::= { status 9 }
+
+
+sfrx OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Severely Errored Frame-Signal Fail (SEFSF) in the 
+received OC-192 frame."
+		::= { status 10 }
+
+
+sdrx OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			defect(2),
+			failure(3)
+
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the status of Severely Errored Frame-Signal Degrade (SEFSD) in 
+the received OC-192 frame."
+		::= { status 11 }
+
+-- change to NORMALIZED
+opticalpowerrx OBJECT-TYPE
+		--SYNTAX INTEGER (1..255)
+		SYNTAX DisplayString (SIZE(0..8))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the Normalized Optical Power Received (OPR)." 
+		::= { status 12 }
+
+
+-- outofframej0rx OBJECT-TYPE
+-- 		SYNTAX INTEGER
+-- 		{
+-- 			no(1),
+-- 			yes(2)
+-- 		}
+-- 		ACCESS read-only
+-- 		STATUS mandatory
+-- 		DESCRIPTION
+-- 		"Indicates the Out of Frame J0 (OOF J0) in the received OC-192  
+--  			frame."
+-- 		::= { status 13 }
+
+date OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(8))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the current date of the NE." 
+		::= { status 14 }
+
+time OBJECT-TYPE
+		SYNTAX DisplayString(SIZE(8))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the current time of the NE." 
+		::= { status 15 }
+
+channelnumber OBJECT-TYPE
+		SYNTAX INTEGER(0..63)
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the channel number of the particular card type." 
+		::= { status 16 }
+
+-- cardtype OBJECT-TYPE
+-- 		SYNTAX DisplayString(SIZE(0..10))
+-- 		ACCESS read-only
+-- 		STATUS mandatory
+-- 		DESCRIPTION
+-- 		"Indicates the card type." 
+-- 		::= { status 17 }
+
+
+opticalpowertxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			low(2),
+			high(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Optical Power Transmitted Status."
+		::= { status 18 }
+
+laserbiascurrenttxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			high(2),
+			failed(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Bias Current status."
+		::= { status 19 }
+
+lasertemptxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			low(2),
+			high(3),
+			failed(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates the Laser Temperature Status."
+		::= { status 20 }
+
+
+opticalpowerrxstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			normal(1),
+			low(2),
+			high(3)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the Optical Power Received (OPR) Status." 
+		::= { status 21 }
+
+ledstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			Failedboth(1), -- RED for both LED
+			FailedEqup(2),  -- RED for Equp and GREEN for Sig In
+			FailedSigIn(3), -- GREEN for Equp and RED for Sig In
+			Normalboth(4)   -- GREEN for both
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the LED status for both Equipment and Sig In LED." 
+		::= { status 22 }
+
+alarmstatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			on(1), 
+			off(0)   
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates the ALARM status for LOS,LOF,LOC,OOF,AIS,SF,SD,OPT,OPR,LBC,LTEM." 
+		::= { status 23 }
+
+managementPlatform OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			gigaView(0),   
+			TL1(1) 
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+		"Indicates client management platform - gigaView or TL1." 
+		::= { status 24 }
+
+-- LBC0
+laserbiascurrenttx0 OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of the Laser Bias Current (LBC0)."
+		::= { status 25 }
+
+-- OPT0
+opticalpowertx0 OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of average optical output power
+			 of the transmitter, or the Optical Power Transmitted (OPT0)"
+		::= { status 26 }
+
+-- OPR0
+opticalpowerrx0 OBJECT-TYPE
+		SYNTAX DisplayString
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Nominal value of average optical power
+			 of the received signal, or the Optical Power Received (OPR0)"
+		::= { status 27 }
+
+
+--
+--  alarmconfig group
+--
+--  These objects contain severity/priority settings for GMCR-35 ALARMS/TRAPS, 
+--  which indicates.
+--
+
+locThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Clock  
+                       (LOC) ALARM/TRAP."
+                ::= { alarmconfig 1 }
+
+losThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Signal  
+                       (LOS) ALARM/TRAP."
+                ::= { alarmconfig 2 }
+
+lofThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                     " Specifies priority/severity level of the Loss of Frame  
+                       (LOF) ALARM/TRAP."
+                ::= { alarmconfig 3 }
+
+-- oofThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--     		ACCESS read-write
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                      " Specifies priority/severity level of the Out of Frame  
+--                        (OOF) ALARM/TRAP."
+--                 ::= { alarmconfig 4 }
+
+-- aisThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                      " Specifies priority/severity level of the Alarm Indication 
+--                        Signal (AIS) ALARM/TRAP." 
+--                 ::= { alarmconfig 5 }
+
+
+-- opthighThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--     		STATUS mandatory
+--  		DESCRIPTION
+--                      " Specifies priority/severity level of the Optical Power 
+--                        Transmitted High threshold (OPT High)-ALARM/TRAP."
+--                 ::= { alarmconfig 6 }
+
+
+-- optlowThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--     		DESCRIPTION
+--                      " Specifies priority/severity level of the Optical Power 
+--                        Transmitted Low threshold (OPT Low)-ALARM/TRAP."
+--                 ::= { alarmconfig 7 }
+
+
+-- oprhighThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--     		DESCRIPTION
+--                      " Specifies priority/severity level of the Optical Power 
+--                        Received High threshold (OPR High)-ALARM/TRAP."
+--                 ::= { alarmconfig 8 }
+
+
+-- oprlowThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--    		DESCRIPTION
+--                      " Specifies priority/severity level of the Optical Power 
+--                        Received Low threshold (OPR Low)-ALARM/TRAP."
+--                 ::= { alarmconfig 9 }
+
+
+ltemhighThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Laser 
+                       Temperature High threshold (LTEM High)-ALARM/TRAP."
+                ::= { alarmconfig 10 }
+
+
+-- ltemlowThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--     		DESCRIPTION
+--                      " Specifies priority/severity level of the Laser 
+--                        Temperature Low threshold (LTEM Low)-ALARM/TRAP."
+--                 ::= { alarmconfig 11 }
+
+
+
+
+sfThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Severely Errored 
+                       Frame Signal Fail (SEFSF)-ALARM/TRAP."
+                ::= { alarmconfig 12 }
+
+
+sdThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+    		ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+                     " Specifies priority/severity level of the Severely Errored 
+                       Frame Signal Degrade (SEFSD)-ALARM/TRAP."
+                ::= { alarmconfig 13 }
+
+
+lbcThreshold OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			minor(1),
+			major(2),
+			critical(3)
+                }
+                ACCESS read-write
+    		STATUS mandatory
+   		 DESCRIPTION
+                     " Specifies priority/severity level of the Laser Bias 
+                       Current (LBC)-ALARM/TRAP."
+                ::= { alarmconfig 14 }
+
+
+-- cardThreshold OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		{
+-- 			minor(1),
+-- 			major(2),
+-- 			critical(3)
+--                 }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--     		DESCRIPTION
+--                      " Specifies priority/severity level of the particular 
+--                        card i.e. any priority level equal or above of it will 
+--                        generate an ALARM (audio ALARM in NE) and a TRAP to the 
+--      		       Management system otherwise it will simply generate a 
+--     		       TRAP,if it crosses threshold."
+--                 ::= { alarmconfig 15 }
+
+
+
+--
+--      Unit group
+--
+        unitName OBJECT-TYPE
+                SYNTAX DisplayString (SIZE (0..8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Short name for the card."
+                ::= { unit 1 }
+
+        unitDescription OBJECT-TYPE
+                SYNTAX DisplayString (SIZE (0..40))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Additional description information about
+                         the card, expanding upon the short name."
+                ::= { unit 2 }
+
+        unitVersion OBJECT-TYPE
+                SYNTAX DisplayString (SIZE (0..16))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "The software version number."
+                ::= { unit 3 }
+
+        unitCommand OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					nothing(1),
+					warmResetNow(2),
+					resetAllCounters(3),
+					saveConfigurationNow(4)
+				}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Set this object to one of the following
+                         values to perform one of a variety of
+                         actions:
+                         nothing(1)              - Do nothing.
+                         warmResetNow(2)         - Causes a system
+                                                   restart.
+                         resetAllCounters(3)     - Reset all
+                                                   statistics counters.
+                         saveConfigurationNow(4) - Stores active
+                                                   configuration into
+                                                   non-volatile flash
+                                                   memory.
+                         The default is nothing(1)."
+                ::= { unit 4 }
+
+        unitConfigurationState OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					unchanged(1),
+					changed(2)
+				}
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Indicates the state of the active
+                         configuration as compared to that saved in
+                         flash memory.
+                         unchanged(1) - Flash is up-to-date
+                         changed(2)   - operating configuration differs
+                                        from that saved in the flash
+                                        memory."
+                ::= { unit 5 }
+
+
+
+--
+--      Management group
+--
+--      Internet management (SNMP/TCP/IP) configuration options.
+--
+
+        internetAddress OBJECT-TYPE
+                SYNTAX IpAddress
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "internetAddress is the IP address that is
+                         assigned to the card."
+                ::= { management 1 }
+
+        subnetMask OBJECT-TYPE
+                SYNTAX IpAddress
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "subnetMask is the IP subnet mask that is
+                         assigned to the card."
+                ::= { management 2 }
+
+--        trapPriorityThreshold OBJECT-TYPE
+--                SYNTAX INTEGER
+--				{
+--					minor(1),
+--					major(2),
+--					critical(3),
+--					none(4)
+--                }
+--                ACCESS read-write
+--                STATUS mandatory
+                
+
+
+--DESCRIPTION
+--                        "Specifies the minimum priority of an alarm
+--			 	 condition for which a trap will be generated.
+--                         minor(1)    - all traps will be sent
+--                         major(2)    - only critical and major traps
+--                         critical(3) - only critical traps are sent
+--                         none(4)     - no traps will be sent."
+--                ::= { management 3 }
+
+        trapDelay OBJECT-TYPE
+                SYNTAX INTEGER (0..255)
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Specifies the delay between detection of a
+                         alarm condition and the sending of a trap.
+                         During this delay period, if the trap
+                         condition clears, then the trap will not be
+                         sent. This delay is used to avoid
+                         transmission of traps for momentary
+                         problems."
+                ::= { management 4 }
+
+        clientAutoLearn OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					enabled(1),
+					disabled(2)
+				}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "clientAutoLearn allows the card to
+                         automatically learn client SNMP addresses. If
+                         enabled, the card can automatically learn 16
+                         Client IP addresses and store them in the
+                         unitClientTable as dynamic. Addresses are
+                         learned from incoming SNMP messages. If set
+                         to disabled, only the addresses that are
+                         manually entered in the unitClientTable are
+                         available.
+                         The default is enabled(1)."
+                ::= { management 5 }
+
+--
+--      Client Table
+--
+--      Contains the IP addresses of SNMP network management stations
+--      that will receive SNMP traffic.  The agent will only
+--      communicated with managers whose IP addresses are in the
+--      table.  Entries can be either learned automatically, from
+--      requests received by the card, or via configuration, by
+--      terminal or SNMP. See also the clientAutoLearn object in the
+--      management group.
+--
+
+        clientTable OBJECT-TYPE
+                SYNTAX SEQUENCE OF ClientEntry
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "Client IP addresses of SNMP network
+                         management stations that should receive SNMP
+                         traffic generated by the card."
+                ::= { client 1 }
+
+        clientEntry OBJECT-TYPE
+                SYNTAX ClientEntry
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { clientIndex }
+                ::= { clientTable 1 }
+
+        ClientEntry ::=
+                SEQUENCE 
+				{
+					clientIndex
+						INTEGER,
+					clientAddress
+						IpAddress,
+					clientType
+						INTEGER
+				}
+
+        clientIndex OBJECT-TYPE
+                SYNTAX INTEGER
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the client table."
+                ::= { clientEntry 1 }
+
+        clientAddress OBJECT-TYPE
+                SYNTAX IpAddress
+                ACCESS read-write
+                STATUS mandatory
+               
+ DESCRIPTION
+                        "IP address for an SNMP network management
+                         station. Set the address to 0.0.0.0 to remove
+                         the entry."
+                ::= { clientEntry 2 }
+
+        clientType OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					dynamic(1),
+					static(2),
+					unused(3)
+				}
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Status of the entry:
+                         dynamic(1) - Auto-learned from an SNMP request
+                         static(2)  - Configured statically
+                         unused(3)  - As yet unusd entry."
+                ::= { clientEntry 3 }
+
+
+--
+--
+--  pmability-it specifies the ability/mode in which the card can be set
+--
+--
+
+
+        pmmonitor OBJECT-TYPE
+                SYNTAX INTEGER
+				{
+					disable(1),
+					enable(2)
+				}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Status of the entry:
+                         disable(1) - This mode disable the PM monitoring 
+                                      functionality.
+                         enable(2)  - This mode enable the PM monitoring 
+                                      functionality."
+                ::= { pmability 1 }
+
+
+pmmode OBJECT-TYPE
+                SYNTAX INTEGER
+		{
+			sonet(1),
+			sdh(2)
+		}
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Status of the entry:
+                         sonet(1) - This enables the INDUS chip to run in SONET 
+                                    mode.
+                         sdh(2)  - This enables the INDUS chip to run in SDH 
+    				   mode."
+                ::= { pmability 2 }
+
+
+-- J0Mismatch OBJECT-TYPE
+--                 SYNTAX INTEGER 
+-- 		    {
+-- 			disable(1),
+-- 			enable(2)
+-- 		    }
+--                 ACCESS read-write
+--                 STATUS mandatory
+--                 DESCRIPTION
+--  		"User can Enable/Disable the J0 mismatch functionality."
+--                 ::= { pmability 3 }
+
+
+-- pmj0 OBJECT-TYPE
+--                 SYNTAX INTEGER (0..255)	
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--  		"User can read the value of J0."
+--                 ::= { pmability 4 }
+
+-- J0Previous OBJECT-TYPE
+--                 SYNTAX INTEGER (0..255)	
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--  		"It gives the previous value of J0 in case of J0 mismatch."
+--                 ::= { pmability 5 }
+
+pmreginit OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the current 15 minutes registers to zero (0), the 
+		 user should set a value 1 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+                ::= { pmability 6 }
+
+
+pmreginitdaily OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets all the daily registers to zero (0), the user should   
+ 		 set a value 1 to reset the registers, in case of read the 
+ 		 value is always zero (0) ."
+                ::= { pmability 7 }
+
+phypmreginit OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Clears all the current 15 minutes physical PM registers, the 
+		 user should set a value 1 to reset the registers, in case of  
+ 		 read the value is always zero (0) ."
+                ::= { pmability 8 }
+
+pmreginitall OBJECT-TYPE
+                SYNTAX INTEGER (1)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"Resets ALL digital and physical PM registers to zero (0), user 
+     should set a value 1 to reset the registers, in case of  read 
+     the value is always zero (0) ."
+                ::= { pmability 9 }
+
+
+--
+--
+--  Threshold settings for PM Parameters
+--
+--
+
+opthigh OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of Optical Power 
+  		Transmitted (OPT) High limit in mW."
+                ::= { threshold 1 }
+
+
+optlow OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of Optical Power 
+  		  Transmitted (OPT) Low limit in mW."
+                ::= { threshold 2 }
+
+
+oprhigh OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of Optical Power 
+ 		 Received (OPR) High limit in mW."
+                ::= { threshold 3 }
+
+
+oprlow OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of Optical Power 
+  		  Received (OPR) Low limit in mW."
+                ::= { threshold 4 }
+
+lbc OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+    		DESCRIPTION
+ 		"User can read/write the threshold value of Laser Bias 
+ 		 Current (LBC) in mAmp."
+                ::= { threshold 5 }
+
+
+ltemphigh OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of Laser Temperature  
+ 		 (LTEM) High limit in celcius."
+                ::= { threshold 6 }
+
+
+ltemplow OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of Laser Bias 
+ 		 Current (LTEM) Low limit in celcius."
+                ::= { threshold 7 }
+
+
+cvs OBJECT-TYPE
+                SYNTAX INTEGER (1..58982400)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of B1-Error (CVS-
+ 		 Code Section Violation)."
+                ::= { threshold 8 }
+
+ess OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of ESS (Errored 
+  		  Seconds)."
+                ::= { threshold 9 }
+
+sess OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SESS (Severely 
+ 		 Errored Seconds)."
+                ::= { threshold 10 }
+
+sefss OBJECT-TYPE
+                SYNTAX INTEGER(1..899)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SEFSS (Severely 
+	         Errored Frame Seconds)."
+                ::= { threshold 11 }
+
+cvsdaily OBJECT-TYPE
+                SYNTAX INTEGER (1..5662310400)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of B1-Error (CVS-
+ 		 Code Section Violation)."
+                ::= { threshold 12 }
+
+
+essdaily OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of ESS (Errored 
+  		 Seconds)."
+                ::= { threshold 13 }
+
+sessdaily OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of SESS (Severely 
+  		  Errored Seconds)."
+                ::= { threshold 14 }
+
+sefssdaily OBJECT-TYPE
+                SYNTAX INTEGER(1..86399)	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+ 		"User can read/write the threshold value of SEFSS (Severely 
+ 		 Errored Frame Seconds)."
+                ::= { threshold 15 }
+
+bersf OBJECT-TYPE
+                SYNTAX INTEGER
+    {
+		exp3 (3),
+		exp4 (4), 
+		exp5 (5)
+    }	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		 "User can read/write the threshold value of BER-SF (Bit Error 
+ 		  Rate-Signal Fail)."
+                ::= { threshold 16 }
+
+
+bersd OBJECT-TYPE
+                SYNTAX INTEGER
+    {
+		exp5 (5),
+		exp6 (6),
+		exp7 (7),
+		exp8 (8),
+		exp9 (9)
+    }	
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+		"User can read/write the threshold value of BER-SD (Bit Error 
+ 		 Rate-Signal Degrade)."
+                ::= { threshold 17 }
+
+
+
+
+--
+-- This object provides access to all PM Parameters (both 15-minutes as well as 
+-- daily for both section as well as physical parameters for both current as 
+-- well as historical parameters) 
+--
+
+
+        pmparameter OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParam
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Parameter."
+                ::= { pm 1 }
+
+        pmparam OBJECT-TYPE
+                SYNTAX PMParam
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { PMIndex }
+                ::= { pmparameter 1 }
+
+        PMParam ::=
+                SEQUENCE 
+				{
+					PMIndex
+						INTEGER,
+					PMVariable
+						DisplayString (SIZE (0..20)),
+					PMFlag
+						INTEGER,
+					Datestamp
+						DisplayString(SIZE(0..8)),
+					Timestamp
+						DisplayString (SIZE (0..8)),
+					PMValue
+						DisplayString(SIZE(0..8))
+					
+				}
+
+
+  PMIndex OBJECT-TYPE
+                SYNTAX INTEGER(1..528)
+				--Cvs15minute (1 + RegNo * 16), 
+				--Cvsdaily (2 + RegNo * 16),
+				--Ess15minute (3 + RegNo * 16),
+				--Essdaily (4 + RegNo * 16),
+				--Sess15minute (5 + RegNo * 16),
+				--Sessdaily (6 + RegNo * 16),
+				--Sefss15minute (7 + RegNo * 16),
+				--Sefssdaily (8 + RegNo * 16),
+				--Opt15minute (9 + RegNo * 16),
+				--Optdaily (10 + RegNo * 16),
+				--Opr15minute (11 + RegNo * 16),
+				--Oprdaily (12 + RegNo * 16),
+				--Lbc15minute (13 + RegNo * 16),
+				--Lbcdaily (14 + RegNo * 16),
+				--Ltem15minute (15 + RegNo * 16),
+				--Ltemdaily (16 + RegNo * 16)
+				-- RegNo ranges 0-32
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it's 
+                         uniquely identifies the variable."
+                ::= { pmparam 1 }
+
+PMVariable OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Provides variable identity."
+                ::= { pmparam 2 }
+
+
+
+   PMFlag  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparam 3 }
+
+
+    Datestamp OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparam 4 }
+
+
+   Timestamp OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparam 5 }
+
+
+PMValue  OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..8))
+                ACCESS read-write
+                STATUS mandatory
+                DESCRIPTION
+                        "Value for this entry in the PM table."
+                ::= { pmparam 6 }   
+
+--
+--
+-- tftp Group
+--
+--
+
+	tftpSoftwareServerIPAddress OBJECT-TYPE
+	SYNTAX IpAddress
+	ACCESS read-write
+	STATUS mandatory
+	DESCRIPTION
+		"IP address of TFTP Server for Operational Code."
+	::= { tftp 1 }
+														
+	tftpSoftwareFileName OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..32))
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"File name of operational code."
+		::= { tftp 2}
+
+	tftpAction OBJECT-TYPE
+
+		SYNTAX INTEGER  
+
+		{
+
+			no-action(1),
+
+			start-software-download(2)
+
+		}
+
+		ACCESS read-write
+
+		STATUS mandatory
+
+		DESCRIPTION
+
+		    "Get or Set download state.
+
+			no-action(1)			- no TFTP activity
+
+			start-software-download(2) 	- srtart software download"
+
+		::= { tftp 3 }
+
+
+
+	tftpStatus OBJECT-TYPE
+		SYNTAX INTEGER  
+		{
+			file-not-found(1),
+			access-violation(2),
+			disk-full(3),
+			illegal-TFTP-operation(4),
+			unknown-part-TID(5),
+			file-already-exists(6),
+			no-such-user(7),
+			missing-software-server-address(8),
+			missing-software-file-name(9),
+			file-type-error(10),
+			bad-db-version(11),
+			no-memory(12),
+			crc-Error(13),
+			time-out(14),
+			transfer-ok(15),
+			tftp-in-progress(16),
+			none(99)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Status of TFTP operation."
+		::= { tftp 4 }
+   
+--
+--
+--  Enterprise specific traps
+--
+--  obj ID's are not sequential so they are somewhat compatible with 1.0.0
+--
+
+txLTEMNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {normal}
+	    MESG "Laser Tem -Normal/Clear"
+	    DESCRIPTION
+		"Generated when Laser Temperature changes state from 'low' or  
+		'high' to 'normal'."
+	    ::= 11 
+
+-- was txLTEMHighALARM
+txLTEMALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {critical}
+	    MESG "Laser Tem - FAILED: ALARM."
+	    DESCRIPTION
+		  "Generated when Laser Temperature changes state from 'normal'
+		   to 'high' or 'low' and the ALARM severity of Laser Temperature
+               	   (corresponding to high threshold) is equal or more than the ALARM 
+                   severity of the card i.e. when the customer sets it's ALARM 
+                   severity to generate an audio ALARM at NE in case of threshold 
+                   crossing."
+	    ::= 13
+
+txLaserBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {normal}
+	    MESG "Laser Bias-Normal/Clear"
+	    DESCRIPTION
+		  "Generated when Laser Bias changes state from 'High'
+		   to 'normal'."
+	    ::= 3 
+
+txLaserBiasFailedALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {critical}
+	    MESG "Laser Bias FAILED: ALARM."
+	    DESCRIPTION
+		 "Generated when Laser Bias changes state from 'normal'
+		  to 'High' and the ALARM severity of Laser Bias is equal or more 
+                  than the ALARM severity of the card i.e. when the customer sets 
+                  it's ALARM severity to generate an audio ALARM at NE in case of 
+                  threshold crossing."
+	    ::= 5
+
+-- txLOCNormal TRAP-TYPE
+-- 	    ENTERPRISE gigaMuxOC192
+-- 	    ACTIONS {normal}
+-- 	    MESG "Loss of Clock(LOC)-Normal/Clear."
+-- 	    DESCRIPTION
+-- 		  "Generated when Loss of Clock (LOC) changes state from 'defect' or 
+--                'failure' to 'normal'."
+-- 	    ::= 16 
+
+-- txLOCFailedALARM TRAP-TYPE
+-- 	    ENTERPRISE gigaMuxOC192
+-- 	    ACTIONS {critical}
+-- 	    MESG "Loss of Clock(LOC)-FAILED:ALARM."
+-- 	    DESCRIPTION
+-- 	       "Generated when Loss of Clock (LOC) changes state from 'normal'
+-- 	       to 'failed' and the ALARM severity of Loss of Clock (LOC)
+--                is equal or more than the ALARM severity of the card i.e. when 
+--                the customer sets it's ALARM severity to generate an audio ALARM 
+--                at NE in case of Loss of Clock (LOC)."
+-- 	    ::= 19
+
+-- was txLaserPowerHigh
+OPTHigh15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "OPTHigh -15 Minute TCA."
+	    DESCRIPTION
+		  "OPTHigh-15 Minute TRAP."   
+	    ::= 8
+
+-- was txLaserPowerEMLow
+OPTLow15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "OPTLow -15 Minute TCA."
+	    DESCRIPTION
+		  "OPTLow-15 Minute TRAP."   
+	    ::= 9
+
+-- was txTEMHigh
+txTEMHigh15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "Laser Tem High-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Temperature changes state from 'normal'
+		   to 'high'."
+	    ::= 12
+
+-- was txTEMLow
+txTEMLow15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "Laser Tem Low-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Temperature changes state from 'normal'
+		   to 'low'."
+	    ::= 14
+
+-- was txLaserBiasFailed
+txLaserBiasHigh15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "Laser Bias High-TCA"
+	    DESCRIPTION
+		  "Generated when Laser Bias changes state from 'normal'
+		   to 'High'."
+	    ::= 4
+
+rxLOSNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {normal}
+	    MESG "Loss of Signal(LOS)-Normal/Clear."
+	    DESCRIPTION
+		"Generated when Loss of Signal (LOS) changes state from 'defect'  
+ 		 or 'failure' to 'normal'."
+	    ::= 20 
+
+rxLOSFailedALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {critical}
+	    MESG "Loss of Signal(LOS) - FAILED: ALARM."
+	    DESCRIPTION
+		"Generated when Loss of Signal (LOS) changes state from 'normal' 
+		 to 'failure' and the ALARM severity of LOS is equal or more 
+                 than the ALARM severity of the card i.e. when the customer sets 
+                 it's ALARM severity to generate an audio ALARM at NE in case of 
+                 threshold crossing."
+	    ::= 23
+
+rxLOFNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {normal}
+	    MESG "Loss of Frame(LOF)-Normal/Clear."
+	    DESCRIPTION
+		  "Generated when Loss of Frame (LOF) changes state from 'defect' or 
+               'failure' to 'normal'."
+	    ::= 24 
+
+
+rxLOFFailedALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {critical}
+	    MESG "Loss of Frame(LOF) - FAILED: ALARM."
+	    DESCRIPTION
+		"Generated when Loss of Frame (LOF) changes state from 'normal' 
+		 to 'failure' and the ALARM severity of LOF is equal or more 
+                 than the ALARM severity of the card i.e. when the customer sets 
+                 it's ALARM severity to generate an audio ALARM at NE in case of 
+                 threshold crossing."
+	    ::= 27
+
+rxSFNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+  	    ACTIONS {normal}
+	    MESG "Signal Fail(SF) -Normal/Clear."
+	    DESCRIPTION
+		"Generated when Signal Fail (SF) changes 
+ 		state from 'defect' or 'failure' to 'normal'."
+	    ::= 38 
+
+rxSFFailedALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {critical}
+	    MESG "Signal Fail(SF) FAILED-ALARM."
+	    DESCRIPTION
+	       "Generated when Signal Fail (SF) changes 
+               state from 'normal' to 'failed' and the ALARM severity of 
+               Signal Fail (SF) is equal or more than 
+               the ALARM severity of the card i.e. when the customer sets it's 
+               ALARM severity to generate an audio ALARM at NE in case of 
+               Signal Fail (SF)."
+	    ::= 41
+
+rxSDNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {normal}
+	    MESG "Signal Degrade(SD) -Normal/Clear."
+	    DESCRIPTION
+		"Generated when Signal Degrade (SD) 
+		 changes state from 'defect' or 'failure' to 'normal'."
+	    ::= 42 
+
+rxSDFailedALARM TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {major}
+	    MESG "Signal Degrade(SD) FAILED-ALARM."
+	    DESCRIPTION
+	      "Generated when Signal Degrade (SD) 
+               changes state from 'normal' to 'failed' and the ALARM severity of 
+               Signal Degrade (SD) is equal or more 
+               than the ALARM severity of the card i.e. when the customer sets 
+               it's ALARM severity to generate an audio ALARM at NE in case of 
+               Signal Degrade (SD)."
+	    ::= 45
+
+-- was rxPowerHigh
+OPRHigh15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "OPR(High) 15-Minute -TCA."
+	    DESCRIPTION
+		  "Generated when Received Power changes state from 'normal'
+		   to 'high'."
+	    ::= 47
+
+-- was rxPowerLow
+OPRLow15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "OPR(Low) 15-Minute -TCA."
+	    DESCRIPTION
+		  "Generated when Received Power changes state from 'normal'
+		   to 'low'."
+	    ::= 49
+
+-- new in 2.0.0
+BER15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "BER 15-Minute -TCA."
+	    DESCRIPTION
+		  "Generated when Bit Error Ratio changes state from 'normal'
+		   to 'high'."
+	    ::= 80
+
+CVS15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "CVS 15-Minute -TCA."
+	    DESCRIPTION
+	      "Generated every time whenever CVS accumulation crosses the 
+               threshold limit for the 15 minute duration." 
+	    ::= 54
+
+ESS15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "ESS 15-Minute -TCA."
+	    DESCRIPTION
+	      "Generated every time whenever ESS accumulation crosses the 
+               threshold limit for the 15 minute duration." 
+	    ::= 56
+
+SESS15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "SESS 15-Minute -TCA."
+	    DESCRIPTION
+	      "Generated every time whenever SESS accumulation crosses the 
+               threshold limit for the 15 minute duration."
+	    ::= 58
+
+SEFSS15MINTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "SEFSS 15-Minute -TCA."
+	    DESCRIPTION
+	      "Generated every time whenever SEFSS accumulation crosses the 
+               threshold limit for the 15 minute duration."
+	    ::= 60
+
+CVSDAILYTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "CVS Daily -TCA."
+	    DESCRIPTION
+	      "Generated every time whenever CVS accumulation crosses the 
+               threshold limit for 24 hour duration."
+	    ::= 62
+
+ESSDAILYTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "ESS Daily -TCA."
+	    DESCRIPTION
+   		"Generated every time whenever ESS accumulation crosses the 
+                 threshold limit for 24 hour duration."
+	    ::= 64
+
+SESSDAILYTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "SESS Daily -TCA."
+	    DESCRIPTION
+		  "Generated every time whenever SESS accumulation crosses the 
+                   threshold limit for 24 hour duration."
+	    ::= 66
+
+SEFSSDAILYTRAP TRAP-TYPE
+	    ENTERPRISE gigaMuxOC192
+	    ACTIONS {warning}
+	    MESG "SEFSS Daily -TCA."
+	    DESCRIPTION
+		  "Generated every time whenever SEFSS accumulation crosses the 
+                   threshold limit for 24 hour duration."
+	    ::= 68
+
+tftpDownloadFailed TRAP-TYPE
+		ENTERPRISE gigaMuxOC192
+		VARIABLES { tftpStatus }
+		DESCRIPTION
+			"TFTP download operation failed.
+			 tftpStatus is the error code."
+		::= 70
+
+tftpDownloadSuccessful TRAP-TYPE
+		ENTERPRISE gigaMuxOC192
+		DESCRIPTION
+			"TFTP download operation was successful.
+			 Card will automatically reset and boot up with new image."
+		::= 71
+
+
+--
+--
+-- Inventory information Group
+--
+--
+
+	hardwareRevision OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..5))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Hardware Revision for this circuit pack.
+			 Format is nn.nn
+			 (n = 0..9)"
+		::= { inventory 1 }
+
+	gmCLEICode OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..10))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Common Language Equipment Identification (CLEI) code
+			 for this circuit pack.
+			 Format is alpha-numeric ASCII string."
+		::= { inventory 2 }
+
+
+	serialNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..11))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Serial Number for this circuit pack.
+			 Format is $$$$$$$$$$$
+			 where $ is printable character"	
+		::= { inventory 3 }
+
+	partNumber OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..11))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Part Number for this circuit pack.
+			 Format is nn-nnnnn-nn
+			 where 	n = 0..9"
+		::= { inventory 4 }
+
+	mfgDate OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..12))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Manufacturing Date for this circuit pack.
+			 Format is mm/dd/yyyy"
+		::= { inventory 5 }
+
+
+
+
+--
+-- This object provides access to Digital PM Parameters-15 minute
+--
+
+
+        pmparameter15min OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParam15Min
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Parameter."
+                ::= { pm15min 1 }
+
+        pmparam15min OBJECT-TYPE
+                SYNTAX PMParam15Min
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNo }
+                ::= { pmparameter15min 1 }
+
+        PMParam15Min ::=
+                SEQUENCE 
+				{
+					RegNo
+						INTEGER,
+					Date
+						DisplayString(SIZE(0..8)),
+					Time
+						DisplayString (SIZE (0..8)),
+					CVS
+						DisplayString(SIZE(0..20)),
+					ESS
+						DisplayString(SIZE(0..20)),
+					SESS
+						DisplayString(SIZE(0..20)),
+					SEFSS
+						DisplayString(SIZE(0..20)),
+					PMFlagP
+						INTEGER	
+				}
+
+
+  RegNo OBJECT-TYPE
+                SYNTAX INTEGER(1..33)
+				--Cvs15minute (1 + RegNo * 16), 
+				--Cvsdaily (2 + RegNo * 16),
+				--Ess15minute (3 + RegNo * 16),
+				--Essdaily (4 + RegNo * 16),
+				--Sess15minute (5 + RegNo * 16),
+				--Sessdaily (6 + RegNo * 16),
+				--Sefss15minute (7 + RegNo * 16),
+				--Sefssdaily (8 + RegNo * 16),
+				--Opt15minute (9 + RegNo * 16),
+				--Optdaily (10 + RegNo * 16),
+				--Opr15minute (11 + RegNo * 16),
+				--Oprdaily (12 + RegNo * 16),
+				--Lbc15minute (13 + RegNo * 16),
+				--Lbcdaily (14 + RegNo * 16),
+				--Ltem15minute (15 + RegNo * 16),
+				--Ltemdaily (16 + RegNo * 16)
+				-- RegNo ranges 0-32
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it's 
+                         uniquely identifies the variable."
+                ::= { pmparam15min 1 }
+
+
+    Date OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparam15min 2 }
+
+
+   Time OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparam15min 3 }
+
+
+CVS OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS value corresponding to the register."
+                ::= { pmparam15min 4 }
+
+ESS OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS value corresponding to the register."
+                ::= { pmparam15min 5 }
+
+SESS OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS value corresponding to the register."
+                ::= { pmparam15min 6 }
+
+SEFSS OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS value corresponding to the register."
+                ::= { pmparam15min 7 }
+
+PMFlagP  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparam15min 8 }
+
+
+--
+-- This object provides access to Digital PM Parameters-Daily
+--
+
+
+        pmparameterdaily OBJECT-TYPE
+                SYNTAX SEQUENCE OF PMParamdaily
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Daily Parameter."
+                ::= { pmdaily 1 }
+
+        pmparamdaily OBJECT-TYPE
+                SYNTAX PMParamdaily
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoD }
+                ::= { pmparameterdaily 1 }
+
+        PMParamdaily ::=
+                SEQUENCE 
+				{
+					RegNoD
+						INTEGER,
+					DateD
+						DisplayString(SIZE(0..8)),
+					TimeD
+						DisplayString (SIZE (0..8)),
+					CVSD
+						DisplayString(SIZE(0..20)),
+					ESSD
+						DisplayString(SIZE(0..20)),
+					SESSD
+						DisplayString(SIZE(0..20)),
+					SEFSSD
+						DisplayString(SIZE(0..20)),
+					PMFlagD
+						INTEGER	
+				}
+
+
+  RegNoD OBJECT-TYPE
+                SYNTAX INTEGER(1..2)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it's 
+                         uniquely identifies the variable."
+                ::= { pmparamdaily 1 }
+
+
+    DateD OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { pmparamdaily 2 }
+
+
+   TimeD OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { pmparamdaily 3 }
+
+
+CVSD OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS Daily value corresponding to the register."
+                ::= { pmparamdaily 4 }
+
+ESSD OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS Daily value corresponding to the register."
+                ::= { pmparamdaily 5 }
+
+SESSD OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS Daily value corresponding to the register."
+                ::= { pmparamdaily 6 }
+
+SEFSSD OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS Daily value corresponding to the register."
+                ::= { pmparamdaily 7 }
+
+PMFlagD  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { pmparamdaily 8 }
+
+
+
+--
+-- This object provides access to all the 15-Minute Analog PM Parameters
+--
+
+
+        analog OBJECT-TYPE
+                SYNTAX SEQUENCE OF PManalog
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        "This object gives access to bunch of attributes of a PM 
+                         Daily Parameter."
+                ::= { analogpm 1 }
+
+        analogparam OBJECT-TYPE
+                SYNTAX PManalog
+                ACCESS not-accessible
+                STATUS mandatory
+                DESCRIPTION
+                        ""
+                INDEX   { RegNoA }
+                ::= { analog 1 }
+
+        PManalog ::=
+                SEQUENCE 
+				{
+					RegNoA
+						INTEGER,
+					DateA
+						DisplayString(SIZE(0..8)),
+					TimeA
+						DisplayString (SIZE (0..8)),
+					OPT
+						DisplayString(SIZE(0..20)),
+					OPR
+						DisplayString(SIZE(0..20)),
+					LBC
+						DisplayString(SIZE(0..20)),
+					LTEM
+						DisplayString(SIZE(0..20)),
+					PMFlagA
+						INTEGER	
+				}
+
+
+  RegNoA OBJECT-TYPE
+                SYNTAX INTEGER(1..33)
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Number for this entry in the PM table i.e. it's 
+                         uniquely identifies the variable."
+                ::= { analogparam 1 }
+
+
+    DateA OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+    		DESCRIPTION
+                        "Date stamp for this entry in the PM table."
+                ::= { analogparam 2 }
+
+
+   TimeA OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(8))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Clock/Time stamp for this entry in the PM table."
+                ::= { analogparam 3 }
+
+
+OPT OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the CVS Daily value corresponding to the register."
+                ::= { analogparam 4 }
+
+OPR OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the ESS Daily value corresponding to the register."
+                ::= { analogparam 5 }
+
+LBC OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SESS Daily value corresponding to the register."
+                ::= { analogparam 6 }
+
+LTEM OBJECT-TYPE
+                SYNTAX DisplayString(SIZE(0..20))
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Gives the SEFSS Daily value corresponding to the register."
+                ::= { analogparam 7 }
+
+PMFlagA  OBJECT-TYPE
+                SYNTAX INTEGER
+		    {
+			valid(0),
+			invalid(1)
+		    }
+                ACCESS read-only
+                STATUS mandatory
+                DESCRIPTION
+                        "Flag status (valid/invalid) for this entry in the PM 
+                         table."
+                ::= { analogparam 8 }
+
+
+
+--
+-- This object provides access to all the Daily Analog PM Parameters
+--
+
+
+--         analogdaily OBJECT-TYPE
+--                 SYNTAX SEQUENCE OF PManalogdaily
+--                 ACCESS not-accessible
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "This object gives access to bunch of attributes of a PM 
+--                          Daily Parameter."
+--                 ::= { analogpmdaily 1 }
+
+--         analogparamdaily OBJECT-TYPE
+--                 SYNTAX PManalogdaily
+--                 ACCESS not-accessible
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         ""
+--                 INDEX   { RegNoAD }
+--                 ::= { analogdaily 1 }
+
+--         PManalogdaily ::=
+--                 SEQUENCE 
+-- 				{
+-- 					RegNoAD
+-- 						INTEGER,
+-- 					DateAD
+-- 						DisplayString(SIZE(0..8)),
+-- 					TimeAD
+-- 						DisplayString (SIZE (0..8)),
+-- 					OPTD
+-- 						DisplayString(SIZE(0..20)),
+-- 					OPRD
+-- 						DisplayString(SIZE(0..20)),
+-- 					LBCD
+-- 						DisplayString(SIZE(0..20)),
+-- 					LTEMD
+-- 						DisplayString(SIZE(0..20)),
+-- 					PMFlagAD
+-- 						INTEGER	
+-- 				}
+
+
+--   RegNoAD OBJECT-TYPE
+--                 SYNTAX INTEGER(1..2)
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Number for this entry in the PM table i.e. it's 
+--                          uniquely identifies the variable."
+--                 ::= { analogparamdaily 1 }
+-- 
+
+--     DateAD OBJECT-TYPE
+--                 SYNTAX DisplayString(SIZE(8))
+--                 ACCESS read-only
+--                 STATUS mandatory
+--     		DESCRIPTION
+--                         "Date stamp for this entry in the PM table."
+--                 ::= { analogparamdaily 2 }
+
+
+--    TimeAD OBJECT-TYPE
+--                 SYNTAX DisplayString(SIZE(8))
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Clock/Time stamp for this entry in the PM table."
+--                 ::= { analogparamdaily 3 }
+
+
+-- OPTD OBJECT-TYPE
+--                 SYNTAX DisplayString(SIZE(0..20))
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Gives the CVS Daily value corresponding to the register."
+--                 ::= { analogparamdaily 4 }
+
+-- OPRD OBJECT-TYPE
+--                 SYNTAX DisplayString(SIZE(0..20))
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Gives the ESS Daily value corresponding to the register."
+--                 ::= { analogparamdaily 5 }
+
+-- LBCD OBJECT-TYPE
+--                 SYNTAX DisplayString(SIZE(0..20))
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Gives the SESS Daily value corresponding to the register."
+--                 ::= { analogparamdaily 6 }
+
+-- LTEMD OBJECT-TYPE
+--                 SYNTAX DisplayString(SIZE(0..20))
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Gives the SEFSS Daily value corresponding to the register."
+--                 ::= { analogparamdaily 7 }
+
+-- PMFlagAD  OBJECT-TYPE
+--                 SYNTAX INTEGER
+-- 		    {
+-- 			valid(0),
+-- 			invalid(1)
+-- 		    }
+--                 ACCESS read-only
+--                 STATUS mandatory
+--                 DESCRIPTION
+--                         "Flag status (valid/invalid) for this entry in the PM 
+--                          table."
+--                 ::= { analogparamdaily 8 }
+ 
+       END
+

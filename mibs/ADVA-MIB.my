@@ -1,0 +1,1181 @@
+ADVA-MIB DEFINITIONS ::= BEGIN
+
+IMPORTS
+    MODULE-IDENTITY, OBJECT-IDENTITY, OBJECT-TYPE, NOTIFICATION-TYPE,
+    enterprises, Integer32, Unsigned32, IpAddress, Counter32, Gauge32
+        FROM SNMPv2-SMI
+    ifIndex
+        FROM IF-MIB
+    entPhysicalIndex
+        FROM ENTITY-MIB
+    DisplayString, RowStatus, TEXTUAL-CONVENTION, DateAndTime
+        FROM SNMPv2-TC
+    SnmpAdminString
+        FROM SNMP-FRAMEWORK-MIB;
+
+advaMIB MODULE-IDENTITY
+    LAST-UPDATED "200503020000Z"  -- March 02, 2005
+    ORGANIZATION "ADVA AG Optical Networking"
+    CONTACT-INFO
+        "ADVA AG Optical Networking
+        Justus-von-Liebig-Str. 7
+        12489 Berlin, Germany
+
+        Support Europe:
+        Phone:  +49 89 89 0665 848
+        Fax:    +49 89 89 0665 22848
+        e-mail: support@advaoptical.com
+
+        Support USA:
+        Phone:  +1 201 995 0080
+        Fax:    +1 201 995 0081
+        e-mail: support-usa@advaoptical.com
+
+        Support Asia:
+        Phone:  +81 3 5408 5891
+        Fax:    +81 3 5408 5899
+        e-mail: support-asia@advaoptical.com"
+    DESCRIPTION
+        "The ADVA Optical Networking base MIB."
+
+    REVISION    "200503020000Z"  -- March 02, 2005
+    DESCRIPTION
+        "The ADVA Common MIB version 1.8."
+
+    REVISION    "200412140000Z"  -- December 14, 2004
+    DESCRIPTION
+        "The ADVA Common MIB version 1.7."
+
+    REVISION    "200402200000Z" -- February 20, 2004
+    DESCRIPTION
+        "The ADVA Common MIB version 1.6."
+
+    REVISION    "200312120000Z" -- December 12, 2003
+    DESCRIPTION
+        "The ADVA Common MIB version 1.5."
+
+    REVISION    "200310070000Z" -- October 07, 2003
+    DESCRIPTION
+        "The ADVA Common MIB version 1.4."
+
+    REVISION    "200306270000Z" -- June 27, 2003
+    DESCRIPTION
+        "The ADVA Common MIB version 1.3"
+
+    REVISION    "200207220000Z" -- July 22, 2002
+    DESCRIPTION
+        "The ADVA MIB version 1.3."
+        ::= { enterprises 2544 }
+
+products        OBJECT IDENTIFIER ::= { advaMIB 1 }
+common          OBJECT IDENTIFIER ::= { advaMIB 2 }
+
+
+-- **************************************************************************
+-- **************************  ADVA Products  *******************************
+-- **************************************************************************
+
+fsp3000         OBJECT IDENTIFIER ::= { products 4 }
+fsp1000         OBJECT IDENTIFIER ::= { products 6 }
+fsp2000         OBJECT IDENTIFIER ::= { products 7 }
+fsp1000adm      OBJECT IDENTIFIER ::= { products 8 }
+fsp1500         OBJECT IDENTIFIER ::= { products 9 }
+fsp150          OBJECT IDENTIFIER ::= { products 10 }
+fspR7           OBJECT IDENTIFIER ::= { products 11 }
+
+
+-- **************************************************************************
+-- ***********************  The ADVA Common MIB  ****************************
+-- **************************************************************************
+
+neInfo          OBJECT IDENTIFIER ::= { common 1 }
+admin           OBJECT IDENTIFIER ::= { common 2 }
+events          OBJECT IDENTIFIER ::= { common 3 }
+software        OBJECT IDENTIFIER ::= { common 4 }
+config          OBJECT IDENTIFIER ::= { common 5 }
+
+-- **************************************************************************
+-- ***********************  Textual Conventions  ****************************
+-- **************************************************************************
+
+OnOff ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Variable for representing a state and is for general use."
+    SYNTAX      INTEGER {
+        on (1),
+        off (2)
+    }
+
+AvailState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Variable for representing availability state and is for
+        general use."
+    SYNTAX      INTEGER {
+        available (1),
+        notAvailable (2)
+    }
+
+EnableState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Describes whether a feature is enabled or disabled."
+    SYNTAX      INTEGER {
+        stateNotApplicable (0),
+        stateEnabled (1),
+        stateDisabled (2)
+    }
+
+ArcState ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Variable for representing the Alarm Report Control (ARC)
+        state for an entity."
+    SYNTAX      INTEGER {
+        alm (1),        -- Reporting turned on (i.e., alarm traps sent).
+                        -- Alarms are present in current alarm table
+                        -- with own severity.
+                        -- Transition nalm->alm: active alarm traps
+                        -- sent with own severity.
+        nalm (2)        -- Reporting turned off (i.e., no alarm traps).
+                        -- Alarms are present in current alarm table
+                        -- with severity 'notReported'.
+                        -- Transition alm->nalm: active alarms are
+                        -- 'cleared' by sending alarm clear traps with
+                        -- severity 'notReported'.
+        -- nalmTI (3),   - reporting turned off for time interval
+        -- nalmQI (4),   - reporting turned off for qualified interval
+        -- nalmQICD (5)  - substate of nalmQI with countdown interval
+    }
+
+TrapAlarmSeverity ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "This object identifies the severity of an alarm. The state
+        'cleared' is not a severity, but is used for reporting that
+        an alarm condition is no longer present. The state
+        'notReported' is used for current alarms which are not
+        reported because of ARC.
+        The state 'indeterminate' is used when the severity value
+        cannot be determined due to an internal error."
+    SYNTAX      INTEGER {
+        indeterminate (1),
+        critical (2),
+        major (3),
+        minor (4),
+        warning (5),
+        cleared (6),
+        notReported (7)
+    }
+
+ServiceImpairment ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "This object identifies the potential service impairment of
+        an alarm."
+    SYNTAX      INTEGER {
+        serviceAffecting (1),
+        nonServiceAffecting (2)
+    }
+
+TrapCounter ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The sequence number of sent notifications (traps)."
+    SYNTAX      Counter32
+
+Counter64String ::= TEXTUAL-CONVENTION
+    DISPLAY-HINT "20a"
+    STATUS      current
+    DESCRIPTION
+        "A string representation of a 64 bit counter.
+        This TC is provided solely for SNMPv1 compliance."
+    SYNTAX      OCTET STRING (SIZE (1..20))
+
+KBytes ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "A memory size, expressed in units of 1024 bytes."
+    SYNTAX      Gauge32
+
+IdentityTranslation ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "Translation of an index (entPhysicalIndex, ifIndex etc.)
+        to a string.
+            Slot/Module/Port location (product specific notation)
+            Service/Bundle Name
+
+        If no index available a string with:
+            IP address (for neTrapsinkTable etc.)
+
+        If nothing appropriate available
+            zero length string
+
+        Further info in product documentation."
+    SYNTAX      OCTET STRING (SIZE (0..255))
+
+NeSwUpgradeStatusType ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The status of a NE software upgrade command.
+        The states 2 - 7 and 15 are only used when the NE
+        is used as FTP client."
+    SYNTAX      INTEGER {
+        none (1),
+        downloading (2),
+        downloadLoginFailed (3),
+        downloadFileNotFound (4),
+        downloadFileNoAccess (5),
+        downloadFailure (6),
+        downloadReadyForInstallation (7),
+        installingSoftware (8),
+        installationFailed (9),
+        softwareReadyForActivation (10),
+        activatingSoftware (11),
+        activationFailed (12),
+        softwareActivated (13),
+        rebooting (14),
+        downloadServerUnreachable (15),
+        noSpaceLeft (16),       -- applicable for download and activate
+        internalError (17)
+    }
+
+FileTransferProtocol ::= TEXTUAL-CONVENTION
+    STATUS      current
+    DESCRIPTION
+        "The protocol used for a file transfer."
+    SYNTAX      INTEGER {
+        -- tftp (1),
+        ftp (2),
+        scp (3)
+    }
+
+-- **************************************************************************
+-- *************************  NE Information  *******************************
+-- **************************************************************************
+
+neMibVariant OBJECT-TYPE
+    SYNTAX      Integer32 (0..9999)
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The variant of the SNMP enterprise MIB. This object will
+        together with sysObjectID [RFC1213] uniquely identify the
+        revision and variant of the enterprise MIB used by the NE."
+    ::= { neInfo 1 }
+
+neManufacturer OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Manufacturer of the system. This value is used to present
+        in clear text the manufacturer of the system."
+    ::= { neInfo 2 }
+
+neDateAndTime OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Reports the current local time on the Network Element.
+        It also allows to set the local time. However, SET
+        requests may not be supported by all products."
+    ::= { neInfo 3 }
+
+neMemorySizeTotal OBJECT-TYPE
+    SYNTAX      KBytes
+    UNITS       "kBytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The total amount of physical main memory contained in
+        the NEMI."
+    ::= { neInfo 4 }
+
+neMemorySizeFree OBJECT-TYPE
+    SYNTAX      KBytes
+    UNITS       "kBytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The amount of unused physical main memory contained in
+        the NEMI."
+    ::= { neInfo 5 }
+
+neStorageTable OBJECT-TYPE
+    SYNTAX SEQUENCE OF NeStorageEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The table of long-term storage partitions contained in
+        the NE."
+    ::= { neInfo 6 }
+
+neStorageEntry OBJECT-TYPE
+    SYNTAX      NeStorageEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "An entry for one long-term storage partition contained in
+        the NE."
+    INDEX { neStorageIndex }
+    ::= { neStorageTable 1 }
+
+NeStorageEntry ::= SEQUENCE {
+    neStorageIndex      Unsigned32,
+    neStorageDescr      SnmpAdminString,
+    neStorageCapacity   KBytes,
+    neStorageAvailable  KBytes
+    }
+
+neStorageIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The index of the NE storage partition."
+    ::= { neStorageEntry 1 }
+
+neStorageDescr OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The product specific description of the NE storage
+        partition."
+    ::= { neStorageEntry 2 }
+
+neStorageCapacity OBJECT-TYPE
+    SYNTAX      KBytes
+    UNITS       "kBytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The total capacity of the NE storage partition."
+    ::= { neStorageEntry 3 }
+
+neStorageAvailable OBJECT-TYPE
+    SYNTAX      KBytes
+    UNITS       "kBytes"
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The free space on the NE storage partition."
+    ::= { neStorageEntry 4 }
+
+neAlarmStatus OBJECT-TYPE
+    SYNTAX      TrapAlarmSeverity
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The highest severity of all currently active alarms on the
+        NE. Alarms that are not reported because of Alarm Report
+        Control (ARC) or any other administrative state are not
+        considered active. The values indeterminate(1) and
+        notReported(7) are not applicable for this object. The value
+        cleared(6) indicates that the NE reports no alarm
+        (i.e. Alarm LED(s) off)."
+    ::= { neInfo 7 }
+
+-- **************************************************************************
+-- ********************  Administration & Security **************************
+-- **************************************************************************
+
+snmpWriteAccessRestriction OBJECT-TYPE
+    SYNTAX      EnableState
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This value is used in combination with the
+        snmpWriteAccessTable for additional security for SNMP set
+        requests. When the status is Disabled, SNMP set requests
+        from any NMS (using the correct write community) are
+        accepted (ie, the snmpWriteAccessTable entries do not
+        apply).
+        When the status is Enabled, however, only SNMP set requests
+        from NMSs (using the correct write community) which are
+        listed in the snmpWriteAccessTable are accepted.
+        This object is read-only, meaning that it cannot be updated
+        via the SNMP interface. The operator must configure SNMP
+        write access permissions via a non-SNMP interface."
+    ::= { admin 1 }
+
+
+snmpWriteAccessTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SnmpWriteAccessEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Table of authorized NMSs (identified by IP address) for
+        SNMP set requests.
+        This table is not relevant if snmpWriteAccessRestriction is
+        set to Disabled.
+        The entries of this table are read-only. This means
+        that the SNMP write access permissions cannot be updated via
+        the SNMP interface. The operator must configure them via a
+        non-SNMP interface."
+    ::= { admin 2 }
+
+snmpWriteAccessEntry OBJECT-TYPE
+    SYNTAX      SnmpWriteAccessEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entries in the SNMP Write Access Table.
+        The maximum of rows in this table is product specific,
+        typically 10."
+    INDEX { snmpWriteAccessNmsAddress }
+    ::= { snmpWriteAccessTable 1 }
+
+SnmpWriteAccessEntry ::= SEQUENCE {
+    snmpWriteAccessNmsAddress   IpAddress,
+    snmpWriteAccessNmsName      SnmpAdminString
+    }
+
+snmpWriteAccessNmsAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "IP Address of the NMS which has SNMP write permission."
+    ::= { snmpWriteAccessEntry 1 }
+
+snmpWriteAccessNmsName OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Name of the NMS."
+    ::= { snmpWriteAccessEntry 2 }
+
+
+-- **************************************************************************
+-- *************************  Event Handling  *******************************
+-- **************************************************************************
+
+neEventsLogged OBJECT-TYPE
+    SYNTAX      TrapCounter
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This value is the sum of all notified events (trap counter).
+        It is also the event number of the most recent event
+        (neEventLogIndex) found in the neEventLog tables. It can,
+        for example, be used to check if a notification (trap) is
+        lost.
+        The value is reset to 0 after a cold start. The counter is
+        increased even if no trap sinks are specified."
+    ::= { events 1 }
+
+
+-- **************************************************************************
+-- *************************   neEventLog Table   ***************************
+-- **************************************************************************
+-- All enterprise-specific events are logged in the log table, even if a
+-- trap was not sent to any trapsinks.
+-- The events are indexed by the neEventLogIndex (used as a trap counter)
+-- and include a timestamp indicating when the event occurred.
+-- The corresponding neEventLogTimeStamp is included in each trap, thus
+-- allowing the possibility of tracking (and detecting lost messages by
+-- comparing to neEventsLogged) traps at a management station.
+-- The neEventLogIdentityTranslation is also included in each trap.
+-- This table is a simplified version of the nlmLogTable in [RFC3014].
+--
+-- Note: since this table can be very large, the management systems
+-- should use caution when requesting information from this table
+-- to reduce the load on the network (ie, always use getnext with the
+-- last received trap counter as index).
+--
+-- The number of available records is product specific.
+-- **************************************************************************
+
+neEventLogTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF NeEventLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Table of events issued by the NE's SNMP agent. The eventLog
+        entries are read-only."
+    ::= { events 2 }
+
+neEventLogEntry OBJECT-TYPE
+    SYNTAX      NeEventLogEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entries in the neEventLog Table. Enterprise traps are
+        always logged; logging of Generic traps is product specific."
+    INDEX { neEventLogIndex }
+    ::= { neEventLogTable 1 }
+
+NeEventLogEntry ::= SEQUENCE {
+    neEventLogIndex                 TrapCounter,
+    neEventLogTimeStamp             DateAndTime,
+    neEventLogNotificationOID       OBJECT IDENTIFIER,
+    neEventLogIdentityTranslation   IdentityTranslation
+    }
+
+neEventLogIndex OBJECT-TYPE
+    SYNTAX      TrapCounter
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The associated neEventsLogged counter for the logged
+        event (trap)."
+    ::= { neEventLogEntry 1 }
+
+neEventLogTimeStamp OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The NE Date and Time when the event (trap) occurred. This
+        object is used in the trap varbind."
+    ::= { neEventLogEntry 2 }
+
+neEventLogNotificationOID OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The NOTIFICATION-TYPE object identifier of the event that
+        occurred. The last part of the OID corresponds to the
+        specific trap type value in the trap PDU."
+    ::= { neEventLogEntry 3 }
+
+neEventLogIdentityTranslation OBJECT-TYPE
+    SYNTAX      IdentityTranslation
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Translation of entPhysicalIndex/ifIndex or other identifier
+        to a string used in the trap varbind following the timestamp
+        varbind."
+    ::= { neEventLogEntry 4 }
+
+
+-- **************************************************************************
+-- ************************   neEventLogVar Table   *************************
+-- **************************************************************************
+-- The variables of an entry in the neEventLogTable are logged in this table.
+-- Note: the OctetString syntax is also used to represent DataAndTime
+-- SnmpAdminString and DisplayString objects. Integer32 is also used to
+-- represent INTEGER. This table is a simplified version of
+-- nlmLogVariableTable in [RFC3014].
+-- **************************************************************************
+
+neEventLogVarTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF NeEventLogVarEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Table of variables corresponding to events logged in the
+        neEventLog."
+    ::= { events 3 }
+
+neEventLogVarEntry OBJECT-TYPE
+    SYNTAX      NeEventLogVarEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entries in the neEventLogVar Table. An entry appears in
+        this table for each variable in the varbind list of an entry
+        in the neEventLogTable. For an event having no variables,
+        no entries are found in this table."
+    INDEX { neEventLogIndex, neEventLogVarIndex }
+    ::= { neEventLogVarTable 1 }
+
+NeEventLogVarEntry ::= SEQUENCE {
+    neEventLogVarIndex          Unsigned32,
+    neEventLogVarId             OBJECT IDENTIFIER,
+    neEventLogVarType           INTEGER,
+    neEventLogVarInteger32Val   Integer32,
+    neEventLogVarIpAddressVal   IpAddress,
+    neEventLogVarOctetStringVal OCTET STRING,
+    neEventLogVarOidVal         OBJECT IDENTIFIER
+}
+
+neEventLogVarIndex OBJECT-TYPE
+    SYNTAX      Unsigned32
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "A monotonically increasing integer, starting at 1 for a
+        given neEventLogIndex, for indexing a variable contained in
+        the varbind list of a logged event."
+    ::= { neEventLogVarEntry 1 }
+
+neEventLogVarId OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The object identifier of the variable in the varbind list."
+    ::= { neEventLogVarEntry 2 }
+
+neEventLogVarType OBJECT-TYPE
+    SYNTAX      INTEGER {
+        integer32 (1),
+        ipAddress (2),
+        octetString (3),
+        objectId (4)
+        -- counter32,
+        -- unsigned32,
+        -- timeTicks,
+        -- counter64,
+        -- opaque
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The type of variable. One and only one of the value objects
+        that follow must be instantiated, based on this type. The
+        used types depend on the enterprise traps defined for the
+        specific product."
+    ::= { neEventLogVarEntry 3 }
+
+neEventLogVarInteger32Val OBJECT-TYPE
+    SYNTAX      Integer32
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value when neEventLogVarType is 'integer32'. Integer32
+        is also used to represent INTEGER types.
+        Otherwise, 0 is returned."
+    ::= { neEventLogVarEntry 4 }
+
+neEventLogVarIpAddressVal OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value when neEventLogVarType is 'ipAddress'.
+        Otherwise, an empty address is returned."
+    ::= { neEventLogVarEntry 5 }
+
+neEventLogVarOctetStringVal OBJECT-TYPE
+    SYNTAX      OCTET STRING (SIZE (0..255))
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value when neEventLogVarType is 'octetString'.
+        OctetString is used for all string types, including
+        DisplayString, SnmpAdminString and DateAndTime.
+        Otherwise, an empty string is returned."
+    ::= { neEventLogVarEntry 6 }
+
+neEventLogVarOidVal OBJECT-TYPE
+    SYNTAX      OBJECT IDENTIFIER
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The value when neEventLogVarType is 'objectId'.
+        Otherwise, an objectId { 0.0 } is returned."
+    ::= { neEventLogVarEntry 7 }
+
+
+-- Trap Sink Table
+
+neTrapsinkTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF NeTrapsinkEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Table of Trapsinks. A neTrapsinkTable entry can be created,
+        deleted or modified via the SNMP interface for a specific
+        address and port."
+    ::= { events 4 }
+
+neTrapsinkEntry OBJECT-TYPE
+    SYNTAX      NeTrapsinkEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entries in the Trapsink Table. Entries are created and
+        deleted using the neTrapsinkRowStatus object. The maximum of
+        rows in this table is product specific."
+    INDEX { neTrapsinkAddress, neTrapsinkPort }
+    ::= { neTrapsinkTable 1 }
+
+NeTrapsinkEntry ::= SEQUENCE {
+    neTrapsinkAddress       IpAddress,
+    neTrapsinkPort          Integer32,
+    neTrapsinkCommunity     DisplayString,
+    neTrapsinkRowStatus     RowStatus
+    }
+
+neTrapsinkAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "IP Address of the Management System which should receive
+        SNMP Traps."
+    ::= { neTrapsinkEntry 1 }
+
+neTrapsinkPort OBJECT-TYPE
+    SYNTAX      Integer32 (0..65535)
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "The port number where the specified trap sink will receive
+        SNMP traps."
+    ::= { neTrapsinkEntry 2 }
+
+neTrapsinkCommunity OBJECT-TYPE
+    SYNTAX      DisplayString (SIZE(0..128))
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Community String which is sent with an SNMP Trap to the
+        Management Station. If no community is specified, the
+        default (public) is used."
+    ::= { neTrapsinkEntry 3 }
+
+neTrapsinkRowStatus OBJECT-TYPE
+    SYNTAX      RowStatus
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The status of this conceptual row. To create a row in this
+        table, set this object to createAndGo(4). To remove a row,
+        set this object to destroy(6)."
+    ::= { neTrapsinkEntry 4 }
+
+
+-- **************************************************************************
+-- *************************  System Software  ******************************
+-- **************************************************************************
+
+swVersionTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF SwVersionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Software version information table for units/modules which
+        run a management Operating System. This includes the
+        Application software and Operating System software."
+    ::= { software 1 }
+
+swVersionEntry OBJECT-TYPE
+    SYNTAX      SwVersionEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entries in the swVersion Table."
+    INDEX { entPhysicalIndex }
+    ::= { swVersionTable 1 }
+
+SwVersionEntry ::= SEQUENCE {
+    swVersionActiveApplSw           SnmpAdminString,
+    swVersionInactiveApplSw         SnmpAdminString,
+    swVersionActiveOperatingSw      SnmpAdminString,
+    swVersionInactiveOperatingSw    SnmpAdminString,
+    swVersionNextBoot               INTEGER
+    }
+
+swVersionActiveApplSw OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Reports the active Application software version on the
+        unit/module."
+    ::= { swVersionEntry 1 }
+
+swVersionInactiveApplSw OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Reports the inactive Application software version available
+        on the unit/module."
+    ::= { swVersionEntry 2 }
+
+swVersionActiveOperatingSw OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Reports the active Operating System software version on the
+        unit/module."
+    ::= { swVersionEntry 3 }
+
+swVersionInactiveOperatingSw OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Reports the inactive Operating System software version
+        available on the unit/module."
+    ::= { swVersionEntry 4 }
+
+swVersionNextBoot OBJECT-TYPE
+    SYNTAX      INTEGER {
+        activeVersion (1),
+        inactiveVersion (2)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "Reports which software will be run at next
+        boot, either the currently active one again
+        or the alternative (currently inactive) one."
+    ::= { swVersionEntry 5 }
+
+neSoftwareUpgrade OBJECT IDENTIFIER ::= { software 2 }
+
+neSwUpgradeRequest OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none (1),
+        download (2),
+        install (3),
+        activate (4),         -- enable installed software for next reboot
+        revertToPrevious (5), -- activate previously installed software
+        reboot (6),           -- run activated software
+        downloadInstallActivateReboot(7), -- shortcut (NE is FTP client)
+        installActivateReboot (8),        -- shortcut (NE is FTP server)
+        revertToPreviousReboot (9)        -- shortcut (revert to previous)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The request to the software upgrade function.
+        Request 2..6 are single step requests while requests 7..9
+        are batch commands for common upgrade scenarios.
+
+        If the NE is the FTP server, the file must then have been
+        downloaded to the neSwUpgradeNeDirectory on the NE using the
+        'netadmin' account."
+    ::= { neSoftwareUpgrade 1 }
+
+neSwUpgradeState OBJECT-TYPE
+    SYNTAX      NeSwUpgradeStatusType
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The current status of the SW upgrade process.
+        NOTE: All failures that are caused by malfunctioning
+              hardware are reported as internalError(17)."
+    ::= { neSoftwareUpgrade 2 }
+
+neSwUpgradeServerAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The IP address of the external FTP server."
+    ::= { neSoftwareUpgrade 3 }
+
+neSwUpgradeServerLogin OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The login name on the external FTP server."
+    ::= { neSoftwareUpgrade 4 }
+
+neSwUpgradeServerPasswd OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The password on the external FTP server. Read requests on
+        this object will return a zero-length string."
+    ::= { neSoftwareUpgrade 5 }
+
+neSwUpgradeServerDirectory OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The SW file location (path) on the external FTP server."
+   ::= { neSoftwareUpgrade 6 }
+
+neSwUpgradeFileName OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The SW file name (without path) on the external FTP server
+        or the name of the file which has been downloaded to the NE."
+    ::= { neSoftwareUpgrade 7 }
+
+neSwUpgradeNeDirectory OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The SW file location (path) on the NE."
+    ::= { neSoftwareUpgrade 8 }
+
+neSwUpgradeTransferProtocol OBJECT-TYPE
+    SYNTAX      FileTransferProtocol
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The transfer protocol to be used."
+    ::= { neSoftwareUpgrade 9 }
+
+
+-- **************************************************************************
+-- **************************  Configuration  *******************************
+-- **************************************************************************
+
+provContainerTable OBJECT-TYPE
+    SYNTAX      SEQUENCE OF ProvContainerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "This table defines the objects that support provisioning of
+        'container' class physical entities.  Provisioning sets up a
+        'container' to hold a specified physical entity.  This allows
+        a management client to configure the specified physical entity,
+        including all of its subordinates physical entities, before
+        installation.
+
+        Provisioning allows the network manager to 'create' the
+        physical entities that represent the new modules. In
+        essence, the device simulates the installation of the new
+        modules into the system.  This has the effect of creating all
+        conceptual rows in all the necessary tables that support the
+        physical entity and all its subordinate physical entities (e.g.,
+        entPhysicalTable, and ifTable).
+
+        The table extends some entries in the entPhysicalTable
+        (see ENTITY-MIB for further details). A entry appears in
+        this table for a physical entity matching the following
+        criteria:
+
+        1)  Its entPhysicalClass object has a value of 'container';
+
+        2)  It can contain one (but not multiple) physical entity;
+            and,
+
+        3)  It supports provisioning.
+
+
+        The following states cause an alarm to be raised at the level
+        of the containing module:
+
+        IF  provAssignmentState = assigned(1)
+              AND
+            provEquipmentState = unequipped(2)
+        THEN  'eqMissing' alarm
+
+        IF    provEquipmentState = invalid(3)
+        THEN  'eqNotAccepted' alarm
+        "
+::= { config 1 }
+
+provContainerEntry OBJECT-TYPE
+    SYNTAX      ProvContainerEntry
+    MAX-ACCESS  not-accessible
+    STATUS      current
+    DESCRIPTION
+        "Entries in the provContainer Table."
+    INDEX { entPhysicalIndex }
+    ::= { provContainerTable 1 }
+
+ProvContainerEntry ::= SEQUENCE {
+    provAssignmentState   INTEGER,
+    provEquipmentState    INTEGER
+    }
+
+provAssignmentState OBJECT-TYPE
+    SYNTAX      INTEGER {
+        assigned (1),     -- a module type has been assigned to the container
+        unassigned (2)    -- the container is unassigned (not provisioned)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This status indicates the assignment (provisioning) of a
+        module type to the container."
+    ::= { provContainerEntry 1 }
+
+provEquipmentState OBJECT-TYPE
+    SYNTAX      INTEGER {
+        equipped (1),
+        unequipped (2),
+        invalid (3)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "This status indicates how the container is equipped:
+
+        'equipped'      The container holds a module that fits to the
+                        container.
+
+        'unequipped'    The container does not hold any hardware.
+
+        'invalid'       The container holds a recognized module that
+                        the container is not capable of supporting,
+                        or the container holds an unrecognized
+                        module.
+        "
+    ::= { provContainerEntry 2 }
+
+neBackupRestore OBJECT IDENTIFIER ::= { config 2 }
+
+neBackupRestoreRequest OBJECT-TYPE
+    SYNTAX      INTEGER {
+        none (1),
+        runBackup (2),
+        runRestore (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "Run network element configuration Backup/Restore operation:
+
+        - none(1):       No action (read only)
+
+        - runBackup(2):  Save the network element configuration to
+                         a file (write only)
+
+        - runRestore(3): Restore the network element configuration
+                         from a file (write only)
+
+        The Restore operation does not overwrite settings which are
+        required to reestablish contact to the NE via SNMP and
+        Telnet."
+    ::= { neBackupRestore 1 }
+
+neBackupRestoreState OBJECT-TYPE
+    SYNTAX      INTEGER {
+        noBackupAvailable (1),
+        backupInProgress (2),
+        backupAvailable (3),
+        restoreInProgress (4)
+    }
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The status of the current NE configuration backup/restore
+        operation activated by 'neBackupRestoreRequest'."
+    ::= { neBackupRestore 2 }
+
+neBackupRestoreFile OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The full local path of the network element configuration
+        backup file.
+        This file is generated during the Backup operation and is
+        also used for the Restore operation."
+    ::= { neBackupRestore 3 }
+
+neRestoreFileBackupDate OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-only
+    STATUS      current
+    DESCRIPTION
+        "The backup time of the current file to be used for Restore.
+        If no backup is available, this object reports 8 zero-octets."
+    ::= { neBackupRestore 4 }
+
+
+-- The MIB part 'neAutoBackup' provides access to regular network element
+-- configuration backup.
+
+neAutoBackup    OBJECT IDENTIFIER ::= { config 3 }
+
+neAutoBackupConfig OBJECT-TYPE
+    SYNTAX      INTEGER {
+        disabled (1),
+        autoBackup (2),
+        autoBackupAndUpload (3)
+    }
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The configuration of the regular network element
+        configuration Backup/Restore:
+
+        - disabled(1):            No regular backup
+
+        - autoBackup(2):          Regular backup to a local file
+                                  is active
+
+        - autoBackupAndUpload(3): Regular backup and upload to
+                                  external FTP server is active
+
+        The default is autoBackup(2).
+
+        If this object is not disabled(1) all other auto-backup
+        objects are read-only. I.e., all neAutoBackupServerXxx
+        objects must be set before changing this object to
+        autoBackupAndUpload(3)."
+    ::= { neAutoBackup 1 }
+
+neAutoBackupInterval OBJECT-TYPE
+    SYNTAX      Unsigned32
+    UNITS       "hours"
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The interval between two subsequent backup actions in
+        hours (default: 24 hours)."
+    ::= { neAutoBackup 2 }
+
+neAutoBackupNextActionAt OBJECT-TYPE
+    SYNTAX      DateAndTime
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The sliding time of the next backup action (default:
+        midnight local NE time)."
+    ::= { neAutoBackup 3 }
+
+neAutoBackupServerAddress OBJECT-TYPE
+    SYNTAX      IpAddress
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The IP address of the external FTP server for backup files."
+    ::= { neAutoBackup 4 }
+
+neAutoBackupServerLogin OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The login name on the external FTP server for backup files."
+    ::= { neAutoBackup 5 }
+
+neAutoBackupServerPasswd OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The password on the external FTP server for backup files.
+        Read requests on this object will return a zero-length
+        string."
+    ::= { neAutoBackup 6 }
+
+neAutoBackupServerDirectory OBJECT-TYPE
+    SYNTAX      SnmpAdminString
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The directory on the external FTP server to which the
+        backup files will be uploaded. The file name will be
+        generated automatically (containing NE IP addres and backup
+        time)."
+    ::= { neAutoBackup 7 }
+
+neAutoBackupTransferProtocol OBJECT-TYPE
+    SYNTAX      FileTransferProtocol
+    MAX-ACCESS  read-write
+    STATUS      current
+    DESCRIPTION
+        "The transfer protocol to be used."
+    ::= { neAutoBackup 8 }
+
+END

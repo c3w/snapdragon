@@ -1,0 +1,239 @@
+-- *****************************************************************
+-- ciscoSonetExtCapabilities MIB
+--
+-- AGENT-CAPABILITIES mib for CISCO-SONET-MIB.
+--
+-- February 2002, Subra Hegde
+--
+-- Copyright(c) 2002 by Cisco Systems,Inc.
+--
+-- *****************************************************************
+
+CISCO-SONET-EXT-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+        FROM SNMPv2-SMI
+ AGENT-CAPABILITIES
+        FROM SNMPv2-CONF
+ Unsigned32 
+        FROM CISCO-TC
+ ciscoAgentCapability
+        FROM CISCO-SMI;
+
+ciscoSonetExtCapability MODULE-IDENTITY
+    LAST-UPDATED "200202170000Z"
+    ORGANIZATION "Cisco Systems, Inc."
+    CONTACT-INFO
+        "    Cisco Systems
+             Customer Service
+
+        Postal: 170 W Tasman Drive
+             San Jose, CA  95134
+             USA
+
+             Tel: +1 800 553-NETS
+
+        E-mail: cs-snmp@cisco.com"
+ DESCRIPTION
+     "The Agent Capabilities for CISCO-SONET-MIB.
+
+      - ciscoSonetExtAxsmCapabilityV2R00 is for 
+        ATM Switch Service Module(AXSM).
+
+      - ciscoSonetExtAxsmCapabilityV2R11 is for 
+        ATM Switch Service Module(AXSM).
+
+      - ciscoSonetExtAxsmeCapabilityV21R60 is for
+        Enhanced ATM Switch Service Module(AXSM-E).
+
+      - ciscoSonetExtSrmeCapabilityV3R00 is for
+        Service Resource Module(SRM-E)."
+
+ REVISION "200202170000Z"
+ DESCRIPTION
+     "Initial Version of the MIB module."
+
+ ::= { ciscoAgentCapability 999 }
+
+ciscoSonetExtAxsmCapabilityV2R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE  "MGX8850 Release 2.0.00"
+    STATUS           current
+    DESCRIPTION      "CISCO-SONET-MIB Capabilities for
+                     ATM Switch Service Module(AXSM)."
+
+    SUPPORTS CISCO-SONET-MIB
+    INCLUDES { ciscoSonetConfMIBGroup, ciscoSonetStatsMIBGroup,
+               ciscoSonetTraceMIBGroup, ciscoSonetApsMIBGroup
+             }
+
+     VARIATION   csApsWaitToRestore 
+     SYNTAX      Unsigned32(5..12)
+     DESCRIPTION "WTR time interval is 5-12 minutes."
+
+     VARIATION   csApsArchMode 
+     SYNTAX  INTEGER {
+                 onePlusOne(1),
+                 oneToOne(2)
+             } 
+     DESCRIPTION "Does not support values anexBOnePlusOne(3),
+                  ycableOnePlusOneNok1k2(4),
+                  straightOnePlusOneNok1k2(5)."
+
+     VARIATION   cssTraceReceived   
+     ACCESS      not-implemented      
+     DESCRIPTION "Not supported."
+
+     VARIATION   cspTraceReceived   
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+    ::= { ciscoSonetExtCapability 1 }
+
+ciscoSonetExtAxsmCapabilityV2R11 AGENT-CAPABILITIES
+    PRODUCT-RELEASE  "MGX8850 Release 2.0.11"
+    STATUS     current
+    DESCRIPTION   "CISCO-SONET-MIB Capabilities for
+                  ATM Switch Service Module(AXSM)."
+
+    SUPPORTS CISCO-SONET-MIB
+    INCLUDES { ciscoSonetConfMIBGroup, ciscoSonetStatsMIBGroup,
+               ciscoSonetTraceMIBGroup, ciscoSonetApsMIBGroup
+             }
+
+     VARIATION   csConfigFrameScramble
+     SYNTAX      INTEGER { enabled(2) }
+     DESCRIPTION  "Does not support disabled(1)."
+
+     VARIATION   csApsWaitToRestore 
+     SYNTAX      Unsigned32(5..12)
+     DESCRIPTION "WTR time interval is 5-12 minutes."
+
+     VARIATION   csApsArchMode 
+     SYNTAX  INTEGER {
+                 onePlusOne(1),
+                 oneToOne(2)
+             } 
+     DESCRIPTION "Does not support values anexBOnePlusOne(3),
+                  ycableOnePlusOneNok1k2(4),
+                  straightOnePlusOneNok1k2(5)."
+
+     VARIATION   cssTraceReceived   
+     ACCESS      not-implemented      
+     DESCRIPTION "Not supported."
+
+     VARIATION   cspTraceReceived   
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+    ::= { ciscoSonetExtCapability 2 }
+
+ciscoSonetExtAxsmeCapabilityV21R60 AGENT-CAPABILITIES
+    PRODUCT-RELEASE  "MGX8850 Release 2.1.60."
+    STATUS     current
+    DESCRIPTION   "CISCO-SONET-MIB Capabilities for
+                  AXSM-E Service Modules."
+
+    SUPPORTS CISCO-SONET-MIB
+    INCLUDES { ciscoSonetConfMIBGroup, ciscoSonetStatsMIBGroup,
+               ciscoSonetTraceMIBGroup, ciscoSonetApsMIBGroup
+             }
+
+     VARIATION   csConfigFrameScramble
+     SYNTAX      INTEGER {
+                     enabled(2) 
+                 }
+     DESCRIPTION  "Does not support disabled(1)."
+
+     VARIATION   csApsArchMode 
+     SYNTAX  INTEGER {
+                 onePlusOne(1),
+                 oneToOne(2),
+                 anexBOnePlusOne(3),
+                 straightOnePlusOneNok1k2(5)
+             } 
+     DESCRIPTION "Does not support value
+                  ycableOnePlusOneNok1k2(4)"
+
+     VARIATION    csApsDirection
+     DESCRIPTION  "The value uniDirectional(1) is ignored
+                   for the following case:
+                   csApsArchMode        = annexBOnePlusOne(3) and
+                   csApsChannelProtocol = itu(2)"
+
+     VARIATION    csApsRevertive
+     DESCRIPTION  "The value revertive(2) is ignored
+                   for the following case:
+                   csApsArchMode        = annexBOnePlusOne(3) and
+                   csApsChannelProtocol = itu(2)"
+
+     VARIATION   cssTraceReceived   
+     ACCESS      not-implemented      
+     DESCRIPTION "Not supported."
+
+     VARIATION   cspTraceReceived   
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+    ::= { ciscoSonetExtCapability 3 }
+
+ciscoSonetExtSrmeCapabilityV3R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE  "MGX8800 Release 3.0"
+    STATUS     current
+    DESCRIPTION   "CISCO-SONET-MIB Capabilities of 
+                  Enhanced Service Resource Module(SRM-E)."
+
+    SUPPORTS CISCO-SONET-MIB
+    INCLUDES { ciscoSonetConfMIBGroup1, ciscoSonetStatsMIBGroup,
+               ciscoSonetApsMIBGroup1, ciscoSonetVTConfMIBGroup
+             }
+
+     VARIATION   csConfigType
+     SYNTAX      INTEGER {
+                         sonetStm1(2),
+                         sonetSts3(9)
+                         }
+     DESCRIPTION "Only sonetStm1(2), sonetSts3(9) are supported"
+
+     VARIATION   csApsArchMode 
+     SYNTAX  INTEGER {
+                 onePlusOne(1),
+                 anexBOnePlusOne(3)
+             } 
+     DESCRIPTION "Only onePlusOne(1) and anexBOnePlusOne(3)
+                  are supported."
+
+     VARIATION cslFarEndTotalESs 
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+     VARIATION cslFarEndTotalSESs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+     VARIATION cslFarEndTotalCVs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+     VARIATION cslFarEndTotalUASs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+ 
+     VARIATION cspFarEndTotalESs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+     VARIATION cspFarEndTotalSESs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+     VARIATION cspFarEndTotalCVs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+     VARIATION cspFarEndTotalUASs
+     ACCESS      not-implemented 
+     DESCRIPTION "Not supported."
+
+    ::= { ciscoSonetExtCapability 4 }
+
+END
+
+

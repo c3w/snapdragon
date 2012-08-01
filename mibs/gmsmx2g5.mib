@@ -1,0 +1,412 @@
+--
+-- Sorrento Networks, Inc. Private MIB for GMSMX-2.5G Cards.
+--
+-- Revision : 1.0    07/01/2002  mjagtap
+-- 1. Initial Release.
+--
+-- This MIB file is to be used with following card types
+-- GMSMX-2.5G-A, GMSMX-2.5G-M, GMSMX-2.5G-R		: Version 1.1.00A or newer.
+-- GMSMX-2.5G-A-8, GMSMX-2.5G-M-8 and GMSMX-2.5G-R-8 	: Version 1.1.00B or newer.
+--
+-- Previous versions may not return all variables.
+--
+-- Copyright 2002 Sorrento Networks, Inc. All Rights Reserved.
+-- Reproduction of this document is authorized on condition
+-- that this copyright notice is included.
+-- This Sorrento Networks SNMP Management Information Base
+-- Specification (Specification) embodies Sorrento Networks'
+-- proprietary intellectual property.  Sorrento Networks retains
+-- all title and ownership in the Specification, including any
+-- revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread
+-- use of this Specification in connection with the management of
+-- Sorrento Networks' products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of 
+-- Sorrento Networks products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+
+	GMux-GMSMX2G5-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, TimeTicks, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies		OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest			OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxGMSMX2G5			OBJECT IDENTIFIER ::= { gigaNest 19 }
+		configuration		OBJECT IDENTIFIER ::= { gigaMuxGMSMX2G5 1 }
+		status			OBJECT IDENTIFIER ::= { gigaMuxGMSMX2G5 2 }
+		facility		OBJECT IDENTIFIER ::= { gigaMuxGMSMX2G5 3 }
+		portConfiguration	OBJECT IDENTIFIER ::= { gigaMuxGMSMX2G5 4 }
+
+--
+-- Configuration group
+--
+
+	group1BitRate OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oc3(1),
+			oc12(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Group 1 Bitrate Configuration.
+			 The default value is oc12(2)."
+		::= { configuration 1 }
+
+	group2BitRate OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oc3(1),
+			oc12(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Group 2 Bitrate Configuration.
+			 The default value is oc12(2)."
+		::= { configuration 2 }
+
+	group3BitRate OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oc3(1),
+			oc12(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Group 3 Bitrate Configuration.
+			 The default value is oc12(2)."
+		::= { configuration 3 }
+
+	group4BitRate OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			oc3(1),
+			oc12(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Group 4 Bitrate Configuration.
+			 The default value is oc12(2)."
+		::= { configuration 4 }
+
+	terminalLoopbackPMchip OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enabled(1),
+			disabled(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"High speed side loopback after frame generator
+			 just before signal comes out of SONET chip.
+			 The default value is disabled(2)."
+		::= { configuration 5 }
+
+	terminalLoopbackTransponder OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enabled(1),
+			disabled(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Loopback at transponder terminal side.
+			 The default value is disabled(2)."
+		::= { configuration 6 }
+
+	timingModeSource OBJECT-TYPE
+		SYNTAX INTEGER 
+		{
+			autoEHL(1),
+			autoHEL(2),
+			autoLEH(3),
+			autoELH(4),
+			autoHLE(5),
+			autoLHE(6),
+			forceModeHighSpeedLine(7),
+			forceModeLocal(8),
+			forceModeExternal(9)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"System SONET/SDH timing reference selection mode.
+			 In 'auto' mode, the highest priority available timing source
+			 is selected.
+				'E' - External timing Source
+				'H' - High Speed Line timing Source
+				'L' - Local timing Source
+			 In 'force' mode, the user can select one of the three timing
+			 reference sources and the system will always use that source
+			 for timing reference, irrespective status of other clock sources.
+			 The default value is autoEHL(1)."
+		::= { configuration 7 }
+
+	remapM1Mode OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			dropAdd(1),
+			remap(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Used to select M1 byte transparency mode.
+				dropAdd(1) - M1 byte is dropped and added.
+				remap(2)   - M1 byte is remapped.
+			 The default value is dropAdd(1)."
+		::= { configuration 8 }
+
+--
+-- Status Group
+--
+	activeTimingSource OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			externalTiming(1),
+			highSpeedLineTiming(2),
+			lowSpeedSpeedLineTiming(3),
+			localTiming(4)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The timing source currently used by the circuit pack
+			 as the timing reference."
+		::= { status 1 }
+
+	externalTimingStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			failed(1),
+			normal(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"External timing source status."
+		::= { status 2 }
+
+	highSpeedLineTimingStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			failed(1),
+			normal(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"High Speed Line timing source status."
+		::= { status 3 }
+
+	highSpeedLockDetectStatus OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			unlocked(1),
+			locked(2)
+		}
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Transponder Line clock lock status."
+		::= { status 4 }
+
+--
+-- Facility State Table
+--
+
+	facilityStateTable OBJECT-TYPE
+	  SYNTAX  SEQUENCE OF FacilityStateEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Configuration of facility loopback on client side."
+		::= { facility 1 }
+
+	facilityStateEntry OBJECT-TYPE
+		SYNTAX	FacilityStateEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Displays the entry number for an
+			 entry in the facilityStateTable."
+		INDEX	{ facilityIndex }
+		::= { facilityStateTable 1 }
+
+	FacilityStateEntry ::=
+		SEQUENCE {
+			facilityIndex
+				INTEGER,
+			facilityState
+				INTEGER			
+		   }
+
+	facilityIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Port Index."
+		::= { facilityStateEntry 1 }
+
+	facilityState OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			facilityInService(1),
+			facilityOutOfService(2),
+			facilityNotAvailable(3),
+			facilityLoopedBack(4)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"Facilty State.
+				facilityInService(1)	- Facility carrying live traffic
+				facilityOutOfService(2)	- Facility disabled
+				facilityNotAvailable(3)	- Facility not available because
+							  corresponding group is set at
+							  OC-12/STM-4 bit rate.
+				facilityLoopedBack(3)	- Facility Loopback
+			 The default value is facilityInService(1)."
+		::= { facilityStateEntry 2 }
+
+--
+-- clientSideDXtoMXLoopback Group
+--
+
+	lowSpeedPortConfigurationTable OBJECT-TYPE
+	  SYNTAX  SEQUENCE OF LowSpeedPortConfigurationEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Configuration of low speed side ports."
+		::= { portConfiguration 1 }
+
+	lowSpeedPortConfigurationEntry OBJECT-TYPE
+		SYNTAX	LowSpeedPortConfigurationEntry
+		ACCESS	not-accessible
+		STATUS	mandatory
+		DESCRIPTION
+			"Displays the entry number for an
+			 entry in the lowSpeedPortConfigurationTable."
+		INDEX	{ portIndex }
+		::= { lowSpeedPortConfigurationTable 1 }
+
+	LowSpeedPortConfigurationEntry ::=
+		SEQUENCE {
+			portIndex
+				INTEGER,
+			clientSideDXtoMXLoopback
+				INTEGER,
+			lineLayerBIP8Configuration
+				INTEGER
+		   }
+
+	portIndex OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Port Index."
+		::= { lowSpeedPortConfigurationEntry 1 }
+
+	clientSideDXtoMXLoopback OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			enabled(1),
+			disabled(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"State of loopback on client side where low speed
+			 interface is configured to loopback the received
+			 demultiplexed tributaries into the low speed input.
+			 The default value is disabled(2)."
+		::= { lowSpeedPortConfigurationEntry 2 }
+
+	lineLayerBIP8Configuration OBJECT-TYPE
+		SYNTAX INTEGER
+		{
+			transparent(1),
+			terminate(2)
+		}
+		ACCESS read-write
+		STATUS mandatory
+		DESCRIPTION
+			"For each low speed port, user can configure the
+			 transparency of SONET Line/SDH Multiplex Section Layer
+			 BIP-8 error overhead byte (B2).
+				transparent(1)	- B2 byte is transparently carried over.
+				terminate(2)	- B2 byte is terminated.
+			 The default value is transparent(1)."
+		::= { lowSpeedPortConfigurationEntry 3 }
+
+--
+-- Enterprise Traps
+--
+	externalTimingFailed TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		DESCRIPTION
+			"External Timing source Failed."
+		::= 1
+
+	externalTimingNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		DESCRIPTION
+			"External Timing source recovered."
+		::= 2
+
+	highSpeedLineTimingFailed TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		DESCRIPTION
+			"High Speed Line Timing source Failed."
+		::= 3
+
+	highSpeedLineTimingNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		DESCRIPTION
+			"High Speed Line Timing source recovered."
+		::= 4
+
+	timingSourceChanged TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		VARIABLES { activeTimingSource }
+		DESCRIPTION
+			"System Timing source changed.
+			 activeTimingSource is the next available timing source."
+		::= 5
+
+	tpLockDetectFailed TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		DESCRIPTION
+			"Lock of transponder clock with high speed line clock failed."
+		::= 6
+
+	tpLockDetectNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGMSMX2G5
+		DESCRIPTION
+			"Lock of transponder clock with high speed line clock recovered."
+		::= 7
+
+END

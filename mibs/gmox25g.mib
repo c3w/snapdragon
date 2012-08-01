@@ -1,0 +1,572 @@
+--
+-- Sorrento Networks Private MIB for the GigaMux GMOX-2.5G-A, GMOX-2.5G-M and
+-- GMOX-2.5G-R circuit packs.
+--
+-- This MIB file is to be used with following cards : 
+--   1. GMOX-25G-M or R version 1.0.00-05 or greater.
+--   2. GMOX-2.5G-A version 1.0.00-01 or greater.
+--
+-- Revision 1.0  11/15/2002 mjagtap
+-- 1. Initial Release.
+--
+-- Copyright 2002, Sorrento Networks. All Rights Reserved.
+-- Reproduction of this document is authorized on condition that this
+-- copyright notice is included. This Sorrento Networks' SNMP
+-- Management Information Base Specification (Specification) embodies
+-- Sorrento Networks' proprietary intellectual property.  Sorrento Networks
+-- retains all title and ownership in the Specification,including any revisions.
+--
+-- It is Sorrento Networks' intent to encourage the widespread use
+-- of this Specification in connection with the management of Sorrento Networks'
+-- products. Sorrento Networks grants vendors,
+-- end-users, and other interested parties a non-exclusive license to
+-- use this Specification in connection with the management of
+-- Sorrento Networks' products.
+--
+-- This Specification is supplied "AS IS," and Sorrento Networks
+-- makes no warranty, either express or implied, as to the use,
+-- operation, condition, or performance of the Specification.
+--
+--
+
+	GMux-25G-Metro-MIB DEFINITIONS ::= BEGIN
+
+	IMPORTS
+		  enterprises, IpAddress
+			  FROM RFC1155-SMI
+		  DisplayString
+			  FROM RFC1213-MIB
+		  OBJECT-TYPE
+			  FROM RFC-1212
+		  TRAP-TYPE
+			  FROM RFC-1215;
+
+	osicomTechnologies	OBJECT IDENTIFIER ::= { enterprises 2522 }
+	gigaNest		OBJECT IDENTIFIER ::= { osicomTechnologies 1 }
+	gigaMuxGMOX2G5		OBJECT IDENTIFIER ::= { gigaNest 30 }
+		moduleA 	OBJECT IDENTIFIER ::= { gigaMuxGMOX2G5 1 }
+		moduleB 	OBJECT IDENTIFIER ::= { gigaMuxGMOX2G5 2 }
+
+--
+--  moduleA group
+--
+--  These objects contain current settings and status for the
+--  upper module on the card.
+--
+
+	aType OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Textual representation of the card type.
+			 Names are encoded to represent features of
+			 the card. The codes mean:
+			      GMOX = transponder (txa/rxb)"
+		::= { moduleA 1 }
+
+	aTypeValue OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The numeric representation of the cardType."
+		::= { moduleA 2 }
+
+	aChannel OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Selects the channel/frequency used for this
+			 module. Applicable only to transmitters: GMOX, GMT,
+                         GMT-xx-2"
+		::= { moduleA 3 }
+
+	aTxLaserOn  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether the upper module A's laser
+			 is enabled or not. Applicable if GMOX, GMT or
+			 GMT-xx-2 is installed."
+		::= { moduleA 4 }
+
+	aTxLaserOutput	OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether upper module A's laser has
+			 good output or not towards the MUX module.
+			 Applicable if GMOX, GMT or GMT-xx-2 is
+			 installed."
+		::= { moduleA 5 }
+
+	aTxLaserTemp  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			high(3),
+			not-applicable(4)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's laser
+			 temperature is normal, too high or too low.
+			 Applicable if GMOX, GMT or GMT-xx-2 is
+			 installed."
+		::= { moduleA 6 }
+
+	aTxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's laser has proper
+			 input electrical signal level or not.
+			 Applicable if GMOX, GMT or GMT-xx-2 is
+			 installed."
+		::= { moduleA 7 }
+
+	aRxOpticalPower  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's receiver has
+			 proper input optical signal level or not from
+			 the DEMUX module. Applicable only for
+			 receivers - GMR and GMR-xx-2."
+		::= { moduleA 8 }
+
+	aRxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's receiver has
+			 proper output electrical signal level or not
+			 presented at the equipment OUTPUT A connecor
+			 of the module.	Applicable only for
+			 receivers: GMR, GMR-xx-2."
+		::= { moduleA 9 }
+
+	aRxAPDBias  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module A's receiver is
+			 generating proper bias at the Avalanche
+			 PhotoDetector or not. Applicable for receiver
+			 modules: GMR, GMR-xx-2"
+		::= { moduleA 10 }
+
+	aTxLaserControl  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			on(1),
+			off(2)
+		     }
+		ACCESS read-write
+		STATUS optional 
+		DESCRIPTION
+			"Indicates whether module A's transmitter has auto 
+			 power shutdown on or off.
+			 Applicable only for GMOX-2.5G-A card type.
+			 Default value is on(1)."
+		::= { moduleA 11 }
+
+--
+--  moduleB Status group
+--
+--  These objects contain current settings and status for the
+--  lower module on the channel card.
+--
+
+	bType OBJECT-TYPE
+		SYNTAX DisplayString (SIZE (0..16))
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Textual representation of the card type.
+			 Names are encoded to represent features of
+			 the card. The codes mean:
+			      GMOX = transponder (txa/rxb)
+			      GMT  = transmitter (txa)
+			      GMR  = receiver (rxa)
+			      -06  = OC12 speed
+			      -25  = OC48 speed
+			      -2   = dual channels
+			 Some examples:
+			  GMOX-06      OC12 transponder (txa/rxb)
+			  GMT-25-2     OC48 dual-transmitter (txa/txb)
+			  GMR-06       OC12 single receiver (rxa)"
+		::= { moduleB 1 }
+
+	bTypeValue OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"The numeric representation of the cardType."
+		::= { moduleB 2 }
+
+	bChannel OBJECT-TYPE
+		SYNTAX INTEGER
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Selects the channel/frequency used for this
+			 module. Applicable only to transmitters: GMT-xx-2."
+		::= { moduleB 3 }
+
+	bTxLaserOn  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether the lower module B's laser
+			 is enabled or not. Applicable only if GMT-xx-2 is
+                         installed."
+		::= { moduleB 4 }
+
+	bTxLaserOutput	OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether lower module B's laser has
+			 good output or not towards the MUX module.
+			 Applicable only if GMT-xx-2 is installed."
+		::= { moduleB 5 }
+
+	bTxLaserTemp  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			high(3),
+			not-applicable(4)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's laser
+			 temperature is normal, too high or too low.
+			 Applicable only if GMT-xx-2 is installed."
+		::= { moduleB 6 }
+
+	bTxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's laser has proper
+			 input electrical signal level or not.
+			 Applicable only if GMT-xx-2 is installed."
+		::= { moduleB 7 }
+
+	bRxOpticalPower  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver has
+			 proper input optical signal level or not from
+			 the DEMUX module. Applicable only for
+			 receivers - GMOX and GMR-xx-2."
+		::= { moduleB 8 }
+
+	bRxLossOfSignal  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			yes(1),
+			no(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver has
+			 proper output electrical signal level or not.
+			 Applicable only for receivers: GMOX, GMR-xx-2."
+		::= { moduleB 9 }
+
+	bRxAPDBias  OBJECT-TYPE
+		SYNTAX INTEGER
+		     {
+			normal(1),
+			low(2),
+			not-applicable(3)
+		     }
+		ACCESS read-only
+		STATUS mandatory
+		DESCRIPTION
+			"Indicates whether module B's receiver is
+			 generating proper bias at the Avalanche
+			 PhotoDetector or not. Applicable for receiver
+			 modules: GMOX, GMR-xx-2."
+		::= { moduleB 10 }
+
+--
+--
+--  Enterprise specific traps
+--
+--
+
+       aTxLaserOffTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aTxLaserOn changes state from 'yes' to 'no'."
+	    ::= 1
+
+       aTxLaserOnTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aTxLaserOn changes state from 'no' to 'yes'."
+	    ::= 2
+
+       aTxLaserOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aTxLaserOutput changes state from 'normal'
+		   to 'low'."
+	    ::= 3
+
+       aTxLaserOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aTxLaserOutput changes state from 'low'
+		   to 'normal'."
+	    ::= 4
+
+       aTxInputSignalLost TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aTxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 5
+
+       aTxInputSignalDetected TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aTxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 6
+
+       bTxLaserOffTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bTxLaserOn changes state from 'yes' to 'no'."
+	    ::= 7
+
+       bTxLaserOnTrap TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bTxLaserOn changes state from 'no' to 'yes'."
+	    ::= 8
+
+       bTxLaserOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bTxLaserOutput changes state from 'normal'
+		   to 'low'."
+	    ::= 9
+
+       bTxLaserOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bTxLaserOutput changes state from 'low'
+		   to 'normal'."
+	    ::= 10
+
+       bTxInputSignalLost TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bTxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 11
+
+       bTxInputSignalDetected TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bTxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 12
+
+       aRxOpticalPowerLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxOpticalPower changes state from 'normal'
+		   to 'low'."
+	    ::= 13
+
+       aRxOpticalPowerNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxOpticalPower changes state from 'low'
+		   to 'normal'."
+	    ::= 14
+
+       aRxSignalOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 15
+
+       aRxSignalOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 16
+
+       aRxAPDBiasLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'normal'
+		   to 'low'."
+	    ::= 17
+
+       aRxAPDBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'low'
+		   to 'normal'."
+	    ::= 18
+
+       bRxOpticalPowerLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bRxOpticalPower changes state from 'normal'
+		   to 'low'."
+	    ::= 19
+
+       bRxOpticalPowerNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bRxOpticalPower changes state from 'low'
+		   to 'normal'."
+	    ::= 20
+
+       bRxSignalOutputLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bRxLossOfSignal changes state from 'no'
+		   to 'yes'."
+	    ::= 21
+
+       bRxSignalOutputNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bRxLossOfSignal changes state from 'yes'
+		   to 'no'."
+	    ::= 22
+
+       bRxAPDBiasLow TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when bRxAPDBias changes state from 'normal'
+		   to 'low'."
+	    ::= 23
+
+       bRxAPDBiasNormal TRAP-TYPE
+	    ENTERPRISE gigaMuxGMOX2G5
+	    DESCRIPTION
+		  "Generated when aRxAPDBias changes state from 'low'
+		   to 'normal'."
+	    ::= 24
+
+	aTxLaserTempLow TRAP-TYPE
+		ENTERPRISE gigaMuxGMOX2G5
+		DESCRIPTION
+			"Module A Laser temperature is below normal."
+		::= 25
+
+	aTxLaserTempNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGMOX2G5
+		DESCRIPTION
+			"Module A Laser temperature is normal."
+		::= 26
+
+	aTxLaserTempHigh TRAP-TYPE
+		ENTERPRISE gigaMuxGMOX2G5
+		DESCRIPTION
+			"Module A Laser temperature is above normal."
+		::= 27
+
+	bTxLaserTempLow TRAP-TYPE
+		ENTERPRISE gigaMuxGMOX2G5
+		DESCRIPTION
+			"Module B Laser temperature is below normal."
+		::= 28
+
+	bTxLaserTempNormal TRAP-TYPE
+		ENTERPRISE gigaMuxGMOX2G5
+		DESCRIPTION
+			"Module B Laser temperature is normal."
+		::= 29
+
+	bTxLaserTempHigh TRAP-TYPE
+		ENTERPRISE gigaMuxGMOX2G5
+		DESCRIPTION
+			"Module B Laser temperature is above normal."
+		::= 30
+
+END

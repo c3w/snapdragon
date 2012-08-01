@@ -1,0 +1,116 @@
+--------------------------------------------------------------------
+-- CISCO-SONET-CAPABILITY
+--
+-- AGENT-CAPABILITIES for SONET-MIB(RFC 2558) in CISCO Products
+--
+-- March 2002, Subra Hegde
+--
+-- Copyright (c) 2002 by cisco Systems, Inc.
+-- All rights reserved.
+-- 
+--------------------------------------------------------------------
+
+CISCO-SONET-CAPABILITY DEFINITIONS ::= BEGIN
+
+IMPORTS
+        MODULE-IDENTITY
+                FROM SNMPv2-SMI
+        AGENT-CAPABILITIES
+                FROM SNMPv2-CONF
+        ciscoAgentCapability
+                FROM CISCO-SMI;
+
+ciscoSonetCapability MODULE-IDENTITY
+    LAST-UPDATED    "200203120000Z"
+    ORGANIZATION    "Cisco Systems, Inc."
+    CONTACT-INFO
+                    "   Cisco Systems
+                        Customer Service
+                        
+                        Postal: 170 West Tasman Drive
+                                San Jose, CA  95134
+                                USA
+                        
+                           Tel: +1 800 553-NETS
+                        
+                        E-mail: cs-snmp@cisco.com"
+    DESCRIPTION
+        "Agent capabilities for SONET-MIB(RFC 2558).
+ 
+          ciscoSonetCapabilityAxsmV2R01 for AXSM module.
+
+          ciscoSonetCapabilitySrmeV3R00 for SRME module."
+
+    REVISION    "200203120000Z"
+    DESCRIPTION
+        "Initial version of this MIB module."
+    ::= { ciscoAgentCapability 99999 }
+
+ciscoSonetCapabilityAxsmV2R0100 AGENT-CAPABILITIES
+    PRODUCT-RELEASE  "MGX8850 Release 2.1.00"
+    STATUS           current
+    DESCRIPTION      "Sonet MIB Capabilities for Following Service
+                      Modules:
+                        ATM Switch Service Module(AXSM)
+                        AXSM Enhanced(AXSM-E)."
+
+    SUPPORTS SONET-MIB
+        INCLUDES { sonetMediumStuff2, sonetSectionStuff2,
+                   sonetLineStuff2, sonetPathStuff2,
+                   sonetFarEndLineStuff2,sonetFarEndPathStuff2}
+
+        VARIATION   sonetPathCurrentWidth
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumLineCoding
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumLineType
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumCircuitIdentifier
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumLoopbackConfig
+        ACCESS      not-implemented
+        DESCRIPTION "Not supported."
+
+    ::= { ciscoSonetCapability 1 }
+
+ciscoSonetCapabilitySrmeV3R00 AGENT-CAPABILITIES
+    PRODUCT-RELEASE      "MGX8850 Release 3.00"
+    STATUS               current
+    DESCRIPTION          "Sonet MIB Capabilities for Service
+                         Resource Module Enhanced(SRME) module."
+
+    SUPPORTS SONET-MIB
+        INCLUDES { sonetMediumStuff2, sonetSectionStuff2,
+                   sonetLineStuff2, sonetPathStuff2}
+
+        VARIATION   sonetPathCurrentWidth
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumLineCoding
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumLineType
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumCircuitIdentifier
+        ACCESS      read-only
+        DESCRIPTION "Write access is not supported."
+
+        VARIATION   sonetMediumLoopbackConfig
+        ACCESS      not-implemented
+        DESCRIPTION "Not supported."
+
+        ::= { ciscoSonetCapability 2 }
+
+END
